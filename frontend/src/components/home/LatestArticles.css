@@ -1,0 +1,305 @@
+/* ===== LATEST ARTICLES — WoodMart Furniture 2 Exact Match ===== */
+.la-section {
+  background: #f6f5f2;
+  padding: 30px 0 60px;
+}
+
+.la-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+/* ── Section Header ── */
+.la-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.la-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1c1c1c;
+  letter-spacing: -0.3px;
+}
+
+.la-blog-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 22px;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 30px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1c1c1c;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.la-blog-btn:hover {
+  background: #1c1c1c;
+  color: #ffffff;
+  border-color: #1c1c1c;
+}
+
+/* ── 4 Column Grid ── */
+.la-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-bottom: 60px;
+}
+
+/* ── Article Card ── */
+.la-card {
+  background: #ffffff;
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.la-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Image Area ── */
+.la-card__img-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: #e8e4dc;
+}
+
+.la-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.la-card:hover .la-card__img {
+  transform: scale(1.06);
+}
+
+/* ── Image Overlay (Author + Stats) ── */
+.la-card__overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 14px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.55) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #ffffff;
+  z-index: 2;
+}
+
+.la-card__author {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.la-card__avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.la-card__stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.la-card__stat-icon {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.la-card__stat-icon--comments {
+  position: relative;
+}
+
+.la-card__comment-count {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  background: #e07b39;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* ── Content Area ── */
+.la-card__content {
+  padding: 22px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.la-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: #999999;
+  margin-bottom: 10px;
+  font-weight: 400;
+}
+
+.la-card__cat {
+  color: #888888;
+}
+
+.la-card__sep {
+  color: #ccc;
+}
+
+.la-card__date {
+  color: #888888;
+}
+
+.la-card__title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1c1c1c;
+  margin: 0 0 10px 0;
+  line-height: 1.35;
+  transition: color 0.2s ease;
+}
+
+.la-card:hover .la-card__title {
+  color: #e07b39;
+}
+
+.la-card__excerpt {
+  font-size: 13.5px;
+  color: #666666;
+  line-height: 1.55;
+  margin: 0 0 18px 0;
+  flex: 1;
+}
+
+.la-card__link {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #e07b39;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  align-self: flex-start;
+}
+
+.la-card__link:hover {
+  color: #1c1c1c;
+}
+
+/* ══════════════════════════════════════════════════════
+   BOTTOM SEO TEXT SECTION (1:1 WoodMart Replica)
+   ══════════════════════════════════════════════════════ */
+.la-footer-seo {
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.la-seo__block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.la-seo__headline {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1c1c1c;
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+
+.la-seo__desc {
+  font-size: 14px;
+  color: #777777;
+  line-height: 1.68;
+  margin: 0;
+  font-weight: 400;
+}
+
+.la-seo__readmore-btn {
+  align-self: flex-start;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin-top: 4px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1c1c1c;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.la-seo__readmore-btn:hover {
+  color: #e07b39;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .la-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .la-grid {
+    grid-template-columns: 1fr;
+  }
+  .la-container {
+    padding: 0 16px;
+  }
+  .la-title {
+    font-size: 24px;
+  }
+}

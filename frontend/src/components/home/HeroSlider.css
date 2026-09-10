@@ -1,0 +1,349 @@
+/* ============================================================
+   HERO SLIDER - 100% MATCH TO WOODMART FURNITURE 2 SCREENSHOTS
+   ============================================================ */
+
+.hero {
+  position: relative;
+  width: 100%;
+  height: 520px;
+  overflow: hidden;
+  user-select: none;
+  background: #f6f6f6;
+}
+
+.hero__slider-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.hero__slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 1;
+  will-change: transform, opacity;
+}
+
+/* Active Slide (idle / finished transition) */
+.hero__slide--active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  z-index: 2;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Right-to-Left Entering Slide (comes in from right +100% to 0%) */
+.hero__slide--entering-rtl {
+  opacity: 1;
+  visibility: visible;
+  z-index: 3;
+  pointer-events: auto;
+  animation: heroSlideInFromRight 0.75s cubic-bezier(0.25, 1, 0.35, 1) forwards;
+}
+
+/* Right-to-Left Exiting Slide (moves out to left 0% to -100%) */
+.hero__slide--exiting-rtl {
+  opacity: 1;
+  visibility: visible;
+  z-index: 2;
+  pointer-events: none;
+  animation: heroSlideOutToLeft 0.75s cubic-bezier(0.25, 1, 0.35, 1) forwards;
+}
+
+@keyframes heroSlideInFromRight {
+  0% {
+    transform: translate3d(100%, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes heroSlideOutToLeft {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-100%, 0, 0);
+  }
+}
+
+.hero__container {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 100px;
+  display: grid;
+  grid-template-columns: 550px 1fr;
+  align-items: center;
+  height: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+/* ============ LEFT CONTENT ============ */
+.hero__left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.hero__slide--entering-rtl .hero__left {
+  animation: heroContentFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
+}
+
+@keyframes heroContentFadeIn {
+  from {
+    opacity: 0.4;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Badge: Icon Circle + Text */
+.hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 45px;
+  width: fit-content;
+}
+
+.hero__badge-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hero__badge-text-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hero__badge-title {
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #333333;
+  line-height: 1.2;
+}
+
+.hero__badge-category {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: #333333;
+  line-height: 1.2;
+}
+
+.hero__badge-u {
+  text-decoration-color: #d96b27;
+  text-underline-offset: 3px;
+  font-weight: 700;
+}
+
+/* Title: Upholstered chair / Sectional fabric sofa / Terracotta vase */
+.hero__title {
+  font-family: var(--font-body);
+  font-size: 48px;
+  font-weight: 700;
+  color: #2c2c2c;
+  line-height: 1.12;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+/* Designer Row: by [Avatar] Designer Name */
+.hero__designer-row {
+  display: flex;
+  align-items: center;
+  margin-top: 6px;
+  margin-bottom: 38px;
+}
+
+.hero__by {
+  font-family: var(--font-body);
+  font-size: 38px;
+  font-weight: 700;
+  color: #2c2c2c;
+  margin-right: 14px;
+  line-height: 1;
+}
+
+.hero__avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 14px;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  flex-shrink: 0;
+}
+
+.hero__designer-name {
+  font-family: var(--font-body);
+  font-size: 38px;
+  font-weight: 700;
+  color: #2c2c2c;
+  line-height: 1;
+  letter-spacing: -0.5px;
+}
+
+/* Action Row: Shop Now + Price */
+.hero__actions {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.hero__cta {
+  background: #ffffff;
+  color: #2c2c2c;
+  border: none;
+  border-radius: 50px;
+  padding: 12px 28px;
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.hero__cta:hover {
+  background: #2c2c2c;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+}
+
+.hero__price {
+  font-family: var(--font-body);
+  font-size: 30px;
+  font-weight: 700;
+  color: #2c2c2c;
+  letter-spacing: -0.5px;
+}
+
+/* ============ PREV / NEXT ARROWS ============ */
+.hero__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  color: #2c2c2c;
+  transition: all 0.25s ease;
+}
+
+.hero__arrow:hover {
+  background: #2c2c2c;
+  color: #ffffff;
+  transform: translateY(-50%) scale(1.08);
+}
+
+.hero__arrow--prev { left: 24px; }
+.hero__arrow--next { right: 24px; }
+
+/* ============ DOTS PAGINATION (Pill container) ============ */
+.hero__dots-wrap {
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+.hero__dots {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(8px);
+  padding: 7px 14px;
+  border-radius: 50px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.hero__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2c2c2c;
+  opacity: 0.3;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.hero__dot--active {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 1200px) {
+  .hero__container {
+    grid-template-columns: 460px 1fr;
+    padding: 0 50px;
+  }
+  .hero__title { font-size: 40px; }
+  .hero__by, .hero__designer-name { font-size: 30px; }
+}
+
+@media (max-width: 960px) {
+  .hero { height: 500px; padding: 40px 0; }
+  .hero__container {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    padding: 0 30px;
+  }
+  .hero__title { font-size: 34px; }
+  .hero__by, .hero__designer-name { font-size: 26px; }
+}
+
+@media (max-width: 600px) {
+  .hero__container { padding: 0 16px; }
+  .hero__title { font-size: 28px; line-height: 1.1; margin-bottom: 15px; }
+  .hero__by, .hero__designer-name { font-size: 20px; }
+  .hero__badge { padding: 4px 8px; font-size: 11px; margin-bottom: 12px; }
+  .hero__right { height: 250px; }
+  .hero__right img { max-width: 90%; }
+  .hero__dots { bottom: 10px; }
+}
+

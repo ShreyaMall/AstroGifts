@@ -1,0 +1,167 @@
+/* ── RESET ── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ── WRAPPER ── */
+.pc-wrapper {
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 24px 28px 50px;
+  background: #f5f4f2;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', sans-serif;
+}
+
+/* ── HEADER ── */
+.pc-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.pc-title {
+  font-size: 42px;
+  font-weight: 700;
+  color: #1a1a1a;
+  letter-spacing: -0.5px;
+  margin-bottom: 10px;
+}
+.pc-subtitle {
+  font-size: 16px;
+  color: #888;
+}
+
+/* ─────────────────────────────────────────────────────
+   GRID — 5 Columns, total height = 646px in every column
+───────────────────────────────────────────────────── */
+.pc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr 1.1fr 1.1fr 1.1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+/* ── COLUMN FLEX CONTAINER ── */
+.pc-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+/* ── BASE CARD ── */
+.pc-card {
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  background: #e5e3e0;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  width: 100%;
+  flex-shrink: 0;
+}
+.pc-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 36px rgba(0,0,0,0.13);
+}
+
+.pc-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease;
+  background: #ddd8d0;
+}
+.pc-card:hover .pc-img {
+  transform: scale(1.05);
+}
+
+/* ── CARD HEIGHT CLASSES (sums to 646px per column) ── */
+.h-350 { height: 350px; }
+.h-290 { height: 300px; }
+.h-450 { height: 450px; } /* Tall orange sofa */
+.h-200 { height: 200px; } /* Compact GLADØM */
+.h-200 { height: 200px; } /* Compact HÄLLAN */
+.h-450 { height: 450px; } /* Tall dark dining */
+
+/* ── TEXT CARDS ── */
+.card-hallan {
+  background: #b8c8d5;
+  display: flex;
+  align-items: center;
+  cursor: default;
+}
+.card-hallan:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.card-gladom {
+  background: #ece7df;
+  display: flex;
+  align-items: center;
+  cursor: default;
+}
+.card-gladom:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* ── SHARED TEXT STYLES ── */
+.pc-text-inner {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  justify-content: center;
+}
+.pc-text-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #6b7f8e;
+}
+.pc-text-title {
+  font-family: var(--font-body);
+  font-size: 30px;
+  font-weight: 800;
+  color: #1a1a1a;
+  letter-spacing: 0.5px;
+  line-height: 1.1;
+}
+.pc-text-desc {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: #666666;
+  line-height: 1.5;
+  font-weight: 400;
+  max-width: 220px;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1150px) {
+  .pc-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .h-340, .h-290, .h-454, .h-176, .h-200, .h-430 {
+    height: 280px;
+  }
+}
+
+@media (max-width: 540px) {
+  .pc-wrapper { padding: 32px 12px 80px; }
+  .pc-title   { font-size: 26px; }
+  .pc-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .h-340, .h-290, .h-454, .h-176, .h-200, .h-430 {
+    height: 240px;
+  }
+}

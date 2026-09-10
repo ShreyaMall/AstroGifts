@@ -1,0 +1,366 @@
+/* HEADER — exact WoodMart Furniture 2 theme replica */
+
+/* ── Sticky wrapper ── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: #ffffff;
+  box-shadow: 0 1px 0 0 #e8e8e8;
+}
+.header--scrolled {
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.09);
+}
+
+/* MAIN ROW  (logo / search / icons / cart) */
+.header__main {
+  background: #ffffff;
+  border-bottom: 1px solid #ebebeb;
+}
+
+.header__container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 32px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* ── Logo ── */
+.header__logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.header__logo-text {
+  font-family: 'Jost', 'Work Sans', Arial, sans-serif;
+  font-size: 23px;
+  font-weight: 700;
+  color: #1c1c1c;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+.header__logo-dot {
+  color: #d96b27;
+}
+
+/* ── Search bar ── */
+.header__search {
+  flex: 1;
+  max-width: 620px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1.5px solid #d8d8d8;
+  border-radius: 50px;
+  background: #ffffff;
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.header__search--focused {
+  border-color: #1c1c1c;
+  box-shadow: 0 0 0 2px rgba(28, 28, 28, 0.07);
+}
+.header__search-prefix {
+  display: flex;
+  align-items: center;
+  padding: 0 0 0 16px;
+  color: #999999;
+  flex-shrink: 0;
+}
+.header__search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 11px 16px 11px 10px;
+  font-size: 13.5px;
+  font-family: inherit;
+  color: #1c1c1c;
+  background: transparent;
+}
+.header__search-input::placeholder {
+  color: #aaaaaa;
+}
+
+/* ── Action icons group ── */
+.header__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* Compare & Wishlist — bare icon buttons, no visible border circle */
+.header__icon-btn {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1c1c1c;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.header__icon-btn:hover {
+  background: #f4f4f4;
+}
+
+/* Badge on icon buttons (small number) */
+.header__icon-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  background: #d96b27;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 700;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+
+/* "Login / Register" text button */
+.header__account-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: transparent;
+  border: none;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #1c1c1c;
+  cursor: pointer;
+  border-radius: 50px;
+  white-space: nowrap;
+  transition: background 0.2s ease;
+}
+.header__account-btn:hover {
+  background: #f4f4f4;
+}
+.header__account-btn svg {
+  flex-shrink: 0;
+}
+
+/* Cart — dark filled pill button */
+.header__cart-btn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 18px;
+  background: #1c1c1c;
+  color: #ffffff;
+  border: none;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+.header__cart-btn:hover {
+  background: #d96b27;
+}
+.header__cart-icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.header__cart-badge {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  background: #d96b27;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.header__cart-amount {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* Hamburger (hidden on desktop) */
+.header__hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+.header__hamburger span {
+  width: 22px;
+  height: 2px;
+  background: #1c1c1c;
+  border-radius: 2px;
+  display: block;
+}
+
+/* CATEGORY NAV ROW */
+.header__nav {
+  background: #ffffff;
+  border-bottom: 1px solid #ebebeb;
+}
+
+.header__nav-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+}
+
+.header__nav-list {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 0;
+}
+
+.header__nav-item {
+  display: flex;
+}
+
+/* Nav link: icon + label */
+.header__nav-link {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 13px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #444444;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.2s ease, border-color 0.2s ease;
+  line-height: 1;
+}
+.header__nav-link:hover {
+  color: #1c1c1c;
+  border-bottom-color: #1c1c1c;
+}
+.header__nav-link--active {
+  color: #1c1c1c;
+  border-bottom-color: #d96b27;
+  font-weight: 600;
+}
+
+.header__nav-icon {
+  display: flex;
+  align-items: center;
+  color: #888888;
+  flex-shrink: 0;
+}
+.header__nav-link--active .header__nav-icon,
+.header__nav-link:hover .header__nav-icon {
+  color: #444444;
+}
+
+/* "Free shipping" badge — right side of nav */
+.header__shipping-badge {
+  font-size: 12.5px;
+  font-style: italic;
+  color: #3a7d1c;
+  font-weight: 400;
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding-left: 16px;
+}
+.header__shipping-badge strong {
+  font-weight: 700;
+  font-style: normal;
+}
+
+/*RESPONSIVE */
+
+@media (max-width: 1024px) {
+  .header__account-btn span { display: none; }
+  .header__nav-link { padding: 10px 10px; font-size: 13px; }
+}
+
+@media (max-width: 768px) {
+  .header__container { padding: 0 16px; gap: 10px; height: 56px; }
+  .header__search { display: none; }
+  .header__hamburger { display: flex; }
+  .header__nav { display: none; }
+  .header__nav--open {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: absolute;
+    top: 56px;
+    left: 0;
+    right: 0;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    z-index: 100;
+  }
+  .header__nav--open .header__nav-container {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px;
+    width: 100%;
+  }
+  .header__nav--open .header__nav-list {
+    flex-direction: column;
+    width: 100%;
+  }
+  .header__nav--open .header__nav-item {
+    width: 100%;
+    margin-right: 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .header__nav--open .header__nav-link {
+    width: 100%;
+    padding: 12px 0;
+  }
+  .header__shipping-badge { display: none; }
+  .header__account-btn { padding: 8px 8px; }
+}
+
+@media (max-width: 480px) {
+  .header__container { gap: 4px; padding: 0 10px; }
+  .header__logo-text { font-size: 18px; }
+  .header__actions { gap: 2px; }
+  .header__icon-btn { width: 36px; height: 36px; }
+  .header__account-btn { padding: 4px; width: 36px; height: 36px; justify-content: center; }
+  .header__cart-btn { padding: 8px; border-radius: 50%; min-width: 36px; justify-content: center; }
+  .header__cart-amount { display: none; }
+  .header__hamburger { width: 36px; height: 36px; }
+}
+

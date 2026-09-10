@@ -1,0 +1,46 @@
+/* ===== APP GLOBAL STYLES ===== */
+body { margin: 0; }
+
+/* Floating Buy WoodMart button */
+.floating-buy {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--dark);
+  color: var(--white);
+  padding: 11px 20px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-body);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.floating-buy:hover { background: var(--orange); transform: translateY(-2px); }
+.floating-buy__icon { font-size: 16px; }
+
+/* Scroll to top */
+.scroll-top-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--dark);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  border: none;
+  transition: var(--transition);
+}
+.scroll-top-btn:hover { background: var(--orange); transform: translateY(-3px); }
