@@ -138,6 +138,32 @@ export const productsApi = {
   },
 };
 
+/**
+ * Addresses API (Requires Auth)
+ */
+export const addressesApi = {
+  getUserAddresses: async () => {
+    return request('/addresses');
+  },
+  addAddress: async (addressData) => {
+    return request('/addresses', {
+      method: 'POST',
+      body: JSON.stringify(addressData)
+    });
+  },
+  updateAddress: async (id, addressData) => {
+    return request(`/addresses/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(addressData)
+    });
+  },
+  deleteAddress: async (id) => {
+    return request(`/addresses/${id}`, {
+      method: 'DELETE'
+    });
+  }
+};
+
 /* ══════════════════════════════════════════════════
    3. SLIDERS & ARTICLES
 ══════════════════════════════════════════════════ */
@@ -211,6 +237,27 @@ export const adminApi = {
     const params = new URLSearchParams();
     if (search) params.append('search', search);
     return request(`/admin/products?${params.toString()}`);
+  },
+
+  uploadImage: async (file) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    // Use raw fetch because request wrapper stringifies body
+    const token = getAuthToken();
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api'}/admin/upload`, {
+      method: 'POST',
+      headers: {
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      },
+      body: formData,
+    });
+    
+    if (!response.ok) {
+      throw new Error('Image upload failed');
+    }
+    
+    return response.json();
   },
 
   createProduct: async (productData) => {

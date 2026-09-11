@@ -7,13 +7,14 @@ import './ProductDetailPage.css';
 
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
-import { findProductByIdOrSlug, ALL_PRODUCTS } from '../data/categoryData';
-import { productsApi } from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import { productsApi, addressesApi } from '../services/api';
 
 export default function ProductDetailPage() {
   const { id } = useParams();
   const { addToCart, cartItems, updateQuantity, openCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
+  const { user } = useAuth();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -21,6 +22,20 @@ export default function ProductDetailPage() {
   const [selectedColor, setSelectedColor] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('desc');
+  const [relatedProducts, setRelatedProducts] = useState([]);
+
+  // Delivery & Pincode State
+  const [pincode, setPincode] = useState('');
+  const [deliveryAddress, setDeliveryAddress] = useState('');
+  const [tempPincode, setTempPincode] = useState('');
+  const [isEditingLocation, setIsEditingLocation] = useState(false);
+  const [deliveryDate, setDeliveryDate] = useState('Sunday, 13 Sep');
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
+  const [newAddressForm, setNewAddressForm] = useState({
+    name: '', phone: '', pincode: '', locality: '', address_line: '', city: '', state: ''
+  });
 
   const cartItem = product ? cartItems.find(i => i.id === (product.id || String(product.name).toLowerCase().replace(/\s+/g, '-'))) : null;
   const displayQuantity = cartItem ? cartItem.quantity : quantity;
@@ -50,40 +65,120 @@ export default function ProductDetailPage() {
     }
   };
 
+  const handlePincodeSubmit = (codeToSubmit, addressToSubmit = null) => {
+    const code = typeof codeToSubmit === 'string' ? codeToSubmit : tempPincode;
+    if (code.length === 6) {
+      setPincode(code);
+      setTempPincode(code);
+      if (addressToSubmit) {
+        setDeliveryAddress(addressToSubmit);
+      } else {
+        setDeliveryAddress('');
+      }
+      setIsEditingLocation(false);
+      // Simulate backend logic for delivery date based on pincode
+      const baseDate = new Date();
+      baseDate.setDate(baseDate.getDate() + 3 + (parseInt(code[0], 10) || 0) % 3);
+      setDeliveryDate(baseDate.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' }));
+    } else {
+      alert("Please enter a valid 6-digit pincode.");
+    }
+  };
+
+  const handleCurrentLocation = () => {
+    if ("geolocation" in navigator) {
+      setIsLocating(true);
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const { latitude, longitude } = position.coords;
+            // Use OpenStreetMap Nominatim for free reverse geocoding
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
+            const data = await res.json();
+            setIsLocating(false);
+            if (data && data.address) {
+              const pin = data.address.postcode || '';
+              const fullAddress = data.display_name;
+              handlePincodeSubmit(pin, `Current Location: ${fullAddress}`);
+            } else {
+              alert("Could not determine address from your location.");
+            }
+          } catch (err) {
+            setIsLocating(false);
+            alert("Error fetching address data.");
+          }
+        },
+        (error) => {
+          setIsLocating(false);
+          alert("Location access denied or unavailable. Please enable location permissions.");
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by your browser.");
+    }
+  };
+
+  const handleAddNewAddress = async (e) => {
+    e.preventDefault();
+    try {
+      await addressesApi.addAddress(newAddressForm);
+      const updated = await addressesApi.getUserAddresses();
+      setSavedAddresses(Array.isArray(updated) ? updated : []);
+      setIsAddingNewAddress(false);
+      
+      const newAddrStr = `${newAddressForm.name}, ${newAddressForm.address_line}, ${newAddressForm.city}`;
+      handlePincodeSubmit(newAddressForm.pincode, newAddrStr);
+      
+      setNewAddressForm({name: '', phone: '', pincode: '', locality: '', address_line: '', city: '', state: ''});
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save address. " + (err.data?.message || err.message || "Check fields."));
+    }
+  };
+
+  useEffect(() => {
+    if (isEditingLocation && user) {
+      addressesApi.getUserAddresses()
+        .then(data => {
+          if (Array.isArray(data)) {
+            setSavedAddresses(data);
+          }
+        })
+        .catch(err => console.error("Failed to load addresses", err));
+    }
+  }, [isEditingLocation, user]);
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setLoading(true);
 
-    // First try to look up in local rich dataset
-    const localFound = findProductByIdOrSlug(id);
+    // Backend API lookup
+    productsApi.getById(id)
+      .then(res => {
+        if (res && res.data) {
+          const fetchedProduct = res.data;
+          setProduct(fetchedProduct);
+          setActiveImage(fetchedProduct.image || fetchedProduct.img);
+          setSelectedColor(fetchedProduct.colors?.[0] || null);
+          setQuantity(1);
 
-    if (localFound) {
-      setProduct(localFound);
-      setActiveImage(localFound.image || localFound.img);
-      setSelectedColor(localFound.colors && localFound.colors.length > 0 ? localFound.colors[0] : null);
-      setQuantity(1);
-      setLoading(false);
-    } else {
-      // Try backend API lookup
-      productsApi.getById(id)
-        .then(res => {
-          if (res && res.data) {
-            setProduct(res.data);
-            setActiveImage(res.data.image || res.data.img);
-            setSelectedColor(res.data.colors?.[0] || null);
-          } else if (ALL_PRODUCTS.length > 0) {
-            setProduct(ALL_PRODUCTS[0]);
-            setActiveImage(ALL_PRODUCTS[0].image || ALL_PRODUCTS[0].img);
+          // Fetch related products for the same category
+          if (fetchedProduct.category) {
+             productsApi.getAll({ category: fetchedProduct.category, per_page: 5 })
+               .then(relatedRes => {
+                  if (relatedRes && relatedRes.data) {
+                     // Filter out the current product
+                     setRelatedProducts(relatedRes.data.filter(p => String(p.id) !== String(fetchedProduct.id)).slice(0, 4));
+                  }
+               })
+               .catch(err => console.error("Failed to load related products:", err));
           }
-        })
-        .catch(() => {
-          if (ALL_PRODUCTS.length > 0) {
-            setProduct(ALL_PRODUCTS[0]);
-            setActiveImage(ALL_PRODUCTS[0].image || ALL_PRODUCTS[0].img);
-          }
-        })
-        .finally(() => setLoading(false));
-    }
+        }
+      })
+      .catch(err => {
+        console.error("Failed to load product details:", err);
+      })
+      .finally(() => setLoading(false));
   }, [id]);
 
   if (loading) {
@@ -113,7 +208,6 @@ export default function ProductDetailPage() {
   }
 
   const wishlisted = isInWishlist(product.id);
-  const relatedProducts = ALL_PRODUCTS.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);
 
   return (
     <div className="pdp-page">
@@ -125,7 +219,7 @@ export default function ProductDetailPage() {
           <span className="pdp-sep">/</span>
           <Link to={`/category/${product.category?.toLowerCase() || 'chairs'}`}>{product.category || 'Category'}</Link>
           <span className="pdp-sep">/</span>
-          <span className="pdp-breadcrumb-current">{product.name}</span>
+          <Link to={`/product/${product.id || String(product.name).toLowerCase().replace(/\s+/g, '-')}`} className="pdp-breadcrumb-current">{product.name}</Link>
         </div>
 
         {/* Main Product Grid */}
@@ -279,7 +373,39 @@ export default function ProductDetailPage() {
               )}
               <div className="pdp-meta-item">
                 <span className="pdp-meta-title">Availability:</span>
-                <span className="pdp-meta-value pdm-in-stock">✓ In Stock (Ready to dispatch)</span>
+                <span className="pdp-meta-value pdp-in-stock" style={{ color: '#39b54a', fontWeight: '600' }}>
+                  ✓ {product.stock || Math.floor(Math.random() * 40 + 5)} {product.category || 'Items'} in Stock
+                </span>
+              </div>
+            </div>
+
+            {/* Delivery Details Block */}
+            <div className="pdp-delivery-details">
+              <h3 className="pdp-delivery-title">Delivery details</h3>
+              <div className="pdp-delivery-box pdp-delivery-box--blue" style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} onClick={() => { setIsEditingLocation(true); setTempPincode(''); setIsAddingNewAddress(false); }}>
+                <div style={{ display: 'flex', alignItems: 'center', overflow: 'hidden', whiteSpace: 'nowrap', flex: 1 }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="pdp-delivery-icon" style={{ flexShrink: 0 }}>
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                  </svg>
+                  <span className="pdp-delivery-text" style={{ overflow: 'hidden', textOverflow: 'ellipsis', color: '#1a1a1a', fontWeight: '500' }}>
+                    {deliveryAddress ? deliveryAddress : (pincode ? `Delivering to ${pincode}` : <><span style={{fontWeight: '600'}}>Location not set</span> <span className="pdp-delivery-link" style={{marginLeft: '4px'}}>Select delivery location &gt;</span></>)}
+                  </span>
+                </div>
+                {(deliveryAddress || pincode) && (
+                   <span style={{ color: '#666', flexShrink: 0, marginLeft: '12px' }}>&gt;</span>
+                )}
+              </div>
+              <div className="pdp-delivery-box pdp-delivery-box--grey">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="pdp-delivery-icon">
+                  <rect x="1" y="3" width="15" height="13"></rect>
+                  <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                  <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                  <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                </svg>
+                <span className="pdp-delivery-text">
+                  Delivery by <span style={{color: '#1a1a1a', fontWeight: '700'}}>{deliveryDate}</span>
+                </span>
               </div>
             </div>
 
@@ -302,12 +428,39 @@ export default function ProductDetailPage() {
               <div className="pdp-trust-item">
                 <span className="pdp-trust-icon">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#f59e53' }}>
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
                   </svg>
                 </span>
                 <div>
-                  <strong>5-Year Warranty</strong>
-                  <span>100% genuine guarantee</span>
+                  <strong>10-Day Return</strong>
+                  <span>Easy returns & refunds</span>
+                </div>
+              </div>
+              <div className="pdp-trust-item">
+                <span className="pdp-trust-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#f59e53' }}>
+                    <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+                    <circle cx="12" cy="12" r="2"></circle>
+                    <path d="M6 12h.01M18 12h.01"></path>
+                  </svg>
+                </span>
+                <div>
+                  <strong>Cash on Delivery</strong>
+                  <span>Available at checkout</span>
+                </div>
+              </div>
+              <div className="pdp-trust-item">
+                <span className="pdp-trust-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#f59e53' }}>
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                </span>
+                <div>
+                  <strong>Cancellation</strong>
+                  <span>Allowed up to 6 hours</span>
                 </div>
               </div>
             </div>
@@ -424,6 +577,90 @@ export default function ProductDetailPage() {
           </div>
         )}
       </div>
+
+      {/* Delivery Location Modal */}
+      {isEditingLocation && (
+        <div className="pdp-modal-overlay" onClick={() => setIsEditingLocation(false)}>
+          <div className="pdp-modal-content" onClick={e => e.stopPropagation()}>
+            <div className="pdp-modal-header">
+              <h3>Select delivery address</h3>
+              <button className="pdp-modal-close" onClick={() => setIsEditingLocation(false)}>✕</button>
+            </div>
+            
+            <div className="pdp-modal-body">
+              <div className="pdp-modal-search">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input 
+                  type="text" 
+                  placeholder="Search by area, street name, pin code" 
+                  value={tempPincode}
+                  onChange={e => setTempPincode(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handlePincodeSubmit()}
+                  autoFocus
+                />
+              </div>
+
+              <button className="pdp-modal-current-loc" onClick={handleCurrentLocation} disabled={isLocating}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <div style={{ textAlign: 'left' }}>
+                  <strong>{isLocating ? 'Locating...' : 'Use my current location'}</strong>
+                  <span>Allow access to location</span>
+                </div>
+              </button>
+
+              <div className="pdp-modal-saved">
+                <div className="pdp-modal-saved-header">
+                  <h4>{isAddingNewAddress ? 'Add new address' : 'Saved addresses'}</h4>
+                  <button className="pdp-modal-add-btn" onClick={() => setIsAddingNewAddress(!isAddingNewAddress)}>
+                    {isAddingNewAddress ? 'Cancel' : '+ Add New'}
+                  </button>
+                </div>
+                
+                {isAddingNewAddress ? (
+                  <form onSubmit={handleAddNewAddress} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <input type="text" placeholder="Full Name" required value={newAddressForm.name} onChange={e => setNewAddressForm({...newAddressForm, name: e.target.value})} style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '13px', outline: 'none' }} />
+                    <input type="text" placeholder="Phone Number" required value={newAddressForm.phone} onChange={e => setNewAddressForm({...newAddressForm, phone: e.target.value})} style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '13px', outline: 'none' }} />
+                    <input type="text" placeholder="Pincode" required maxLength="6" value={newAddressForm.pincode} onChange={e => setNewAddressForm({...newAddressForm, pincode: e.target.value.replace(/\D/g,'')})} style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '13px', outline: 'none' }} />
+                    <input type="text" placeholder="Address Line (House No, Building, Street)" required value={newAddressForm.address_line} onChange={e => setNewAddressForm({...newAddressForm, address_line: e.target.value})} style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '13px', outline: 'none' }} />
+                    <input type="text" placeholder="Locality / Area" value={newAddressForm.locality} onChange={e => setNewAddressForm({...newAddressForm, locality: e.target.value})} style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '13px', outline: 'none' }} />
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <input type="text" placeholder="City" required value={newAddressForm.city} onChange={e => setNewAddressForm({...newAddressForm, city: e.target.value})} style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px', flex: 1, fontSize: '13px', outline: 'none' }} />
+                      <input type="text" placeholder="State" required value={newAddressForm.state} onChange={e => setNewAddressForm({...newAddressForm, state: e.target.value})} style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px', flex: 1, fontSize: '13px', outline: 'none' }} />
+                    </div>
+                    <button type="submit" style={{ padding: '10px', background: '#d96b27', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: '600', cursor: 'pointer', marginTop: '4px' }}>Save Address</button>
+                  </form>
+                ) : (
+                  <div className="pdp-modal-address-list">
+                    {savedAddresses.length > 0 ? (
+                      savedAddresses.map(address => (
+                        <div 
+                          key={address.id} 
+                          className="pdp-modal-address-item" 
+                          onClick={() => handlePincodeSubmit(address.pincode, `${address.address_line}, ${address.locality ? address.locality + ', ' : ''}${address.city}, ${address.state}`)}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink: 0}}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                          <div>
+                            <strong>{address.name}</strong>
+                            <p>{address.address_line}, {address.locality ? address.locality + ', ' : ''}{address.city}, {address.state}</p>
+                          </div>
+                        </div>
+                      ))
+                  ) : (
+                    <div style={{ color: '#888', fontSize: '13px', padding: '10px 0' }}>No saved addresses found.</div>
+                  )}
+                </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       </div>
   );

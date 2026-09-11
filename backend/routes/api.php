@@ -28,6 +28,10 @@ Route::prefix('auth')->group(function () {
     });
 });
 
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('/addresses', \App\Http\Controllers\Api\AddressController::class);
+});
+
 // ── 2. Catalog & Products ──
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{slug}', [CategoryController::class, 'show']);
@@ -64,6 +68,8 @@ Route::prefix('admin')->group(function () {
     Route::post('/products', [AdminController::class, 'storeProduct']);
     Route::put('/products/{id}', [AdminController::class, 'updateProduct']);
     Route::delete('/products/{id}', [AdminController::class, 'deleteProduct']);
+    
+    Route::post('/upload', [AdminController::class, 'uploadImage']);
 
     Route::get('/categories', [AdminController::class, 'categories']);
     Route::get('/sliders', [AdminController::class, 'sliders']);

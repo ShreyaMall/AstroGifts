@@ -32,6 +32,8 @@ class Product extends Model
         'is_featured',
         'is_bestseller',
         'is_active',
+        'is_new',
+        'discount_percentage',
     ];
 
     protected $casts = [
@@ -43,6 +45,8 @@ class Product extends Model
         'is_featured' => 'boolean',
         'is_bestseller' => 'boolean',
         'is_active' => 'boolean',
+        'is_new' => 'boolean',
+        'discount_percentage' => 'integer',
     ];
 
     public function category(): BelongsTo

@@ -107,6 +107,10 @@ class OrderController extends Controller
                 ]);
             }
 
+            // Push to Shiprocket
+            $shiprocket = new \App\Services\ShiprocketService();
+            $shiprocket->createOrder($order);
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Order placed successfully!',

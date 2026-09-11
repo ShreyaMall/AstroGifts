@@ -32,23 +32,15 @@ export default function AdminLoginPage() {
     try {
       if (tab === 'admin') {
         const res = await authApi.adminLogin(email.trim(), password);
-        login('admin', res?.token || 'admin-token', res?.user || { name: 'Admin', email: email.trim(), role: 'admin' }, remember);
+        login('admin', res.token, res.user, remember);
         navigate('/admin/dashboard');
       } else {
         const res = await authApi.login(email.trim(), password);
-        login('user', res?.token || 'user-token', res?.user || { name: 'User', email: email.trim(), role: 'user' }, remember);
+        login('user', res.token, res.user, remember);
         navigate('/');
       }
-    } catch {
-      if (tab === 'admin' && email.trim().toLowerCase() === ADMIN_CREDS.email && password === ADMIN_CREDS.password) {
-        login('admin', 'demo-admin-token', { name: 'Admin', email: ADMIN_CREDS.email, role: 'admin' }, remember);
-        navigate('/admin/dashboard');
-      } else if (tab === 'user' && email.trim().toLowerCase() === USER_CREDS.email && password === USER_CREDS.password) {
-        login('user', 'demo-user-token', { name: 'Demo User', email: USER_CREDS.email, role: 'user' }, remember);
-        navigate('/');
-      } else {
-        setError(tab === 'admin' ? 'Invalid admin credentials. Try admin@woodmart.com / admin123' : 'Invalid credentials. Try user@woodmart.com / user123');
-      }
+    } catch (err) {
+      setError(err.data?.message || err.message || 'Invalid credentials. Please try again.');
     }
     setLoading(false);
   };
@@ -57,16 +49,6 @@ export default function AdminLoginPage() {
     tab === 'admin' ? (setEmail(ADMIN_CREDS.email), setPassword(ADMIN_CREDS.password))
                     : (setEmail(USER_CREDS.email),  setPassword(USER_CREDS.password));
     setError('');
-  };
-
-  const directEnter = () => {
-    if (tab === 'admin') {
-      login('admin', 'demo-admin-token', { name: 'Admin', email: ADMIN_CREDS.email, role: 'admin' }, true);
-      navigate('/admin/dashboard');
-    } else {
-      login('user', 'demo-user-token', { name: 'Demo User', email: USER_CREDS.email, role: 'user' }, true);
-      navigate('/');
-    }
   };
 
   const isAdmin = tab === 'admin';
@@ -272,14 +254,6 @@ export default function AdminLoginPage() {
               </code>
             </div>
             <button type="button" className="admin-login-page__demo-fill" onClick={fillDemo}>Auto-fill</button>
-            <button
-              type="button"
-              className="admin-login-page__demo-fill"
-              onClick={directEnter}
-              style={{ background: isAdmin ? '#ea580c' : '#d96b27', color: '#fff', marginLeft: '8px', border: 'none' }}
-            >
-              {isAdmin ? 'Enter Dashboard' : 'Quick Login'}
-            </button>
           </div>
 
         </div>

@@ -47,14 +47,10 @@ export const AuthProvider = ({ children }) => {
       setAuthToken(token, persistent);
     }
 
-    const resolvedUser = userData || {
-      name: role === 'admin' ? 'Administrator' : 'Woodmart Customer',
-      email: role === 'admin' ? 'admin@woodmart.com' : 'user@woodmart.com',
-      role: role
-    };
-
-    setUser(resolvedUser);
-    storage.setItem('woodmart_user', JSON.stringify(resolvedUser));
+    if (userData) {
+      setUser(userData);
+      storage.setItem('woodmart_user', JSON.stringify(userData));
+    }
   };
 
   const logout = async () => {

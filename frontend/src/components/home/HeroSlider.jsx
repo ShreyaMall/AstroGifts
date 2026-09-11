@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './HeroSlider.css';
-import { useCart } from '../context/CartContext';
+import { useCart } from '../../context/CartContext';
 
-import sliderBg1 from '../assets/wd-furniture-slider-111.jpg.webp';
-import sliderBg2 from '../assets/wd-furniture-slider-112.jpg.webp';
-import sliderBg3 from '../assets/wd-furniture-slider-113.jpg.webp';
+import sliderBg1 from '../../assets/wd-furniture-slider-111.jpg.webp';
+import sliderBg2 from '../../assets/wd-furniture-slider-112.jpg.webp';
+import sliderBg3 from '../../assets/wd-furniture-slider-113.jpg.webp';
 
 /* =====================================================
    SLIDE DATA - Exact 3 slides matching user screenshots

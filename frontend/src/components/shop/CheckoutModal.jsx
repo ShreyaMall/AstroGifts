@@ -9,7 +9,9 @@ export default function CheckoutModal() {
     closeCheckout,
     cartItems,
     cartTotal,
-    clearCart
+    clearCart,
+    updateQuantity,
+    removeFromCart
   } = useCart();
 
   const [step, setStep] = useState(1); // 1: Form, 2: Success
@@ -27,10 +29,20 @@ export default function CheckoutModal() {
     city: '',
     address: '',
     pinCode: '',
-    notes: ''
+    notes: '',
+    // Shipping fields
+    shippingFirstName: '',
+    shippingLastName: '',
+    shippingPhone: '',
+    shippingEmail: '',
+    shippingCountry: 'India',
+    shippingCity: '',
+    shippingAddress: '',
+    shippingPinCode: '',
   };
 
   const [formData, setFormData] = useState(initialFormState);
+  const [shipToDifferent, setShipToDifferent] = useState(false);
 
   if (!isCheckoutOpen) return null;
 
@@ -38,7 +50,7 @@ export default function CheckoutModal() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const finalTotal = cartTotal + (shippingMethod === 'flat_rate' ? 150 : 0);
+  const finalTotal = cartTotal;
 
   const loadRazorpay = () => {
     return new Promise((resolve) => {
@@ -54,15 +66,17 @@ export default function CheckoutModal() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const fullName = `${formData.firstName} ${formData.lastName}`.trim();
+    const billName = `${formData.firstName} ${formData.lastName}`.trim();
+    const shipName = shipToDifferent ? `${formData.shippingFirstName} ${formData.shippingLastName}`.trim() : billName;
+
     const payload = {
-      customer_name: fullName,
-      email: formData.email,
-      phone: formData.phone,
-      shipping_address: formData.address,
-      city: formData.city,
+      customer_name: shipName,
+      email: shipToDifferent ? formData.shippingEmail : formData.email,
+      phone: shipToDifferent ? formData.shippingPhone : formData.phone,
+      shipping_address: shipToDifferent ? formData.shippingAddress : formData.address,
+      city: shipToDifferent ? formData.shippingCity : formData.city,
       state: '',
-      zip: formData.pinCode,
+      zip: shipToDifferent ? formData.shippingPinCode : formData.pinCode,
       payment_method: paymentMethod,
       items: cartItems.map(item => ({
         name: item.name,
@@ -78,7 +92,7 @@ export default function CheckoutModal() {
     const saveOrderLocally = (orderId, total) => {
       const newOrder = {
         order_number: orderId,
-        customer_name: fullName,
+        customer_name: billName,
         email: formData.email,
         phone: formData.phone,
         payment_method: paymentMethod === 'cod' ? 'Cash on delivery' : 'Razorpay',
@@ -136,7 +150,7 @@ export default function CheckoutModal() {
           processOrderSuccess(response.razorpay_payment_id);
         },
         prefill: {
-          name: fullName,
+          name: billName,
           email: formData.email,
           contact: formData.phone
         },
@@ -192,7 +206,6 @@ export default function CheckoutModal() {
         {step === 1 ? (
           <div className="wm-checkout-container">
             <div className="wm-checkout-top-links">
-              <p>Returning customer? <a href="#">Click here to login</a></p>
               <p>Have a coupon? <a href="#">Click here to enter your code</a></p>
             </div>
 
@@ -244,11 +257,57 @@ export default function CheckoutModal() {
                 </div>
 
                 <div className="wm-checkbox-group">
-                  <label><input type="checkbox" /> Create an account?</label>
-                  <label><input type="checkbox" /> Ship to a different address?</label>
+                  <label>
+                    <input type="checkbox" checked={shipToDifferent} onChange={(e) => setShipToDifferent(e.target.checked)} /> 
+                    Ship to a different address?
+                  </label>
                 </div>
 
-                <div className="wm-form-group wm-full-width">
+                {shipToDifferent && (
+                  <div className="wm-checkout-shipping-wrap">
+                    <h4 style={{ margin: '20px 0 10px', fontSize: '18px', fontWeight: 'bold' }}>Shipping Details</h4>
+                    <div className="wm-checkout-grid">
+                      <div className="wm-form-group">
+                        <label>First name <span>*</span></label>
+                        <input type="text" name="shippingFirstName" value={formData.shippingFirstName} onChange={handleInputChange} required />
+                      </div>
+                      <div className="wm-form-group">
+                        <label>Last name <span>*</span></label>
+                        <input type="text" name="shippingLastName" value={formData.shippingLastName} onChange={handleInputChange} required />
+                      </div>
+                      <div className="wm-form-group">
+                        <label>Phone <span>*</span></label>
+                        <input type="tel" name="shippingPhone" value={formData.shippingPhone} onChange={handleInputChange} required />
+                      </div>
+                      <div className="wm-form-group">
+                        <label>Email address <span>*</span></label>
+                        <input type="email" name="shippingEmail" value={formData.shippingEmail} onChange={handleInputChange} required />
+                      </div>
+                      <div className="wm-form-group">
+                        <label>Country / Region <span>*</span></label>
+                        <select name="shippingCountry" value={formData.shippingCountry} onChange={handleInputChange} required>
+                          <option value="India">India</option>
+                          <option value="US">United States</option>
+                          <option value="UK">United Kingdom</option>
+                        </select>
+                      </div>
+                      <div className="wm-form-group">
+                        <label>Town / City <span>*</span></label>
+                        <input type="text" name="shippingCity" value={formData.shippingCity} onChange={handleInputChange} required />
+                      </div>
+                      <div className="wm-form-group">
+                        <label>Street address <span>*</span></label>
+                        <input type="text" name="shippingAddress" placeholder="House number and street name" value={formData.shippingAddress} onChange={handleInputChange} required />
+                      </div>
+                      <div className="wm-form-group">
+                        <label>PIN Code <span>*</span></label>
+                        <input type="text" name="shippingPinCode" value={formData.shippingPinCode} onChange={handleInputChange} required />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="wm-form-group wm-full-width" style={{ marginTop: '20px' }}>
                   <label>Order notes <span>(optional)</span></label>
                   <textarea name="notes" placeholder="Notes about your order, e.g. special notes for delivery." value={formData.notes} onChange={handleInputChange} rows="3"></textarea>
                 </div>
@@ -272,14 +331,17 @@ export default function CheckoutModal() {
                       <tr key={idx}>
                         <td>
                           <div className="wm-order-item-desc">
-                            <span className="wm-item-remove">×</span>
+                            <span className="wm-item-remove" onClick={() => {
+                              removeFromCart(item.id);
+                              if (cartItems.length === 1) closeCheckout();
+                            }} style={{cursor: 'pointer'}}>×</span>
                             <img src={item.image} alt={item.name} className="wm-order-item-img" />
                             <div className="wm-item-meta">
                               <span className="wm-item-name">{item.name}</span>
                               <div className="wm-qty-control">
-                                <span>-</span>
+                                <span onClick={() => updateQuantity(item.id, -1)} style={{cursor: 'pointer'}}>-</span>
                                 <span>{item.quantity || 1}</span>
-                                <span>+</span>
+                                <span onClick={() => updateQuantity(item.id, 1)} style={{cursor: 'pointer'}}>+</span>
                               </div>
                             </div>
                           </div>
@@ -292,20 +354,6 @@ export default function CheckoutModal() {
                     <tr>
                       <th>Subtotal</th>
                       <td className="wm-subtotal-price">₹{cartTotal.toLocaleString()}</td>
-                    </tr>
-                    <tr>
-                      <th>Shipment</th>
-                      <td className="wm-shipment-options">
-                        <label>
-                          Flat rate <input type="radio" name="shipping" value="flat_rate" checked={shippingMethod === 'flat_rate'} onChange={(e) => setShippingMethod(e.target.value)} />
-                        </label>
-                        <label>
-                          Free shipping <input type="radio" name="shipping" value="free" checked={shippingMethod === 'free'} onChange={(e) => setShippingMethod(e.target.value)} />
-                        </label>
-                        <label>
-                          Local pickup <input type="radio" name="shipping" value="pickup" checked={shippingMethod === 'pickup'} onChange={(e) => setShippingMethod(e.target.value)} />
-                        </label>
-                      </td>
                     </tr>
                     <tr className="wm-total-row">
                       <th>Total</th>
@@ -404,10 +452,6 @@ export default function CheckoutModal() {
                   <td className="wm-color-orange">₹{cartTotal.toLocaleString()}</td>
                 </tr>
                 <tr>
-                  <th>Shipping:</th>
-                  <td>{shippingMethod === 'flat_rate' ? 'Flat rate' : shippingMethod === 'free' ? 'Free shipping' : 'Local pickup'}</td>
-                </tr>
-                <tr>
                   <th>Payment method:</th>
                   <td>{orderDetails.paymentMethodStr}</td>
                 </tr>
@@ -433,12 +477,12 @@ export default function CheckoutModal() {
               <div className="wm-address-col">
                 <h3 className="wm-address-title">Shipping address</h3>
                 <address>
-                  {formData.firstName} {formData.lastName}<br />
-                  {formData.address}<br />
-                  {formData.city} {formData.pinCode}<br />
-                  {formData.country}<br />
-                  <span className="wm-address-contact">{formData.phone}</span><br />
-                  <span className="wm-address-contact">{formData.email}</span>
+                  {shipToDifferent ? formData.shippingFirstName : formData.firstName} {shipToDifferent ? formData.shippingLastName : formData.lastName}<br />
+                  {shipToDifferent ? formData.shippingAddress : formData.address}<br />
+                  {shipToDifferent ? formData.shippingCity : formData.city} {shipToDifferent ? formData.shippingPinCode : formData.pinCode}<br />
+                  {shipToDifferent ? formData.shippingCountry : formData.country}<br />
+                  <span className="wm-address-contact">{shipToDifferent ? formData.shippingPhone : formData.phone}</span><br />
+                  <span className="wm-address-contact">{shipToDifferent ? formData.shippingEmail : formData.email}</span>
                 </address>
               </div>
             </div>

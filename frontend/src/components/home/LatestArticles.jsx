@@ -1,10 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './LatestArticles.css';
-import { BLOG_ARTICLES } from '../data/blogData';
+import { articlesApi } from '../../services/api';
 
 export default function LatestArticles() {
   const [readMoreExpanded, setReadMoreExpanded] = useState(false);
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    articlesApi.getAll()
+      .then(res => {
+         if (res && res.data) {
+             setArticles(res.data.slice(0, 4));
+         }
+      })
+      .catch(err => console.error("Failed to load articles", err))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <section className="la-section" id="latest-articles">
@@ -19,13 +32,16 @@ export default function LatestArticles() {
 
         {/* 4 Cards Grid */}
         <div className="la-grid">
-          {BLOG_ARTICLES.map((article) => (
-            <article key={article.id} className="la-card" id={`article-${article.id}`}>
-              {/* Image Container */}
-              <Link to={`/blog/${article.slug}`} className="la-card__img-wrap">
-                <img src={article.img} alt={article.title} className="la-card__img" />
+          {loading ? (
+             <div style={{ padding: '20px', gridColumn: '1 / -1', textAlign: 'center' }}>Loading articles...</div>
+          ) : (
+            articles.map((article) => (
+              <article key={article.id} className="la-card" id={`article-${article.id}`}>
+                {/* Image Container */}
+                <Link to={`/blog/${article.slug}`} className="la-card__img-wrap">
+                  <img src={article.img || article.image_url || article.image} alt={article.title} className="la-card__img" />
 
-                {/* Author & Stats overlay at bottom of image */}
+                  {/* Author & Stats overlay at bottom of image */}
                 <div className="la-card__overlay">
                   <div className="la-card__author">
                     <div className="la-card__avatar">
@@ -58,7 +74,7 @@ export default function LatestArticles() {
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                       </svg>
-                      <span className="la-card__comment-count">{article.comments}</span>
+                      <span className="la-card__comment-count">{article.comments || 0}</span>
                     </div>
                   </div>
                 </div>
@@ -69,7 +85,7 @@ export default function LatestArticles() {
                 <div className="la-card__meta">
                   <span className="la-card__cat">{article.category}</span>
                   <span className="la-card__sep">/</span>
-                  <span className="la-card__date">{article.date}</span>
+                  <span className="la-card__date">{article.date || (article.created_at ? new Date(article.created_at).toLocaleDateString() : '')}</span>
                 </div>
 
                 <h3 className="la-card__title">
@@ -84,7 +100,8 @@ export default function LatestArticles() {
                 </Link>
               </div>
             </article>
-          ))}
+            ))
+          )}
         </div>
 
         {/* ── SEO / Bottom Text Section ── */}

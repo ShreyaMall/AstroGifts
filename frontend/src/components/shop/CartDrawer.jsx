@@ -1,5 +1,7 @@
 import React from 'react';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import './CartDrawer.css';
 
 export default function CartDrawer() {
@@ -14,6 +16,8 @@ export default function CartDrawer() {
     cartTotal,
     openCheckout,
   } = useCart();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   if (!isCartOpen) return null;
 
@@ -127,7 +131,14 @@ export default function CartDrawer() {
             <div className="cart-drawer__footer-actions">
               <button
                 className="cart-drawer__checkout-btn"
-                onClick={openCheckout}
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    closeCart();
+                    navigate('/login');
+                  } else {
+                    openCheckout();
+                  }
+                }}
               >
                 Proceed to Checkout
               </button>

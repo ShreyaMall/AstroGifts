@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import './AdminDashboard.css';
 import { adminApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { CATEGORY_PRODUCTS } from '../data/categoryData';
 
 
 /* ══════════════════════════════════════════════════
@@ -70,14 +69,11 @@ const MOCK_SKUS = [
   { id: 6, name: 'Rattan Armchair',        sku: 'WM-ARM-006', stock: 5,  warehouse: 'Mumbai' },
 ];
 
-const MOCK_ALL_PRODUCTS = Object.values(CATEGORY_PRODUCTS).flat().map((p, i) => ({
-  id: p.id || i + 1,
-  name: p.name,
-  category: p.category || 'Uncategorized',
-  price: `₹${Number(p.price).toLocaleString()}`,
-  stock: p.stock_quantity || Math.floor(Math.random() * 50) + 5,
-  status: 'Active'
-}));
+const MOCK_ALL_PRODUCTS = [
+  { id: 1, name: 'Upholstered Chair', category: 'Chairs', price: '₹468', stock: 24, status: 'Active' },
+  { id: 2, name: 'King-size Wooden Bed', category: 'Beds', price: '₹2,890', stock: 8, status: 'Active' },
+  { id: 3, name: 'Sectional Fabric Sofa', category: 'Sofas', price: '₹3,620', stock: 12, status: 'Active' },
+];
 
 const MOCK_PRICES = [
   { id: 1, name: 'Upholstered Chair',     original: '₹580',   sale: '₹468',   discount: '19%', currency: 'INR' },
@@ -434,7 +430,11 @@ function PageSliders() {
 function PageCategories() {
   const [cats, setCats]       = useState(MOCK_CATEGORIES);
   const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm]       = useState({ name: '', slug: '' });
+  const initialFormState = {
+    name: '', slug: '', parentCategory: 'None', description: '',
+    status: 'Active', showInMenu: 'Yes', image: ''
+  };
+  const [form, setForm]       = useState(initialFormState);
 
   const deleteCat = (id) => setCats(prev => prev.filter(c => c.id !== id));
   const toggleCat = (id) =>
@@ -442,8 +442,8 @@ function PageCategories() {
 
   const addCat = () => {
     if (!form.name) return;
-    setCats(prev => [...prev, { id: Date.now(), name: form.name, slug: form.slug || form.name.toLowerCase(), count: 0, status: 'Active' }]);
-    setForm({ name: '', slug: '' });
+    setCats(prev => [{ id: Date.now(), name: form.name, slug: form.slug || form.name.toLowerCase().replace(/\s+/g, '-'), count: 0, status: form.status }, ...prev]);
+    setForm(initialFormState);
     setShowAdd(false);
   };
 
@@ -458,11 +458,76 @@ function PageCategories() {
       </div>
 
       {showAdd && (
-        <div className="admin__inline-form">
-          <input className="admin__form-input" placeholder="Category Name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
-          <input className="admin__form-input" placeholder="Slug (auto-generated)" value={form.slug} onChange={e => setForm(f => ({ ...f, slug: e.target.value }))} />
-          <button className="admin__form-save" onClick={addCat}>Save</button>
-          <button className="admin__form-cancel" onClick={() => setShowAdd(false)}>Cancel</button>
+        <div className="admin__detailed-form">
+          <div className="admin__detailed-form-header">
+            <h3>Add New Category</h3>
+            <button className="admin__form-close" onClick={() => setShowAdd(false)}>×</button>
+          </div>
+          
+          <div className="admin__form-scroll-area">
+            {/* Basic Information */}
+            <div className="admin__form-section">
+              <h4 className="admin__section-title">Basic Information</h4>
+              <div className="admin__form-grid admin__form-grid--3col">
+                <div className="admin__input-group">
+                  <label>Category Name</label>
+                  <input className="admin__form-input" placeholder="e.g. Lounge Chairs" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+                </div>
+                <div className="admin__input-group">
+                  <label>Slug (auto-generated if empty)</label>
+                  <input className="admin__form-input" placeholder="e.g. lounge-chairs" value={form.slug} onChange={e => setForm(f => ({ ...f, slug: e.target.value }))} />
+                </div>
+                <div className="admin__input-group">
+                  <label>Parent Category</label>
+                  <select className="admin__form-input" value={form.parentCategory} onChange={e => setForm(f => ({ ...f, parentCategory: e.target.value }))}>
+                    <option>None</option>
+                    <option>Chairs</option>
+                    <option>Tables</option>
+                    <option>Sofas</option>
+                    <option>Beds</option>
+                    <option>Decor</option>
+                  </select>
+                </div>
+              </div>
+              <div className="admin__input-group" style={{ marginTop: '15px' }}>
+                <label>Description</label>
+                <textarea className="admin__form-input" rows="3" placeholder="Category details..." value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}></textarea>
+              </div>
+              <div className="admin__input-group" style={{ marginTop: '15px' }}>
+                <label>Category Thumbnail</label>
+                <ImageUploader 
+                  initialImage={form.image} 
+                  onUploadSuccess={(url) => setForm(f => ({ ...f, image: url }))} 
+                />
+              </div>
+            </div>
+
+            {/* Status & Visibility */}
+            <div className="admin__form-section">
+              <h4 className="admin__section-title">Status & Visibility</h4>
+              <div className="admin__form-grid admin__form-grid--2col">
+                <div className="admin__input-group">
+                  <label>Status</label>
+                  <select className="admin__form-input" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
+                    <option>Active</option>
+                    <option>Inactive</option>
+                  </select>
+                </div>
+                <div className="admin__input-group">
+                  <label>Include in Menu</label>
+                  <select className="admin__form-input" value={form.showInMenu} onChange={e => setForm(f => ({ ...f, showInMenu: e.target.value }))}>
+                    <option>Yes</option>
+                    <option>No</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="admin__form-footer">
+            <button className="admin__form-cancel-btn" onClick={() => setShowAdd(false)}>Cancel</button>
+            <button className="admin__form-save-btn" onClick={addCat}>Save Category</button>
+          </div>
         </div>
       )}
 
@@ -657,12 +722,104 @@ function PageDescription() {
   );
 }
 
-/* ── PRODUCT: ALL PRODUCTS ── */
+  /* ── IMAGE UPLOADER ── */
+  function ImageUploader({ onUploadSuccess, initialImage = '' }) {
+    const [preview, setPreview] = useState(initialImage);
+    const [uploading, setUploading] = useState(false);
+    const [dragActive, setDragActive] = useState(false);
+
+    const handleDrag = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.type === 'dragenter' || e.type === 'dragover') setDragActive(true);
+      else if (e.type === 'dragleave') setDragActive(false);
+    };
+
+    const handleDrop = async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDragActive(false);
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        await handleUpload(e.dataTransfer.files[0]);
+      }
+    };
+
+    const handleChange = async (e) => {
+      e.preventDefault();
+      if (e.target.files && e.target.files[0]) {
+        await handleUpload(e.target.files[0]);
+      }
+    };
+
+    const handleUpload = async (file) => {
+      setUploading(true);
+      try {
+        const res = await adminApi.uploadImage(file);
+        setPreview(res.url);
+        if (onUploadSuccess) onUploadSuccess(res.url);
+      } catch (err) {
+        alert('Image upload failed. Please try again.');
+        console.error(err);
+      } finally {
+        setUploading(false);
+      }
+    };
+
+    return (
+      <div 
+        className={`admin__image-upload-box ${dragActive ? 'drag-active' : ''}`}
+        onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleDrop}
+        style={{ position: 'relative', cursor: 'pointer', overflow: 'hidden' }}
+        onClick={() => document.getElementById('image-upload-input').click()}
+      >
+        <input 
+          id="image-upload-input" 
+          type="file" 
+          accept="image/*" 
+          style={{ display: 'none' }} 
+          onChange={handleChange} 
+        />
+        {preview ? (
+          <img src={preview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0 }} />
+        ) : uploading ? (
+          <span>Uploading...</span>
+        ) : (
+          <>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <span>Click to upload image or drag and drop</span>
+            <small>SVG, PNG, JPG or GIF (max. 800x400px)</small>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  /* ── PRODUCT: ALL PRODUCTS ── */
 function PageAllProducts() {
   const [products, setProducts] = useState(MOCK_ALL_PRODUCTS);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({ name: '', category: 'Chairs', price: '', stock: '' });
+  const initialFormState = {
+    name: '', sku: '', category: 'Chairs', description: '',
+    regularPrice: '', salePrice: '', discount: '', tax: '',
+    stockQuantity: '', stockStatus: 'In Stock', lowStockThreshold: '', allowBackorders: 'No',
+    material: '', color: '', size: '', dimensions: '', weight: '',
+    status: 'Active', featured: 'No', image: ''
+  };
+  const [form, setForm] = useState(initialFormState);
+
+  useEffect(() => {
+    if (form.regularPrice && form.salePrice) {
+      const reg = parseFloat(form.regularPrice);
+      const sale = parseFloat(form.salePrice);
+      if (reg > 0 && sale < reg) {
+        const disc = Math.round(((reg - sale) / reg) * 100);
+        if (form.discount !== disc + '%') {
+          setForm(f => ({ ...f, discount: disc + '%' }));
+        }
+      }
+    }
+  }, [form.regularPrice, form.salePrice]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -674,7 +831,7 @@ function PageAllProducts() {
              name: p.name,
              category: p.category ? p.category.name : 'Uncategorized',
              price: `₹${Number(p.price).toLocaleString()}`,
-             stock: p.stock_quantity || (p.in_stock ? 'In Stock' : 'Out of Stock')
+             stock: p.stock !== undefined && p.stock !== null ? p.stock : (p.stock_quantity !== undefined ? p.stock_quantity : (p.in_stock ? 'In Stock' : 'Out of Stock'))
            })));
         }
       } catch (err) {
@@ -687,28 +844,29 @@ function PageAllProducts() {
   }, []);
 
   const handleAddProduct = async () => {
-    if (!form.name || !form.price) return;
+    if (!form.name || (!form.regularPrice && !form.salePrice)) return;
     
     // Optimistic UI update
     const newProduct = {
       id: Date.now(),
       name: form.name,
       category: form.category,
-      price: `₹${Number(form.price).toLocaleString()}`,
-      stock: form.stock || 10
+      price: `₹${Number(form.salePrice || form.regularPrice).toLocaleString()}`,
+      stock: form.stockQuantity || 10
     };
     setProducts([newProduct, ...products]);
     setShowAdd(false);
-    setForm({ name: '', category: 'Chairs', price: '', stock: '' });
+    setForm(initialFormState);
 
     // Attempt to save to backend
     try {
       await adminApi.createProduct({
         name: form.name,
         category_id: 1, // Using 1 as a generic category ID for now
-        price: form.price,
-        stock_quantity: form.stock || 10,
-        is_active: 1
+        price: form.salePrice || form.regularPrice,
+        stock_quantity: form.stockQuantity || 10,
+        is_active: form.status === 'Active' ? 1 : 0,
+        image_url: form.image
       });
     } catch (e) {
       console.error('Failed to create product on backend', e);
@@ -726,24 +884,162 @@ function PageAllProducts() {
       </div>
 
       {showAdd && (
-        <div className="admin__inline-form">
-          <input className="admin__form-input" placeholder="Product Name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
-          <select className="admin__form-input" value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}>
-            <option>Chairs</option>
-            <option>Tables</option>
-            <option>Sofas</option>
-            <option>Armchairs</option>
-            <option>Beds</option>
-            <option>Storage</option>
-            <option>Textiles</option>
-            <option>Lighting</option>
-            <option>Toys</option>
-            <option>Decor</option>
-          </select>
-          <input className="admin__form-input admin__form-input--sm" placeholder="Price" type="number" value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} />
-          <input className="admin__form-input admin__form-input--sm" placeholder="Stock" type="number" value={form.stock} onChange={e => setForm(f => ({ ...f, stock: e.target.value }))} />
-          <button className="admin__form-save" onClick={handleAddProduct}>Save</button>
-          <button className="admin__form-cancel" onClick={() => setShowAdd(false)}>Cancel</button>
+        <div className="admin__detailed-form">
+          <div className="admin__detailed-form-header">
+            <h3>Add New Product</h3>
+            <button className="admin__form-close" onClick={() => setShowAdd(false)}>×</button>
+          </div>
+          
+          <div className="admin__form-scroll-area">
+            {/* Basic Information */}
+            <div className="admin__form-section">
+              <h4 className="admin__section-title">Basic Information</h4>
+              <div className="admin__form-grid admin__form-grid--2col">
+                <div className="admin__input-group">
+                  <label>Product Name</label>
+                  <input className="admin__form-input" placeholder="e.g. Modern Wooden Chair" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+                </div>
+                <div className="admin__input-group">
+                  <label>SKU</label>
+                  <input className="admin__form-input" placeholder="e.g. CHR-001" value={form.sku} onChange={e => setForm(f => ({ ...f, sku: e.target.value }))} />
+                </div>
+                <div className="admin__input-group">
+                  <label>Category</label>
+                  <select className="admin__form-input" value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}>
+                    <option>Chairs</option>
+                    <option>Tables</option>
+                    <option>Sofas</option>
+                    <option>Beds</option>
+                    <option>Decor</option>
+                  </select>
+                </div>
+              </div>
+              <div className="admin__input-group" style={{ marginTop: '15px' }}>
+                <label>Description</label>
+                <textarea className="admin__form-input" rows="3" placeholder="Product details..." value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}></textarea>
+              </div>
+              <div className="admin__input-group" style={{ marginTop: '15px' }}>
+                <label>Product Image</label>
+                <ImageUploader 
+                  initialImage={form.image} 
+                  onUploadSuccess={(url) => setForm(f => ({ ...f, image: url }))} 
+                />
+              </div>
+            </div>
+
+            {/* Pricing */}
+            <div className="admin__form-section">
+              <h4 className="admin__section-title">Pricing</h4>
+              <div className="admin__form-grid admin__form-grid--3col">
+                <div className="admin__input-group">
+                  <label>Regular Price (₹)</label>
+                  <input className="admin__form-input" type="number" placeholder="5000" value={form.regularPrice} onChange={e => setForm(f => ({ ...f, regularPrice: e.target.value }))} />
+                </div>
+                <div className="admin__input-group">
+                  <label>Sale Price (₹)</label>
+                  <input className="admin__form-input" type="number" placeholder="4499" value={form.salePrice} onChange={e => setForm(f => ({ ...f, salePrice: e.target.value }))} />
+                </div>
+                <div className="admin__input-group">
+                  <label>Discount</label>
+                  <input className="admin__form-input admin__form-input--disabled" readOnly placeholder="Auto calc" value={form.discount} />
+                </div>
+              </div>
+              <div className="admin__input-group" style={{ marginTop: '15px' }}>
+                <label>Tax / GST</label>
+                <select className="admin__form-input" value={form.tax} onChange={e => setForm(f => ({ ...f, tax: e.target.value }))}>
+                  <option value="">Not Applicable</option>
+                  <option value="5">5% GST</option>
+                  <option value="12">12% GST</option>
+                  <option value="18">18% GST</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Inventory */}
+            <div className="admin__form-section">
+              <h4 className="admin__section-title">Inventory / Stock</h4>
+              <div className="admin__form-grid admin__form-grid--2col">
+                <div className="admin__input-group">
+                  <label>Stock Quantity</label>
+                  <input className="admin__form-input" type="number" placeholder="25" value={form.stockQuantity} onChange={e => setForm(f => ({ ...f, stockQuantity: e.target.value }))} />
+                </div>
+                <div className="admin__input-group">
+                  <label>Stock Status</label>
+                  <select className="admin__form-input" value={form.stockStatus} onChange={e => setForm(f => ({ ...f, stockStatus: e.target.value }))}>
+                    <option>In Stock</option>
+                    <option>Out of Stock</option>
+                    <option>On Backorder</option>
+                  </select>
+                </div>
+                <div className="admin__input-group">
+                  <label>Low Stock Threshold</label>
+                  <input className="admin__form-input" type="number" placeholder="5" value={form.lowStockThreshold} onChange={e => setForm(f => ({ ...f, lowStockThreshold: e.target.value }))} />
+                </div>
+                <div className="admin__input-group">
+                  <label>Allow Backorders</label>
+                  <select className="admin__form-input" value={form.allowBackorders} onChange={e => setForm(f => ({ ...f, allowBackorders: e.target.value }))}>
+                    <option>No</option>
+                    <option>Yes</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Product Specifications */}
+            <div className="admin__form-section">
+              <h4 className="admin__section-title">Product Specifications</h4>
+              <div className="admin__form-grid admin__form-grid--3col">
+                <div className="admin__input-group">
+                  <label>Material</label>
+                  <input className="admin__form-input" placeholder="e.g. Wood" value={form.material} onChange={e => setForm(f => ({ ...f, material: e.target.value }))} />
+                </div>
+                <div className="admin__input-group">
+                  <label>Color</label>
+                  <input className="admin__form-input" placeholder="e.g. Brown" value={form.color} onChange={e => setForm(f => ({ ...f, color: e.target.value }))} />
+                </div>
+                <div className="admin__input-group">
+                  <label>Size</label>
+                  <input className="admin__form-input" placeholder="e.g. Medium" value={form.size} onChange={e => setForm(f => ({ ...f, size: e.target.value }))} />
+                </div>
+              </div>
+              <div className="admin__form-grid admin__form-grid--2col" style={{ marginTop: '15px' }}>
+                <div className="admin__input-group">
+                  <label>Dimensions</label>
+                  <input className="admin__form-input" placeholder="45 × 50 × 85 cm" value={form.dimensions} onChange={e => setForm(f => ({ ...f, dimensions: e.target.value }))} />
+                </div>
+                <div className="admin__input-group">
+                  <label>Weight</label>
+                  <input className="admin__form-input" placeholder="e.g. 8 kg" value={form.weight} onChange={e => setForm(f => ({ ...f, weight: e.target.value }))} />
+                </div>
+              </div>
+            </div>
+
+            {/* Product Status */}
+            <div className="admin__form-section">
+              <h4 className="admin__section-title">Product Status</h4>
+              <div className="admin__form-grid admin__form-grid--2col">
+                <div className="admin__input-group">
+                  <label>Status</label>
+                  <select className="admin__form-input" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
+                    <option>Active</option>
+                    <option>Inactive</option>
+                  </select>
+                </div>
+                <div className="admin__input-group">
+                  <label>Featured</label>
+                  <select className="admin__form-input" value={form.featured} onChange={e => setForm(f => ({ ...f, featured: e.target.value }))}>
+                    <option>No</option>
+                    <option>Yes</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="admin__form-footer">
+            <button className="admin__form-cancel-btn" onClick={() => setShowAdd(false)}>Cancel</button>
+            <button className="admin__form-save-btn" onClick={handleAddProduct}>Save Product</button>
+          </div>
         </div>
       )}
 
@@ -825,16 +1121,15 @@ function OrdersTable({ data, onStatusChange }) {
 ══════════════════════════════════════════════════ */
 const NAV = [
   { id: 'dashboard', label: 'Dashboard', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
-  { id: 'menu',      label: 'Menu',      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg> },
+  { id: 'categories',label: 'Categories',icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> },
   { id: 'post',      label: 'Post',      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> },
   { id: 'sliders',   label: 'Sliders',   icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> },
   {
     id: 'product', label: 'Product', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>,
     children: [
       { id: 'all-products',label: 'All Products',icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> },
-      { id: 'categories',  label: 'Categories',  icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> },
       { id: 'sku',         label: 'SKU',          icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg> },
-      { id: 'price',       label: 'Price',        icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> },
+      { id: 'price',       label: 'Price',        icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3h12"/><path d="M6 8h12"/><path d="m6 13 8.5 8"/><path d="M6 13h3"/><path d="M9 13c6.667 0 6.667-10 0-10"/></svg> },
       { id: 'description', label: 'Description',  icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> },
     ],
   },
@@ -844,8 +1139,8 @@ const NAV = [
 ];
 
 const PAGE_TITLES = {
-  dashboard: 'Dashboard',   menu: 'Menu',       post: 'Post',
-  sliders: 'Sliders',       categories: 'Product › Categories',
+  dashboard: 'Dashboard',   categories: 'Categories', post: 'Post',
+  sliders: 'Sliders',
   'all-products': 'Product › All Products',
   sku: 'Product › SKU',     price: 'Product › Price',
   description: 'Product › Description',
@@ -871,7 +1166,7 @@ export default function AdminDashboard({ onLogout }) {
 
   const goTo = (id) => {
     setActivePage(id);
-    if (['categories','sku','price','description'].includes(id)) setProductOpen(true);
+    if (['all-products','sku','price','description'].includes(id)) setProductOpen(true);
   };
 
 function PageOrders() {
@@ -1007,7 +1302,9 @@ function PageUsers() {
 function PageSettings() {
   const [formData, setFormData] = useState({
     razorpayKeyId: 'rzp_test_TWLMva2WMHr864',
-    razorpaySecret: 'C4wy66QaYjPwBkTMGSPWfRKP'
+    razorpaySecret: 'C4wy66QaYjPwBkTMGSPWfRKP',
+    shiprocketKey: 'XFf2@IVCaj^xeUDj352b&YDK@XzHnmgj',
+    shiprocketSecret: ''
   });
 
   const handleChange = (e) => {
@@ -1020,43 +1317,99 @@ function PageSettings() {
   };
 
   return (
-    <div className="admin__page-panel">
-      <div className="admin__panel-header">
+    <div className="admin__page-panel" style={{ background: '#f5f7f9', padding: '24px' }}>
+      <div className="admin__panel-header" style={{ marginBottom: '24px' }}>
         <div>
-          <h2 className="admin__panel-title">Razorpay Payment Settings</h2>
-          <p className="admin__panel-sub">Online payments (Checkout) enable karne ke liye Razorpay credentials enter karein.</p>
+          <h2 className="admin__panel-title">Settings</h2>
+          <p className="admin__panel-sub">Manage your integrations and API keys.</p>
         </div>
       </div>
       
-      <div className="admin__form-wrap" style={{ maxWidth: '600px', marginTop: '20px' }}>
-        <form onSubmit={handleSave}>
-          <div className="admin__form-group" style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
-            <label style={{ width: '200px', fontWeight: 'bold' }}>Razorpay Key ID</label>
-            <input 
-              type="text" 
-              name="razorpayKeyId"
-              value={formData.razorpayKeyId}
-              onChange={handleChange}
-              className="admin__form-input" 
-              style={{ flex: 1 }}
-            />
+      <form onSubmit={handleSave} style={{ maxWidth: '800px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        
+        {/* Razorpay Card */}
+        <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
+          <div style={{ padding: '20px 24px', borderBottom: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ width: '40px', height: '40px', background: '#f3f4f6', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2563eb' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            </div>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: '#111827' }}>Razorpay</h3>
+              <p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>Online payment gateway configuration</p>
+            </div>
           </div>
-          <div className="admin__form-group" style={{ display: 'flex', alignItems: 'center', marginBottom: '30px' }}>
-            <label style={{ width: '200px', fontWeight: 'bold' }}>Razorpay Key Secret</label>
-            <input 
-              type="text" 
-              name="razorpaySecret"
-              value={formData.razorpaySecret}
-              onChange={handleChange}
-              className="admin__form-input" 
-              style={{ flex: 1 }}
-            />
+          
+          <div style={{ padding: '24px' }}>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>Razorpay API Key</label>
+              <input type="text" name="razorpayKeyId" value={formData.razorpayKeyId} onChange={handleChange} style={{ width: '100%', padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>Razorpay API Secret</label>
+              <input type="text" name="razorpaySecret" value={formData.razorpaySecret} onChange={handleChange} style={{ width: '100%', padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
+            </div>
           </div>
-          <button type="submit" className="admin__action-btn" style={{ background: '#4169E1', color: '#fff', padding: '10px 20px', borderRadius: '4px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>
-            Save Changes
+        </div>
+
+        {/* Shiprocket Card */}
+        <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
+          <div style={{ padding: '20px 24px', borderBottom: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ width: '40px', height: '40px', background: '#fff7ed', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ea580c' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+            </div>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: '#111827' }}>Shiprocket</h3>
+              <p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>Shipping and delivery configuration</p>
+            </div>
+          </div>
+          
+          <div style={{ padding: '24px' }}>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>Shiprocket API Key</label>
+              <div style={{ position: 'relative' }}>
+                <div style={{ position: 'absolute', left: '12px', top: '10px', color: '#d97706' }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg></div>
+                <input type="text" name="shiprocketKey" value={formData.shiprocketKey} onChange={handleChange} placeholder="Enter Shiprocket API Key" style={{ width: '100%', padding: '10px 12px 10px 40px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', outline: 'none' }} />
+              </div>
+              <p style={{ margin: '6px 0 0', fontSize: '12px', color: '#6b7280' }}>Your Shiprocket API authentication key.</p>
+            </div>
+            
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>Shiprocket API Secret</label>
+              <div style={{ position: 'relative' }}>
+                <div style={{ position: 'absolute', left: '12px', top: '10px', color: '#d97706' }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
+                <input type="text" name="shiprocketSecret" value={formData.shiprocketSecret} onChange={handleChange} placeholder="Enter Shiprocket API Secret" style={{ width: '100%', padding: '10px 40px 10px 40px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', outline: 'none' }} />
+                <div style={{ position: 'absolute', right: '12px', top: '10px', color: '#9ca3af', cursor: 'pointer' }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></div>
+              </div>
+              <p style={{ margin: '6px 0 0', fontSize: '12px', color: '#6b7280' }}>Keep your Shiprocket secret secure.</p>
+            </div>
+
+            <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '6px', padding: '16px', display: 'flex', gap: '12px' }}>
+              <div style={{ color: '#d97706', marginTop: '2px' }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></div>
+              <div>
+                <h4 style={{ margin: '0 0 4px', fontSize: '14px', fontWeight: 600, color: '#111827' }}>Shipping Integration</h4>
+                <p style={{ margin: 0, fontSize: '13px', color: '#6b7280', lineHeight: 1.5 }}>Shiprocket credentials are used by the backend to create shipments, generate shipping labels and manage delivery orders.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Security Notice Card */}
+        <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '16px 24px', display: 'flex', gap: '16px', alignItems: 'center' }}>
+          <div style={{ width: '40px', height: '40px', background: '#ecfdf5', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', flexShrink: 0 }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          </div>
+          <div>
+            <h4 style={{ margin: '0 0 4px', fontSize: '14px', fontWeight: 600, color: '#111827' }}>Security Notice</h4>
+            <p style={{ margin: 0, fontSize: '13px', color: '#6b7280', lineHeight: 1.5 }}>Razorpay and Shiprocket secret keys should never be exposed in frontend code. Store sensitive credentials securely on your backend.</p>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
+          <button type="submit" style={{ background: '#d96b27', color: '#fff', padding: '12px 24px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '14px' }}>
+            Save Configuration
           </button>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   );
 }

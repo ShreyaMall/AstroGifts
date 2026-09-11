@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './ProductDetailModal.css';
-import { useCart } from '../context/CartContext';
-import { useWishlist } from '../context/WishlistContext';
+import { useCart } from '../../context/CartContext';
+import { useWishlist } from '../../context/WishlistContext';
 
 export default function ProductDetailModal({ product, allProducts = [], onClose, onSelectProduct }) {
   const { addToCart } = useCart();

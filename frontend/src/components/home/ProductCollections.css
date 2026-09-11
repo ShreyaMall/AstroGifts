@@ -79,13 +79,12 @@
   transform: scale(1.05);
 }
 
-/* ── CARD HEIGHT CLASSES (sums to 646px per column) ── */
+/* ── CARD HEIGHT CLASSES (sums to 650px per column) ── */
+.h-325 { height: 325px; }
 .h-350 { height: 350px; }
-.h-290 { height: 300px; }
-.h-450 { height: 450px; } /* Tall orange sofa */
-.h-200 { height: 200px; } /* Compact GLADØM */
-.h-200 { height: 200px; } /* Compact HÄLLAN */
-.h-450 { height: 450px; } /* Tall dark dining */
+.h-300 { height: 300px; }
+.h-450 { height: 450px; }
+.h-200 { height: 200px; }
 
 /* ── TEXT CARDS ── */
 .card-hallan {
@@ -149,7 +148,7 @@
     grid-template-columns: 1fr 1fr;
     gap: 16px;
   }
-  .h-340, .h-290, .h-454, .h-176, .h-200, .h-430 {
+  .h-325, .h-350, .h-300, .h-450, .h-200 {
     height: 280px;
   }
 }
@@ -161,7 +160,7 @@
     grid-template-columns: 1fr;
     gap: 12px;
   }
-  .h-340, .h-290, .h-454, .h-176, .h-200, .h-430 {
+  .h-325, .h-350, .h-300, .h-450, .h-200 {
     height: 240px;
   }
 }

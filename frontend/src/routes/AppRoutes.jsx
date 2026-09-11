@@ -14,6 +14,8 @@ import AdminLoginPage from '../pages/AdminLoginPage';
 import AdminDashboard from '../pages/AdminDashboard';
 import MyOrdersPage from '../pages/MyOrdersPage';
 import UserProfilePage from '../pages/UserProfilePage';
+import AddressPage from '../pages/AddressPage';
+import WishlistPage from '../pages/WishlistPage';
 
 export default function AppRoutes() {
   return (
@@ -38,6 +40,8 @@ export default function AppRoutes() {
       <Route path="/login" element={<UserLoginPage />} />
       <Route path="/my-orders" element={<MyOrdersPage />} />
       <Route path="/profile" element={<UserProfilePage />} />
+      <Route path="/address" element={<AddressPage />} />
+      <Route path="/wishlist" element={<WishlistPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

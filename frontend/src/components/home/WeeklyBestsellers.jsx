@@ -1,16 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './WeeklyBestsellers.css';
-import { useCart } from '../context/CartContext';
-import { useWishlist } from '../context/WishlistContext';
-import { ALL_PRODUCTS } from '../data/categoryData';
-
-const PRODUCTS = ALL_PRODUCTS.map(p => ({
-  ...p,
-  img: p.image || p.img,
-  originalPrice: p.oldPrice,
-  featured: p.rating >= 4.5 || p.badge === 'HOT' || p.badge === 'NEW'
-}));
+import { useCart } from '../../context/CartContext';
+import { useWishlist } from '../../context/WishlistContext';
+import { productsApi } from '../../services/api';
 
 const TABS = ['All', 'Chairs', 'Sofas', 'Armchairs', 'Tables'];
 
@@ -26,25 +19,156 @@ function Stars({ rating }) {
   );
 }
 
-export default function WeeklyBestsellers() {
-  const [activeTab, setActiveTab] = useState('All');
-  const navigate = useNavigate();
+function ProductCard({ product }) {
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
+  const [selectedColor, setSelectedColor] = useState(product.colors ? product.colors[0] : null);
+
+  const wishlisted = isInWishlist(product.id);
+  const slug = product.slug || String(product.name).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const productUrl = `/product/${slug}`;
+  const categoryUrl = `/category/${product.category.toLowerCase()}`;
+
+  return (
+    <div className="wb-card">
+      <div className="wb-card__img-wrap">
+        {product.badge && (
+          <span className={`wb-badge ${product.badge.startsWith('-') ? 'wb-badge--sale' : 'wb-badge--new'}`}>
+            {product.badge}
+          </span>
+        )}
+
+        <button
+          className={`wb-card__wish ${wishlisted ? 'wb-card__wish--active' : ''}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            toggleWishlist(product);
+          }}
+          aria-label="Wishlist"
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill={wishlisted ? "#e07b39" : "none"} stroke={wishlisted ? "#e07b39" : "currentColor"} strokeWidth="1.8">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        </button>
+
+        <Link to={productUrl}>
+          <img
+            src={product.img}
+            alt={product.name}
+            className="wb-card__img wb-card__img--main"
+          />
+        </Link>
+
+        <div className="wb-card__hover-actions">
+          <button
+            className="wb-card__add-cart-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              addToCart(product);
+            }}
+          >
+            Add to cart
+          </button>
+        </div>
+      </div>
+
+      <div className="wb-card__info">
+        <div className="wb-card__title-row">
+          <h3 className="wb-card__name">
+            <Link to={productUrl} style={{ textDecoration: 'none', color: 'inherit' }}>
+              {product.name}
+            </Link>
+          </h3>
+          <Stars rating={product.rating} />
+        </div>
+
+        <Link to={categoryUrl} className="wb-card__cat" style={{ textDecoration: 'none' }}>
+          {product.category}
+        </Link>
+
+        {product.colors && product.colors.length > 0 && (
+          <div className="wb-card__colors">
+            {product.colors.map((color, idx) => (
+              <span 
+                key={idx} 
+                className={`wb-card__dot ${selectedColor === color ? 'wb-card__dot--active' : ''}`}
+                style={{ backgroundColor: color }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setSelectedColor(color);
+                }}
+                title={color}
+              />
+            ))}
+          </div>
+        )}
+
+        <div className="wb-card__price-row">
+          {product.originalPrice && (
+            <span className="wb-card__old-price">₹{product.originalPrice.toFixed(2)}</span>
+          )}
+          <span className="wb-card__price">₹{product.price.toFixed(2)}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function WeeklyBestsellers() {
+  const [activeTab, setActiveTab] = useState('All');
+  const [apiProducts, setApiProducts] = useState([]); // Dynamic data only
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        // Step 3: React Frontend mein API Call
+        const response = await productsApi.getBestsellers();
+        
+        if (response.status === 'success' && response.data.length > 0) {
+          // Backend se aaye data ko format karna taaki ProductCard use samajh sake
+          const formattedProducts = response.data.map(p => ({
+            ...p,
+            id: p.id,
+            name: p.name,
+            price: p.price,
+            originalPrice: p.old_price,
+            img: p.image_url || p.image, 
+            category: p.category_name || 'All',
+            // Yahan hum dynamic badge set kar rahe hain jo API se aayega
+            badge: p.badge || (p.is_new ? 'NEW' : (p.discount_percentage ? `-${p.discount_percentage}%` : null)),
+            featured: true,
+            rating: p.rating || 5
+          }));
+          setApiProducts(formattedProducts);
+        }
+      } catch (error) {
+        console.error("Backend server running nahi hai, static data dikha rahe hain.", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   let filtered = [];
   if (activeTab === 'All') {
-    const chairs = PRODUCTS.filter(p => p.featured && p.category === 'Chairs').slice(0, 2);
-    const sofas = PRODUCTS.filter(p => p.featured && p.category === 'Sofas').slice(0, 2);
-    const armchairs = PRODUCTS.filter(p => p.featured && p.category === 'Armchairs').slice(0, 2);
-    const tables = PRODUCTS.filter(p => p.featured && p.category === 'Tables').slice(0, 2);
+    const chairs = apiProducts.filter(p => p.featured && p.category === 'Chairs').slice(0, 2);
+    const sofas = apiProducts.filter(p => p.featured && p.category === 'Sofas').slice(0, 2);
+    const armchairs = apiProducts.filter(p => p.featured && p.category === 'Armchairs').slice(0, 2);
+    const tables = apiProducts.filter(p => p.featured && p.category === 'Tables').slice(0, 2);
     filtered = [...chairs, ...sofas, ...armchairs, ...tables];
     if (filtered.length < 8) {
-       const others = PRODUCTS.filter(p => p.featured && !filtered.includes(p));
+       const others = apiProducts.filter(p => p.featured && !filtered.includes(p));
        filtered = [...filtered, ...others].slice(0, 8);
     }
   } else {
-    filtered = PRODUCTS.filter(p => p.category === activeTab);
+    filtered = apiProducts.filter(p => p.category === activeTab);
   }
 
   return (
@@ -74,87 +198,9 @@ export default function WeeklyBestsellers() {
 
         {/* Product Grid */}
         <div className="wb-grid">
-          {filtered.map(product => {
-            const wishlisted = isInWishlist(product.id);
-            const slug = product.slug || String(product.name).toLowerCase().replace(/[^a-z0-9]+/g, '-');
-            const productUrl = `/product/${slug}`;
-            const categoryUrl = `/category/${product.category.toLowerCase()}`;
-
-            return (
-              <div key={product.id} className="wb-card">
-                
-                {/* Image Wrap linking to Product Page */}
-                <div className="wb-card__img-wrap">
-                  {product.badge && (
-                    <span className={`wb-badge ${product.badge.startsWith('-') ? 'wb-badge--sale' : 'wb-badge--new'}`}>
-                      {product.badge}
-                    </span>
-                  )}
-
-                  <button
-                    className={`wb-card__wish ${wishlisted ? 'wb-card__wish--active' : ''}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      toggleWishlist(product);
-                    }}
-                    aria-label="Wishlist"
-                  >
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill={wishlisted ? "#e07b39" : "none"} stroke={wishlisted ? "#e07b39" : "currentColor"} strokeWidth="1.8">
-                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                    </svg>
-                  </button>
-
-                  <Link to={productUrl}>
-                    <img
-                      src={product.img}
-                      alt={product.name}
-                      className="wb-card__img wb-card__img--main"
-                    />
-                  </Link>
-
-                  <div className="wb-card__hover-actions">
-                    <button
-                      className="wb-card__add-cart-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        addToCart(product);
-                      }}
-                    >
-                      Add to cart
-                    </button>
-                  </div>
-                </div>
-
-                {/* Details */}
-                <div className="wb-card__info">
-                  <div className="wb-card__title-row">
-                    <h3 className="wb-card__name">
-                      <Link to={productUrl} style={{ textDecoration: 'none', color: 'inherit' }}>
-                        {product.name}
-                      </Link>
-                    </h3>
-                    <Stars rating={product.rating} />
-                  </div>
-
-                  <Link to={categoryUrl} className="wb-card__cat" style={{ textDecoration: 'none' }}>
-                    {product.category}
-                  </Link>
-
-                  <div className="wb-card__price-row">
-                    {product.originalPrice && (
-                      <span className="wb-card__old-price">₹{product.originalPrice.toFixed(2)}</span>
-                    )}
-                    <span className="wb-card__price">₹{product.price.toFixed(2)}</span>
-                  </div>
-
-
-                </div>
-
-              </div>
-            );
-          })}
+          {filtered.map(product => (
+            <ProductCard key={product.id} product={product} />
+          ))}
         </div>
 
       </div>

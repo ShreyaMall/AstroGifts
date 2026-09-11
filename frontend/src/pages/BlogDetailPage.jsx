@@ -1,19 +1,34 @@
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import './BlogPage.css';
-
-
-import { findArticleBySlugOrId, BLOG_ARTICLES } from '../data/blogData';
+import { articlesApi } from '../services/api';
 
 export default function BlogDetailPage() {
   const { slug } = useParams();
-  const article = findArticleBySlugOrId(slug) || BLOG_ARTICLES[0];
+  const [article, setArticle] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    setLoading(true);
+    articlesApi.getBySlug(slug)
+      .then(res => {
+         if (res && res.data) setArticle(res.data);
+      })
+      .catch(err => console.error("Failed to load article", err))
+      .finally(() => setLoading(false));
   }, [slug]);
+
+  if (loading) {
+    return (
+      <div className="blog-page">
+        <Header />
+        <div style={{ padding: '80px 20px', textAlign: 'center' }}>Loading article...</div>
+      </div>
+    );
+  }
 
   if (!article) {
     return (
@@ -43,15 +58,15 @@ export default function BlogDetailPage() {
         </h1>
 
         <div style={{ display: 'flex', gap: '16px', fontSize: '13px', color: '#777', marginBottom: '24px', alignItems: 'center' }}>
-          <span>By <strong>{article.author}</strong></span>
+          <span>By <strong>{article.author || 'Admin'}</strong></span>
           <span>•</span>
-          <span>{article.date}</span>
+          <span>{article.date || (article.created_at ? new Date(article.created_at).toLocaleDateString() : '')}</span>
           <span>•</span>
           <span style={{ color: '#d96b27', fontWeight: '600' }}>{article.category}</span>
         </div>
 
         <div style={{ borderRadius: '12px', overflow: 'hidden', maxHeight: '420px', marginBottom: '32px' }}>
-          <img src={article.img} alt={article.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <img src={article.img || article.image_url || article.image} alt={article.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         </div>
 
         <div style={{ fontSize: '16px', lineHeight: '1.8', color: '#444', whiteSpace: 'pre-line', marginBottom: '40px' }}>

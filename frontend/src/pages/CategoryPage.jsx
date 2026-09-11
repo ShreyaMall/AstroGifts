@@ -3,7 +3,7 @@ import Footer from '../components/layout/Footer';
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import './CategoryPage.css';
-import { CATEGORY_PRODUCTS } from '../data/categoryData';
+import { productsApi } from '../services/api';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 
@@ -51,6 +51,7 @@ const ProductCard = ({ product, viewMode = 'grid-3' }) => {
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const [hovered, setHovered] = useState(false);
+  const [selectedColor, setSelectedColor] = useState(product.colors ? product.colors[0] : null);
   const navigate = useNavigate();
 
   const wishlisted = isInWishlist(product.id);
@@ -130,6 +131,25 @@ const ProductCard = ({ product, viewMode = 'grid-3' }) => {
         {/* Category */}
         <span className="cp-card__cat">{product.category}</span>
 
+        {/* Colors */}
+        {product.colors && product.colors.length > 0 && (
+          <div className="cp-card__colors">
+            {product.colors.map((color, idx) => (
+              <span 
+                key={idx} 
+                className={`cp-card__dot ${selectedColor === color ? 'cp-card__dot--active' : ''}`}
+                style={{ backgroundColor: color }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setSelectedColor(color);
+                }}
+                title={color}
+              />
+            ))}
+          </div>
+        )}
+
         {/* Meta tags in list view */}
         {isList && (
           <div className="cp-card__meta-tags">
@@ -186,12 +206,27 @@ export default function CategoryPage({ categorySlug }) {
   const activeSlug = (categorySlug || slug || 'chairs').toLowerCase();
 
   const hero     = HERO_CONFIG[activeSlug] || HERO_CONFIG.chairs;
-  const allProds = activeSlug === 'wooden-furniture' 
-    ? Object.values(CATEGORY_PRODUCTS).flat() 
-    : (CATEGORY_PRODUCTS[activeSlug] || []);
+  const [allProds, setAllProds] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    setLoading(true);
+
+    const fetchParams = activeSlug === 'wooden-furniture' ? { per_page: 1000 } : { category: activeSlug, per_page: 1000 };
+    productsApi.getAll(fetchParams)
+      .then(res => {
+         if (res && res.data) {
+             setAllProds(res.data);
+         }
+      })
+      .catch(err => {
+         console.error("Failed to load category products", err);
+         setAllProds([]);
+      })
+      .finally(() => {
+         setLoading(false);
+      });
   }, [activeSlug]);
 
   /* Filter state */

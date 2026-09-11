@@ -2,12 +2,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import './OurCategories.css';
 
-import chairImg from '../assets/chair.jpg';
-import tableImg from '../assets/table 1.jpg';
-import sofaImg from '../assets/sofa.jpg';
-import armchairImg from '../assets/armchair.jpg';
-import bedsImg from '../assets/beds.png';
-import storageImg from '../assets/storage.jpg';
+import chairImg from '../../assets/chairs_banner.png';
+import tableImg from '../../assets/table 1.jpg';
+import sofaImg from '../../assets/sofa.jpg';
+import armchairImg from '../../assets/armchair.jpg';
+import bedsImg from '../../assets/beds.png';
+import storageImg from '../../assets/storage.jpg';
 
 const categories = [
   { name: 'Chairs',     slug: 'chairs',    img: chairImg },

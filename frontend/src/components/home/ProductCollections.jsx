@@ -1,14 +1,14 @@
 import React from 'react';
 import './ProductCollections.css';
 
-import product4 from '../assets/product4.jpg';
-import product5 from '../assets/product5.jpg';
-import product6 from '../assets/product6.jpg';
-import product7 from '../assets/product7.jpg';
-import product8 from '../assets/product8.jpg';
-import product9 from '../assets/product9.jpg';
-import product10 from '../assets/product10.jpg';
-import productVideo from '../assets/product.mp4';
+import product4 from '../../assets/product4.jpg';
+import product5 from '../../assets/product5.jpg';
+import product6 from '../../assets/product6.jpg';
+import product7 from '../../assets/product7.jpg';
+import product8 from '../../assets/product8.jpg';
+import product9 from '../../assets/product9.jpg';
+import product10 from '../../assets/product10.jpg';
+import productVideo from '../../assets/product.mp4';
 
 const ProductCollections = () => {
   return (
@@ -22,10 +22,10 @@ const ProductCollections = () => {
 
         {/* Column 1: Green sofa + Wicker chair */}
         <div className="pc-col">
-          <div className="pc-card h-340">
+          <div className="pc-card h-325">
             <img src={product9} alt="Green living room" className="pc-img" />
           </div>
-          <div className="pc-card h-340">
+          <div className="pc-card h-325">
             <img src={product5} alt="Wicker chair" className="pc-img" />
           </div>
         </div>
@@ -47,7 +47,7 @@ const ProductCollections = () => {
 
         {/* Column 3: Video + Bedroom */}
         <div className="pc-col">
-          <div className="pc-card h-340">
+          <div className="pc-card h-325">
             <video
               src={productVideo}
               className="pc-img"
@@ -57,7 +57,7 @@ const ProductCollections = () => {
               playsInline
             />
           </div>
-          <div className="pc-card h-150">
+          <div className="pc-card h-325">
             <img src={product6} alt="Bedroom" className="pc-img" />
           </div>
         </div>
@@ -73,17 +73,17 @@ const ProductCollections = () => {
               </p>
             </div>
           </div>
-          <div className="pc-card h-430">
+          <div className="pc-card h-450">
             <img src={product7} alt="Dining room" className="pc-img" />
           </div>
         </div>
 
         {/* Column 5: Dark Armchair + Kids Room */}
         <div className="pc-col">
-          <div className="pc-card h-340">
+          <div className="pc-card h-350">
             <img src={product4} alt="Armchair with lamp" className="pc-img" />
           </div>
-          <div className="pc-card h-290">
+          <div className="pc-card h-300">
             <img src={product8} alt="Kids room storage" className="pc-img" />
           </div>
         </div>

@@ -34,7 +34,7 @@ class DatabaseSeeder extends Seeder
         $customer = User::firstOrCreate(
             ['email' => 'user@woodmart.com'],
             [
-                'name' => 'John Doe',
+                'name' => 'Demo User',
                 'password' => Hash::make('user123'),
                 'role' => 'customer',
             ]

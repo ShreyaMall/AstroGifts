@@ -64,23 +64,14 @@ export default function UserLoginPage() {
       setLoading(false);
 
       const role = (isTryingAdmin || res?.user?.role === 'admin') ? 'admin' : 'user';
-      login(role, res?.token || 'demo-token', res?.user || null, rememberMe);
+      login(role, res.token, res.user, rememberMe);
 
       const from = location.state?.from?.pathname || (role === 'admin' ? '/admin/dashboard' : '/');
       navigate(from, { replace: true });
 
     } catch (err) {
       setLoading(false);
-
-      if (!isRegistering && isTryingAdmin && password === 'admin123') {
-        login('admin', 'mock-admin-token', { name: 'Admin', email: 'admin@woodmart.com', role: 'admin' }, rememberMe);
-        navigate('/admin/dashboard', { replace: true });
-      } else if (!isRegistering && (cleanEmail === DEMO_USER.email || cleanEmail === 'user') && password === DEMO_USER.password) {
-        login('user', 'mock-user-token', { name: 'Demo User', email: DEMO_USER.email, role: 'user' }, rememberMe);
-        navigate('/', { replace: true });
-      } else {
-        setError(err.message || 'Invalid credentials or registration failed.');
-      }
+      setError(err.data?.message || err.message || 'Invalid credentials or registration failed.');
     }
   };
 
@@ -157,7 +148,7 @@ export default function UserLoginPage() {
                   type="text"
                   className="woodmart-login-drawer__input"
                   value={name}
-                  placeholder="John Doe"
+                  placeholder="Demo User"
                   onChange={(e) => {
                     setName(e.target.value);
                     setError('');

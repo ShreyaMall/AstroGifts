@@ -140,14 +140,14 @@ class AdminController extends Controller
      */
     public function products(Request $request): JsonResponse
     {
-        $query = Product::with('category')->orderBy('id', 'desc');
+        $query = Product::with('category')->orderBy('id', 'asc');
 
         if ($request->filled('search')) {
             $s = $request->search;
             $query->where('name', 'like', "%{$s}%")->orWhere('sku', 'like', "%{$s}%");
         }
 
-        $products = $query->paginate(30);
+        $products = $query->paginate($request->get('limit', 200));
 
         return response()->json([
             'status' => 'success',
@@ -279,6 +279,29 @@ class AdminController extends Controller
     public function users(): JsonResponse
     {
         $users = User::orderBy('created_at', 'desc')->get();
-        return response()->json(['status' => 'success', 'data' => $users]);
+        return response()->json([
+            'status' => 'success',
+            'data' => $users,
+        ]);
+    }
+
+    /**
+     * Upload Image
+     */
+    public function uploadImage(Request $request): JsonResponse
+    {
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ]);
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('uploads', 'public');
+            return response()->json([
+                'status' => 'success',
+                'url' => asset('storage/' . $path),
+            ]);
+        }
+
+        return response()->json(['status' => 'error', 'message' => 'Upload failed'], 400);
     }
 }
