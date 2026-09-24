@@ -31,6 +31,11 @@ return [
     */
 
     'connections' => [
+        'mongodb' => [
+            'driver' => 'mongodb',
+            'dsn' => env('MONGODB_URI', 'mongodb://localhost:27017/astrogifts_clone'),
+            'database' => env('DB_DATABASE', 'astrogifts_clone'),
+        ],
 
         'sqlite' => [
             'driver' => 'sqlite',

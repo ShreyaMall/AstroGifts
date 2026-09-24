@@ -1,0 +1,786 @@
+/* ──────────────────────────────────────────────
+   Checkout Page Styling — AstroGifts Light Theme
+   ────────────────────────────────────────────── */
+
+.wm-checkout-page {
+  width: 100%;
+  background: #ffffff;
+  color: #333333;
+  font-family: inherit;
+  min-height: 70vh;
+  padding: 40px 0;
+}
+
+.wm-checkout-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.wm-checkout-page-title {
+  text-align: center;
+  font-size: 28px;
+  color: #111;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.wm-checkout-top-links {
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 15px;
+}
+
+.wm-checkout-main-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  gap: 35px;
+  align-items: start;
+}
+
+@media (max-width: 992px) {
+  .wm-checkout-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.wm-checkout-left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.wm-checkout-right-col {
+  position: sticky;
+  top: 90px;
+}
+
+.wm-checkout-summary-box {
+  background: #fafaf9;
+  border: 1px solid #e9e6e2;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+}
+
+.wm-checkout-summary-box .wm-checkout-section-title {
+  background: transparent;
+  padding: 0 0 15px 0;
+  border-bottom: 2px solid #eaeaea;
+  border-radius: 0;
+  margin-bottom: 15px;
+}
+
+.wm-checkout-top-links p {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-weight: 600;
+}
+.wm-coupon-toggle-btn {
+  background: none;
+  border: none;
+  color: #f79051;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  padding: 0;
+  font-size: inherit;
+  font-family: inherit;
+  transition: opacity 0.2s;
+}
+.wm-coupon-toggle-btn:hover {
+  text-decoration: underline;
+  opacity: 0.85;
+}
+.wm-checkout-coupon-box {
+  background: #faf9f7;
+  border: 1.5px dashed #d0ccc6;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin: 15px auto 30px auto;
+  max-width: 600px;
+  text-align: left;
+  animation: wmSlideDown 0.25s ease-out;
+}
+
+@keyframes wmSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.wm-coupon-box-desc {
+  margin: 0 0 14px 0;
+  font-size: 14px;
+  color: #666;
+  font-weight: 400;
+}
+
+.wm-coupon-input-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.wm-coupon-input {
+  flex: 1;
+  padding: 12px 18px;
+  border: 1px solid #dcd8d1;
+  border-radius: 30px;
+  font-size: 14px;
+  outline: none;
+  background: #ffffff;
+  transition: border-color 0.2s;
+}
+
+.wm-coupon-input:focus {
+  border-color: #f79051;
+}
+
+.wm-apply-coupon-btn {
+  background: #333333;
+  color: #ffffff;
+  border: none;
+  border-radius: 30px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.wm-apply-coupon-btn:hover {
+  background: #f79051;
+}
+
+.wm-applied-coupon-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #eef7ed;
+  border: 1px solid #c3e6cb;
+  border-radius: 8px;
+  padding: 10px 16px;
+}
+
+.wm-applied-coupon-tag {
+  font-size: 14px;
+  color: #155724;
+}
+
+.wm-remove-coupon-btn {
+  background: none;
+  border: none;
+  color: #dc3545;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.wm-remove-coupon-btn:hover {
+  color: #a71d2a;
+}
+
+.wm-coupon-msg {
+  margin-top: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.wm-coupon-error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.wm-coupon-success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.wm-discount-row th {
+  color: #2e7d32 !important;
+  font-weight: 600;
+}
+
+.wm-discount-code {
+  font-size: 13px;
+  font-weight: bold;
+  color: #1b5e20;
+}
+
+.wm-discount-price {
+  text-align: right;
+  font-weight: 700;
+  color: #2e7d32;
+  font-size: 16px;
+}
+
+.wm-checkout-section-wrap {
+  margin-bottom: 25px;
+}
+
+.wm-checkout-section-title {
+  display: flex;
+  align-items: center;
+  background: #f8f8f8;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 17px;
+  font-weight: 600;
+  color: #111;
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.wm-step-badge {
+  background: #f79051;
+  color: #fff;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin-right: 12px;
+  font-size: 13px;
+}
+
+.wm-checkout-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+@media (max-width: 768px) {
+  .wm-checkout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.wm-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.wm-full-width {
+  grid-column: 1 / -1;
+  margin-top: 5px;
+}
+
+.wm-form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #444;
+}
+.wm-form-group label span {
+  color: #e20000;
+}
+
+.wm-form-group input[type="text"],
+.wm-form-group input[type="email"],
+.wm-form-group input[type="tel"],
+.wm-form-group select,
+.wm-form-group textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #e1e1e1;
+  border-radius: 20px;
+  background: #ffffff;
+  color: #333;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.wm-form-group select {
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2212%22%20height%3D%228%22%20viewBox%3D%220%200%2012%208%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M1.5%201.5L6%206L10.5%201.5%22%20stroke%3D%22%23999999%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+
+.wm-form-group textarea {
+  border-radius: 15px;
+  resize: vertical;
+}
+
+.wm-form-group input:focus,
+.wm-form-group textarea:focus,
+.wm-form-group select:focus {
+  border-color: #f79051;
+}
+
+.wm-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 15px;
+}
+.wm-checkbox-group label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+/* Order Table */
+.wm-order-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 25px;
+}
+
+.wm-order-table th {
+  text-align: left;
+  font-size: 14px;
+  color: #333;
+  padding: 12px 0;
+  border-bottom: 2px solid #eaeaea;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.wm-order-table td {
+  padding: 20px 0;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.wm-order-item-desc {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.wm-item-remove {
+  font-size: 20px;
+  color: #999;
+  cursor: pointer;
+}
+.wm-item-remove:hover {
+  color: #f79051;
+}
+
+.wm-order-item-img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.wm-item-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wm-item-name {
+  font-size: 15px;
+  color: #444;
+  font-weight: 500;
+}
+
+.wm-qty-control {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border: 1px solid #eaeaea;
+  border-radius: 20px;
+  padding: 4px 15px;
+  width: fit-content;
+  color: #777;
+  font-size: 14px;
+}
+
+.wm-subtotal-price {
+  text-align: right;
+  font-weight: 600;
+  color: #f79051;
+  font-size: 16px;
+}
+
+.wm-order-table tfoot th {
+  padding-top: 20px;
+  text-transform: none;
+  font-size: 16px;
+}
+
+.wm-shipment-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: right;
+  font-size: 14px;
+  color: #666;
+  padding-top: 15px;
+}
+
+.wm-shipment-options label {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.wm-total-row th {
+  font-size: 18px;
+  color: #111;
+  border-bottom: none;
+}
+.wm-total-price {
+  text-align: right;
+  font-weight: 700;
+  color: #f79051;
+  font-size: 20px;
+  border-bottom: none;
+}
+
+.wm-shipping-progress {
+  margin-top: 25px;
+}
+.wm-shipping-progress p {
+  font-size: 14px;
+  color: #888;
+  margin: 0 0 10px 0;
+}
+.wm-progress-bar {
+  background: #f5f5f5;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.wm-progress-fill {
+  background: #f79051;
+  height: 100%;
+}
+
+.wm-warehouse-notice {
+  background: #fdfaf6;
+  border: 1px solid #faeedb;
+  padding: 10px 15px;
+  border-radius: 8px;
+  color: #555;
+  font-size: 13px;
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wm-payment-methods {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+.wm-payment-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #444;
+  cursor: pointer;
+}
+.wm-payment-label input[type="radio"] {
+  accent-color: #f79051;
+  transform: scale(1.1);
+}
+
+.wm-payment-desc {
+  background: #f9f9f9;
+  padding: 14px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.wm-place-order-btn {
+  background: #f79051;
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  width: auto;
+  min-width: 180px;
+  max-width: 220px;
+  display: block;
+  margin: 15px auto 0 auto;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.15s;
+}
+.wm-place-order-btn:hover {
+  background: #e57d3e;
+}
+.wm-place-order-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Pay Now button (online payment) - orange theme */
+.wm-pay-now-btn {
+  background: #f79051;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wm-pay-now-btn:hover {
+  background: #e57d3e;
+}
+
+/* Order Complete Screen */
+.wm-order-complete {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px 0 60px;
+}
+
+.wm-order-complete-msg {
+  border: 1.5px dashed #8ba77a;
+  background: #f7faf5;
+  color: #3f622e;
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  padding: 18px 24px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.wm-order-complete-overview {
+  list-style: none;
+  padding: 18px 24px;
+  margin: 0 0 30px 0;
+  background: #fafafa;
+  border: 1px solid #eaeaea;
+  border-radius: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.wm-order-complete-overview li {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 20px;
+  border-right: 1px solid #eaeaea;
+}
+.wm-order-complete-overview li:last-child {
+  border-right: none;
+  padding-right: 0;
+}
+
+.wm-order-complete-overview span {
+  font-size: 12px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.wm-order-complete-overview strong {
+  font-size: 15px;
+  color: #111;
+  font-weight: 700;
+}
+
+.wm-order-complete-pay-desc {
+  font-size: 14.5px;
+  color: #666;
+  margin-bottom: 35px;
+  line-height: 1.6;
+  padding: 0 2px;
+}
+
+.wm-order-details-title {
+  font-size: 21px;
+  color: #111;
+  margin: 0 0 16px 0;
+  font-weight: 700;
+}
+
+.wm-order-details-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 35px;
+  background: #ffffff;
+  border: 1px solid #eaeaea;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.wm-order-details-table th,
+.wm-order-details-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+}
+
+.wm-order-details-table thead th {
+  text-align: left;
+  text-transform: uppercase;
+  color: #222;
+  font-size: 12.5px;
+  letter-spacing: 0.5px;
+  background: #fafafa;
+  border-bottom: 1px solid #eaeaea;
+  font-weight: 700;
+}
+
+.wm-order-details-table thead th:last-child,
+.wm-order-details-table tbody td:last-child,
+.wm-order-details-table tfoot td {
+  text-align: right;
+}
+
+.wm-order-details-table tbody td {
+  color: #444;
+  vertical-align: middle;
+}
+
+.wm-order-details-table tbody td strong {
+  color: #888;
+  font-weight: 600;
+}
+
+.wm-color-orange {
+  color: #d96b27 !important;
+  font-weight: 700;
+}
+
+.wm-order-details-table tfoot th {
+  text-align: left;
+  color: #222;
+  font-weight: 600;
+  background: #fdfdfd;
+}
+
+.wm-order-details-table tfoot td {
+  color: #444;
+  background: #fdfdfd;
+}
+
+.wm-order-details-table tfoot tr:last-child th,
+.wm-order-details-table tfoot tr:last-child td {
+  background: #fafafa;
+  font-size: 16px;
+  font-weight: 700;
+  border-bottom: none;
+}
+
+.wm-order-addresses {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 35px;
+}
+@media (max-width: 640px) {
+  .wm-order-addresses {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+.wm-address-col {
+  background: #fafafa;
+  border: 1px solid #eaeaea;
+  border-radius: 8px;
+  padding: 18px 20px;
+}
+
+.wm-address-title {
+  font-size: 16px;
+  color: #111;
+  margin: 0 0 12px 0;
+  font-weight: 700;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eaeaea;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wm-address-col address {
+  font-style: normal;
+  line-height: 1.65;
+  color: #555;
+  font-size: 13.5px;
+}
+
+.wm-address-contact {
+  color: #777;
+}
+
+.wm-order-complete-actions {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.wm-return-shop-btn {
+  background: #111;
+  color: #fff;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wm-return-shop-btn:hover {
+  background: #333;
+}
+
+.wm-view-orders-btn {
+  background: #fff;
+  color: #d96b27;
+  border: 1.5px solid #d96b27;
+  padding: 12px 28px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wm-view-orders-btn:hover {
+  background: #fff7ed;
+}

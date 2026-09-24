@@ -1,24 +1,51 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './OurCategories.css';
+import { categoriesApi } from '../../services/api';
 
-import chairImg from '../../assets/chairs_banner.png';
-import tableImg from '../../assets/table 1.jpg';
-import sofaImg from '../../assets/sofa.jpg';
-import armchairImg from '../../assets/armchair.jpg';
-import bedsImg from '../../assets/beds.png';
-import storageImg from '../../assets/storage.jpg';
+import giftsImg from '../../assets/gifts.png';
+import toysImg from '../../assets/toys_collection_banner.jpg';
+import astroImg from '../../assets/astro.png';
+import flowersImg from '../../assets/flowers.png';
+import decorImg from '../../assets/decor1.jpg';
+import crystalImg from '../../assets/Rose_Quartz.webp';
 
-const categories = [
-  { name: 'Chairs',     slug: 'chairs',    img: chairImg },
-  { name: 'Tables',     slug: 'tables',    img: tableImg },
-  { name: 'Sofas',      slug: 'sofas',     img: sofaImg },
-  { name: 'Armchairs',  slug: 'armchairs', img: armchairImg },
-  { name: 'Beds',       slug: 'beds',      img: bedsImg },
-  { name: 'Storage',    slug: 'storage',   img: storageImg },
+const STATIC_FALLBACK_CATEGORIES = [
+  { name: 'Gifts',     slug: 'gifts',     img: giftsImg },
+  { name: 'Toys',      slug: 'toys',      img: toysImg },
+  { name: 'Astrology', slug: 'astrology', img: astroImg },
+  { name: 'Flowers',   slug: 'flowers',   img: flowersImg },
+  { name: 'Decor',     slug: 'decor',     img: decorImg },
+  { name: 'Crystals',  slug: 'crystals',  img: crystalImg },
 ];
 
 export default function OurCategories() {
+  const [categories, setCategories] = useState(STATIC_FALLBACK_CATEGORIES);
+
+  useEffect(() => {
+    categoriesApi.getAll()
+      .then(res => {
+        if (res.data && res.data.length > 0) {
+          const mapped = res.data.map(c => {
+            let imgSrc = c.image;
+            if (imgSrc && !imgSrc.startsWith('http') && !imgSrc.startsWith('data:')) {
+              imgSrc = `http://127.0.0.1:8000${imgSrc.startsWith('/') ? '' : '/'}${imgSrc}`;
+            }
+            const staticMatch = STATIC_FALLBACK_CATEGORIES.find(s => s.slug === c.slug || s.name.toLowerCase() === c.name.toLowerCase());
+            return {
+              name: c.name,
+              slug: c.slug || c.name.toLowerCase().replace(/\s+/g, '-'),
+              img: imgSrc || staticMatch?.img || giftsImg,
+            };
+          });
+          setCategories(mapped.slice(0, 6));
+        }
+      })
+      .catch(err => {
+        console.error("Failed to load categories for homepage", err);
+      });
+  }, []);
+
   return (
     <section className="our-categories" id="categories-section">
       <div className="our-categories__container">
@@ -30,7 +57,7 @@ export default function OurCategories() {
           {categories.map((cat, i) => (
             <Link
               to={`/category/${cat.slug}`}
-              key={cat.name}
+              key={cat.name + i}
               className="cat-card"
               id={`cat-${cat.slug}`}
             >

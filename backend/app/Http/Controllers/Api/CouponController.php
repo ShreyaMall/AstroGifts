@@ -25,7 +25,7 @@ class CouponController extends Controller
         if (!$coupon) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Invalid or expired coupon code. Try WOODMART15 or WOODMART20.',
+                'message' => 'Invalid or expired coupon code. Try ASTROGIFTS15 or ASTROGIFTS20.',
             ], 404);
         }
 

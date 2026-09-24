@@ -3,19 +3,130 @@ import { Link } from 'react-router-dom';
 import './LatestArticles.css';
 import { articlesApi } from '../../services/api';
 
+const articleToysImg = '/article_toys.png';
+const articleAstroImg = '/article_astrology.png';
+const articleGiftingImg = '/article_gifting.png';
+const articleWoodImg = '/article_wood.png';
+
+const DEFAULT_ARTICLES = [
+  {
+    id: 'a1',
+    title: 'Choosing Safe & Educational Toys for Kids',
+    slug: 'choosing-safe-and-educational-toys-for-kids',
+    category: 'Toys Guide',
+    excerpt: 'Explore wooden toys, soft plushies, and cognitive board games designed for growing young minds.',
+    author: 'AstroGifts Team',
+    date: 'Sep 22, 2026',
+    img: articleToysImg,
+    comments: 6
+  },
+  {
+    id: 'a2',
+    title: 'Healing Power of Gemstones & Healing Crystals',
+    slug: 'healing-power-of-gemstones-and-crystals',
+    category: 'Astrology',
+    excerpt: 'Learn how Rose Quartz, Amethyst, and Pyrite bring positive energy, wealth, and peace into your home.',
+    author: 'AstroGifts Team',
+    date: 'Sep 20, 2026',
+    img: articleAstroImg,
+    comments: 10
+  },
+  {
+    id: 'a3',
+    title: 'Top 10 Gifting Ideas for Birthdays & Anniversaries',
+    slug: 'top-10-gifting-ideas-for-birthdays-and-anniversaries',
+    category: 'Gifting Guide',
+    excerpt: 'Discover how to choose meaningful, personalized gift hampers that make every celebration unforgettable.',
+    author: 'AstroGifts Team',
+    date: 'Sep 15, 2026',
+    img: articleGiftingImg,
+    comments: 14
+  },
+  {
+    id: 'a4',
+    title: 'Wood Types: Oak vs Walnut vs Pine',
+    slug: 'fresh-flower-arrangement-and-decor-tips',
+    category: 'Materials',
+    excerpt: 'Understand grain patterns, hardness, and aging characteristics to pick the right solid wood.',
+    author: 'AstroGifts Team',
+    date: 'Jul 18, 2026',
+    img: articleWoodImg,
+    comments: 18
+  }
+];
+
+const getTopicImage = (art, idx = 0) => {
+  if (!art) return DEFAULT_ARTICLES[idx % 4].img;
+  const title = (art.title || '').toLowerCase();
+  const slug = (art.slug || '').toLowerCase();
+  const category = (art.category || '').toLowerCase();
+
+  if (title.includes('toy') || slug.includes('toy') || category.includes('toy')) {
+    return articleToysImg;
+  }
+  if (title.includes('gemstone') || title.includes('crystal') || slug.includes('gemstone') || category.includes('astro')) {
+    return articleAstroImg;
+  }
+  if (title.includes('gifting') || title.includes('birthday') || title.includes('anniversary') || slug.includes('gift')) {
+    return articleGiftingImg;
+  }
+  if (title.includes('wood') || title.includes('flower') || title.includes('decor') || category.includes('material') || category.includes('home')) {
+    return articleWoodImg;
+  }
+
+  const fallbacks = [articleToysImg, articleAstroImg, articleGiftingImg, articleWoodImg];
+  return fallbacks[idx % fallbacks.length];
+};
+
 export default function LatestArticles() {
   const [readMoreExpanded, setReadMoreExpanded] = useState(false);
-  const [articles, setArticles] = useState([]);
+  const [articles, setArticles] = useState(DEFAULT_ARTICLES);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     articlesApi.getAll()
       .then(res => {
-         if (res && res.data) {
-             setArticles(res.data.slice(0, 4));
+         if (res && res.data && Array.isArray(res.data) && res.data.length > 0) {
+             const formatted = res.data.map((art, idx) => {
+               const topicImg = getTopicImage(art, idx);
+               let finalImg = topicImg;
+               let rawImg = art.image || art.image_url || art.img;
+
+               if (rawImg && typeof rawImg === 'string' && rawImg.trim()) {
+                 const t = rawImg.trim();
+                 if (t.includes('article_toys') || t.includes('article_astrology') || t.includes('article_gifting') || t.includes('article_wood')) {
+                   finalImg = t.startsWith('/') ? t : `/${t}`;
+                 }
+               }
+
+               return {
+                 ...art,
+                 id: art.id || `art-${idx}`,
+                 title: art.title,
+                 slug: art.slug,
+                 category: art.category || 'Guide',
+                 excerpt: art.excerpt,
+                 author: art.author || 'AstroGifts Team',
+                 date: art.date_label || art.date || (art.created_at ? new Date(art.created_at).toLocaleDateString() : 'Sep 24, 2026'),
+                 img: finalImg,
+                 comments: art.comments_count || art.comments || (idx * 4 + 6)
+               };
+             });
+
+             if (formatted.length < 4) {
+               const missing = DEFAULT_ARTICLES.slice(formatted.length, 4);
+               setArticles([...formatted, ...missing]);
+             } else {
+               setArticles(formatted.slice(0, 4));
+             }
+         } else {
+           setArticles(DEFAULT_ARTICLES);
          }
       })
-      .catch(err => console.error("Failed to load articles", err))
+      .catch(err => {
+        console.error("Failed to load articles", err);
+        setArticles(DEFAULT_ARTICLES);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -35,11 +146,19 @@ export default function LatestArticles() {
           {loading ? (
              <div style={{ padding: '20px', gridColumn: '1 / -1', textAlign: 'center' }}>Loading articles...</div>
           ) : (
-            articles.map((article) => (
-              <article key={article.id} className="la-card" id={`article-${article.id}`}>
+            articles.map((article, idx) => (
+              <article key={article.id || idx} className="la-card" id={`article-${article.id || idx}`}>
                 {/* Image Container */}
                 <Link to={`/blog/${article.slug}`} className="la-card__img-wrap">
-                  <img src={article.img || article.image_url || article.image} alt={article.title} className="la-card__img" />
+                  <img 
+                    src={article.img || getTopicImage(article, idx)} 
+                    alt={article.title} 
+                    className="la-card__img"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = getTopicImage(article, idx);
+                    }} 
+                  />
 
                   {/* Author & Stats overlay at bottom of image */}
                 <div className="la-card__overlay">

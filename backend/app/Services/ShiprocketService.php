@@ -48,41 +48,115 @@ class ShiprocketService
         $token = $this->getToken();
         
         if (!$token) {
+            Log::warning('Shiprocket token not available, skipping order sync.');
             return ['status' => false, 'message' => 'Shiprocket authentication failed.'];
         }
 
         // Format items
         $orderItems = [];
-        foreach ($localOrder->items as $item) {
+        $skuCounts = [];
+        if (!empty($localOrder->items)) {
+            foreach ($localOrder->items as $item) {
+                $productName = $item->product_name ?? 'Product Item';
+                $baseSku = !empty($item->product_id) ? 'SKU-' . substr((string)$item->product_id, -6) : 'SKU-' . rand(1000, 9999);
+                
+                if (isset($skuCounts[$baseSku])) {
+                    $skuCounts[$baseSku]++;
+                    $sku = $baseSku . '-' . $skuCounts[$baseSku];
+                } else {
+                    $skuCounts[$baseSku] = 1;
+                    $sku = $baseSku;
+                }
+
+                $orderItems[] = [
+                    'name' => mb_substr($productName, 0, 100),
+                    'sku' => $sku,
+                    'units' => max(1, (int)($item->quantity ?? 1)),
+                    'selling_price' => (float)($item->price ?? 0),
+                ];
+            }
+        }
+
+        if (empty($orderItems)) {
             $orderItems[] = [
-                'name' => $item->product_name ?? 'Product',
-                'sku' => 'SKU-' . rand(1000, 9999), // Fallback if no SKU
-                'units' => $item->quantity,
-                'selling_price' => $item->price,
+                'name' => 'Order Item',
+                'sku' => 'SKU-' . rand(1000, 9999),
+                'units' => 1,
+                'selling_price' => (float)($localOrder->total ?? $localOrder->subtotal ?? 100),
             ];
         }
 
+        // Clean phone: ensure 10 digits
+        $rawPhone = preg_replace('/[^0-9]/', '', (string)$localOrder->phone);
+        $cleanPhone = strlen($rawPhone) >= 10 ? substr($rawPhone, -10) : '9999999999';
+
+        // Split customer name
+        $nameParts = explode(' ', trim($localOrder->customer_name ?? 'Customer'));
+        $firstName = $nameParts[0] ?? 'Customer';
+        $lastName = count($nameParts) > 1 ? implode(' ', array_slice($nameParts, 1)) : '.';
+
+        // Address min 10 chars
+        $address = trim($localOrder->shipping_address ?? '');
+        if (strlen($address) < 10) {
+            $address = $address . ', ' . ($localOrder->city ?? 'City');
+            if (strlen($address) < 10) {
+                $address = $address . ', India';
+            }
+        }
+
+        $pickupLocation = env('SHIPROCKET_PICKUP_LOCATION', 'Primary');
+
+        $length = 10;
+        $breadth = 10;
+        $height = 10;
+        $weight = 0.5;
+
+        // Try to fetch dimensions and weight from the first item
+        if (!empty($localOrder->items) && count($localOrder->items) > 0) {
+            $firstItem = $localOrder->items[0];
+            $product = \App\Models\Product::find($firstItem->product_id) ?? \App\Models\Product::where('_id', $firstItem->product_id)->first();
+            
+            if ($product) {
+                if (!empty($product->weight)) {
+                    $w = (float) preg_replace('/[^0-9.]/', '', (string)$product->weight);
+                    if ($w > 0) $weight = $w;
+                }
+                
+                $dimStr = $product->dimensions ?? $product->size ?? '';
+                if (!empty($dimStr)) {
+                    preg_match_all('/[0-9]+(\.[0-9]+)?/', $dimStr, $matches);
+                    if (!empty($matches[0]) && count($matches[0]) >= 3) {
+                        $length = (float)$matches[0][0];
+                        $breadth = (float)$matches[0][1];
+                        $height = (float)$matches[0][2];
+                    } elseif (!empty($matches[0]) && count($matches[0]) >= 1) {
+                         $length = $breadth = $height = (float)$matches[0][0];
+                    }
+                }
+            }
+        }
+
         $payload = [
-            'order_id' => $localOrder->order_number,
-            'order_date' => $localOrder->created_at->format('Y-m-d H:i'),
-            'pickup_location' => 'Primary',
-            'billing_customer_name' => $localOrder->customer_name,
-            'billing_last_name' => '',
-            'billing_address' => $localOrder->shipping_address,
-            'billing_city' => $localOrder->city,
-            'billing_pincode' => $localOrder->zip ?? '201301',
-            'billing_state' => $localOrder->state ?? 'Uttar Pradesh',
+            'order_id' => (string)$localOrder->order_number,
+            'order_date' => $localOrder->created_at ? $localOrder->created_at->format('Y-m-d H:i') : now()->format('Y-m-d H:i'),
+            'pickup_location' => $pickupLocation,
+            'billing_customer_name' => $firstName,
+            'billing_last_name' => $lastName,
+            'billing_address' => $address,
+            'billing_city' => $localOrder->city ?? 'New Delhi',
+            'billing_pincode' => !empty($localOrder->zip) ? trim($localOrder->zip) : '110001',
+            'billing_state' => !empty($localOrder->state) ? trim($localOrder->state) : 'Delhi',
             'billing_country' => 'India',
-            'billing_email' => $localOrder->email,
-            'billing_phone' => $localOrder->phone ?? '9999999999',
+            'billing_email' => $localOrder->email ?? 'customer@example.com',
+            'billing_phone' => $cleanPhone,
             'shipping_is_billing' => true,
             'order_items' => $orderItems,
-            'payment_method' => $localOrder->payment_method === 'cod' ? 'COD' : 'Prepaid',
-            'sub_total' => $localOrder->total ?? $localOrder->subtotal,
-            'length' => 10,
-            'breadth' => 10,
-            'height' => 10,
-            'weight' => 1,
+            'payment_method' => strtolower($localOrder->payment_method ?? '') === 'cod' ? 'COD' : 'Prepaid',
+            'sub_total' => (float)($localOrder->total ?? $localOrder->subtotal ?? 0),
+            'length' => $length,
+            'breadth' => $breadth,
+            'height' => $height,
+            'weight' => $weight,
         ];
 
         try {
@@ -91,20 +165,45 @@ class ShiprocketService
 
             if ($response->successful()) {
                 $data = $response->json();
+                Log::info('Shiprocket full response: ', $data);
                 
+                if (empty($data['order_id'])) {
+                    Log::error('Shiprocket API returned success but no order_id: ', $data);
+                    return ['status' => false, 'message' => $data['message'] ?? 'Unknown error from Shiprocket'];
+                }
+                
+                $shiprocketObj = [
+                    'orderId' => (string)($data['order_id'] ?? ''),
+                    'shipmentId' => (string)($data['shipment_id'] ?? ''),
+                    'awbCode' => (string)($data['awb_code'] ?? ''),
+                    'courierName' => (string)($data['courier_name'] ?? ''),
+                    'trackingUrl' => (string)($data['tracking_url'] ?? ''),
+                    'status' => strtolower($data['status'] ?? 'processing'),
+                ];
+
                 // Update local order with Shiprocket IDs
                 $localOrder->update([
+                    'shiprocket' => $shiprocketObj,
                     'shiprocket_order_id' => $data['order_id'] ?? null,
                     'shiprocket_shipment_id' => $data['shipment_id'] ?? null,
                     'shiprocket_status' => $data['status'] ?? 'NEW',
+                    'shiprocket_awb_code' => $data['awb_code'] ?? null,
+                    'courier_name' => $data['courier_name'] ?? null,
+                    'tracking_url' => $data['tracking_url'] ?? null,
+                ]);
+
+                Log::info('Shiprocket order created successfully for ' . $localOrder->order_number, [
+                    'shiprocket_order_id' => $data['order_id'] ?? null,
+                    'shipment_id' => $data['shipment_id'] ?? null,
                 ]);
 
                 return ['status' => true, 'data' => $data];
             }
 
-            Log::error('Shiprocket Order Creation Failed', [
-                'order' => $localOrder->order_number,
-                'response' => $response->body()
+            Log::error('Shiprocket Order Creation Failed for ' . $localOrder->order_number, [
+                'status_code' => $response->status(),
+                'response' => $response->body(),
+                'payload' => $payload,
             ]);
 
             return ['status' => false, 'message' => $response->body()];

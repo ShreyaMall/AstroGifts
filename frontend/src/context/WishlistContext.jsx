@@ -7,7 +7,7 @@ export const useWishlist = () => useContext(WishlistContext);
 export const WishlistProvider = ({ children }) => {
   const [wishlistItems, setWishlistItems] = useState(() => {
     try {
-      const saved = localStorage.getItem('woodmart_wishlist');
+      const saved = localStorage.getItem('astrogifts_wishlist');
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
@@ -20,7 +20,7 @@ export const WishlistProvider = ({ children }) => {
   // Sync with localStorage
   useEffect(() => {
     try {
-      localStorage.setItem('woodmart_wishlist', JSON.stringify(wishlistItems));
+      localStorage.setItem('astrogifts_wishlist', JSON.stringify(wishlistItems));
     } catch (e) {
       console.error("Failed to save wishlist to localStorage", e);
     }

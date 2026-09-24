@@ -1,0 +1,1 @@
+<?php require "vendor/autoload.php"; $app = require_once "bootstrap/app.php"; $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class); $kernel->bootstrap(); $p = App\Models\Product::where("name", "Premium Sofa 304")->first(); $p->colors = ["Rust", "Bhagwa"]; $p->stock_by_color = ["Rust" => 10, "Bhagwa" => 15]; $p->save(); echo json_encode($p->toArray());

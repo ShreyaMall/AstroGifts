@@ -1,7 +1,13 @@
 /* ===== APP GLOBAL STYLES ===== */
 body { margin: 0; }
 
-/* Floating Buy WoodMart button */
+@media (max-width: 768px) {
+  body {
+    padding-bottom: 60px; /* Space for MobileBottomNav */
+  }
+}
+
+/* Floating Buy AstroGifts button */
 .floating-buy {
   position: fixed;
   bottom: 24px;

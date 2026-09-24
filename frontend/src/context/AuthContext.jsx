@@ -7,12 +7,12 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [authRole, setAuthRole] = useState(() => {
-    return localStorage.getItem('woodmart_role') || sessionStorage.getItem('woodmart_role') || null;
+    return localStorage.getItem('astrogifts_role') || sessionStorage.getItem('astrogifts_role') || null;
   });
 
   const [user, setUser] = useState(() => {
     try {
-      const savedUser = localStorage.getItem('woodmart_user') || sessionStorage.getItem('woodmart_user');
+      const savedUser = localStorage.getItem('astrogifts_user') || sessionStorage.getItem('astrogifts_user');
       return savedUser ? JSON.parse(savedUser) : null;
     } catch {
       return null;
@@ -39,9 +39,12 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (role, token = null, userData = null, persistent = true) => {
-    setAuthRole(role);
+    // Always trust the backend role if available to prevent state desync
+    const actualRole = userData?.role || role;
+    
+    setAuthRole(actualRole);
     const storage = persistent ? localStorage : sessionStorage;
-    storage.setItem('woodmart_role', role);
+    storage.setItem('astrogifts_role', actualRole);
 
     if (token) {
       setAuthToken(token, persistent);
@@ -49,7 +52,7 @@ export const AuthProvider = ({ children }) => {
 
     if (userData) {
       setUser(userData);
-      storage.setItem('woodmart_user', JSON.stringify(userData));
+      storage.setItem('astrogifts_user', JSON.stringify(userData));
     }
   };
 
@@ -61,10 +64,10 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setAuthRole(null);
       setUser(null);
-      localStorage.removeItem('woodmart_role');
-      sessionStorage.removeItem('woodmart_role');
-      localStorage.removeItem('woodmart_user');
-      sessionStorage.removeItem('woodmart_user');
+      localStorage.removeItem('astrogifts_role');
+      sessionStorage.removeItem('astrogifts_role');
+      localStorage.removeItem('astrogifts_user');
+      sessionStorage.removeItem('astrogifts_user');
       setAuthToken(null);
     }
   };
@@ -75,7 +78,7 @@ export const AuthProvider = ({ children }) => {
       user,
       isAuthenticated: !!authRole,
       isAdmin: authRole === 'admin',
-      isUser: authRole === 'user',
+      isUser: authRole === 'user' || authRole === 'customer',
       loading,
       login,
       logout,

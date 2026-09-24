@@ -1,19 +1,19 @@
-/* ── AdminLoginPage.css — WoodMart White & Orange Theme ── */
+/* ── AdminLoginPage.css — Dermato Warm Cream Theme ── */
 .admin-login-page {
   display: flex;
   min-height: 100vh;
   width: 100%;
-  font-family: 'Jost', 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: #f6f5f2;
-  color: #1c1c1c;
+  font-family: var(--font-body);
+  background-color: var(--bg-main);
+  color: var(--text-dark);
 }
 
 /* ══════════════════════════════════════════════════
-   LEFT PANEL — warm cream/white with orange accents
+   LEFT PANEL — warm dark chestnut brown with gold/tan accents
    ══════════════════════════════════════════════════ */
 .admin-login-page__left {
   flex: 1;
-  background: linear-gradient(145deg, #1c1c1c 0%, #2d2d2d 60%, #111111 100%);
+  background: linear-gradient(145deg, #3b2216 0%, #5c3826 60%, #2c1a11 100%);
   padding: 3.5rem;
   display: flex;
   flex-direction: column;
@@ -34,18 +34,19 @@
 }
 
 .admin-login-page__logo-text {
+  font-family: var(--font-heading);
   font-size: 1.7rem;
   font-weight: 800;
   letter-spacing: -0.5px;
-  color: #ffffff;
+  color: #faf4eb;
 }
 
 .admin-login-page__logo-dot {
-  color: #f59e53;
+  color: #b87d57;
 }
 
 .admin-login-page__tagline {
-  color: #f59e53;
+  color: #b87d57;
   font-size: 0.82rem;
   margin-top: 0.35rem;
   font-weight: 700;
@@ -60,25 +61,26 @@
 }
 
 .admin-login-page__left-title {
+  font-family: var(--font-heading);
   font-size: 2.5rem;
   font-weight: 800;
   line-height: 1.2;
   margin-bottom: 1.25rem;
   letter-spacing: -0.5px;
-  color: #ffffff;
+  color: #faf4eb;
 }
 
 .admin-login-page__left-accent {
-  color: #f59e53;
+  color: #b87d57;
   background: none;
   -webkit-background-clip: unset;
-  -webkit-text-fill-color: #f59e53;
+  -webkit-text-fill-color: #b87d57;
 }
 
 .admin-login-page__left-desc {
   font-size: 1rem;
   line-height: 1.65;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(250, 244, 235, 0.7);
   margin-bottom: 2rem;
 }
 
@@ -89,8 +91,8 @@
 }
 
 .admin-login-page__metric-card {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   padding: 1rem 1.1rem;
   border-radius: 12px;
   backdrop-filter: blur(10px);
@@ -104,12 +106,12 @@
 .admin-login-page__metric-title {
   font-size: 0.88rem;
   font-weight: 700;
-  color: #ffffff;
+  color: #faf4eb;
 }
 
 .admin-login-page__metric-status {
   font-size: 0.76rem;
-  color: #f59e53;
+  color: #b87d57;
   font-weight: 600;
   margin-top: 0.15rem;
 }
@@ -126,7 +128,7 @@
   height: 500px;
   top: -180px;
   right: -180px;
-  background: radial-gradient(circle, rgba(245, 158, 83, 0.12) 0%, rgba(0, 0, 0, 0) 70%);
+  background: radial-gradient(circle, rgba(184, 125, 87, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
 }
 
 .admin-login-page__deco--2 {
@@ -134,11 +136,11 @@
   height: 350px;
   bottom: -100px;
   left: -100px;
-  background: radial-gradient(circle, rgba(245, 158, 83, 0.08) 0%, rgba(0, 0, 0, 0) 70%);
+  background: radial-gradient(circle, rgba(184, 125, 87, 0.1) 0%, rgba(0, 0, 0, 0) 70%);
 }
 
 /* ══════════════════════════════════════════════════
-   RIGHT PANEL — clean white form
+   RIGHT PANEL — clean warm cream form
    ══════════════════════════════════════════════════ */
 .admin-login-page__right {
   flex: 1;
@@ -146,7 +148,7 @@
   align-items: center;
   justify-content: center;
   padding: 2.5rem;
-  background-color: #ffffff;
+  background-color: var(--bg-main);
 }
 
 .admin-login-page__form-wrap {
@@ -167,24 +169,24 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0.38rem 0.9rem;
-  background: rgba(245, 158, 83, 0.12);
-  color: #e07b39;
+  background: rgba(112, 72, 50, 0.12);
+  color: #704832;
   font-size: 0.78rem;
   font-weight: 700;
   border-radius: 20px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border: 1px solid rgba(245, 158, 83, 0.35);
+  border: 1px solid rgba(112, 72, 50, 0.3);
 }
 
 .admin-login-page__switch-btn {
-  background: #f6f5f2;
-  border: 1px solid #e8e5e0;
+  background: #f4ebd9;
+  border: 1px solid #ede1ca;
   padding: 0.45rem 0.9rem;
   border-radius: 8px;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #555555;
+  color: #5c3826;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -193,9 +195,9 @@
 }
 
 .admin-login-page__switch-btn:hover {
-  background: #eae9e5;
-  border-color: #d0cdc7;
-  color: #1c1c1c;
+  background: #ede1ca;
+  border-color: #e2d2b5;
+  color: #3b2216;
 }
 
 /* Form header */
@@ -204,15 +206,16 @@
 }
 
 .admin-login-page__form-title {
+  font-family: var(--font-heading);
   font-size: 2rem;
   font-weight: 800;
-  color: #1c1c1c;
+  color: #5c3826;
   margin-bottom: 0.4rem;
   letter-spacing: -0.5px;
 }
 
 .admin-login-page__form-sub {
-  color: #888888;
+  color: #7c5946;
   font-size: 0.95rem;
 }
 
@@ -232,7 +235,7 @@
 .admin-login-page__label {
   font-size: 0.88rem;
   font-weight: 600;
-  color: #333333;
+  color: #4a2c1d;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -241,7 +244,7 @@
 .admin-login-page__forgot {
   background: none;
   border: none;
-  color: #e07b39;
+  color: #704832;
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
@@ -249,7 +252,7 @@
 }
 
 .admin-login-page__forgot:hover {
-  color: #c0621e;
+  color: #543221;
   text-decoration: underline;
 }
 
@@ -262,31 +265,31 @@
 .admin-login-page__input-icon {
   position: absolute;
   left: 0.9rem;
-  color: #aaaaaa;
+  color: #8c6753;
   pointer-events: none;
 }
 
 .admin-login-page__input {
   width: 100%;
   padding: 0.8rem 1rem 0.8rem 2.6rem;
-  border: 1.5px solid #e0dcd6;
+  border: 1.5px solid #ede1ca;
   border-radius: 10px;
   font-size: 0.95rem;
-  color: #1c1c1c;
-  background-color: #fafaf8;
+  color: #4a2c1d;
+  background-color: #ffffff;
   transition: all 0.2s ease;
   outline: none;
   font-family: inherit;
 }
 
 .admin-login-page__input::placeholder {
-  color: #bbbbbb;
+  color: #9c7863;
 }
 
 .admin-login-page__input:focus {
-  border-color: #f59e53;
+  border-color: #704832;
   background-color: #ffffff;
-  box-shadow: 0 0 0 4px rgba(245, 158, 83, 0.15);
+  box-shadow: 0 0 0 4px rgba(112, 72, 50, 0.15);
 }
 
 .admin-login-page__eye {
@@ -294,7 +297,7 @@
   right: 0.9rem;
   background: none;
   border: none;
-  color: #aaaaaa;
+  color: #8c6753;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -304,7 +307,7 @@
 }
 
 .admin-login-page__eye:hover {
-  color: #555555;
+  color: #5c3826;
 }
 
 /* Remember me checkbox */
@@ -319,7 +322,7 @@
   align-items: center;
   gap: 0.6rem;
   font-size: 0.88rem;
-  color: #666666;
+  color: #7c5946;
   cursor: pointer;
   user-select: none;
 }
@@ -331,7 +334,7 @@
 .admin-login-page__checkbox-box {
   width: 18px;
   height: 18px;
-  border: 1.5px solid #d0cdc7;
+  border: 1.5px solid #ede1ca;
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -341,8 +344,8 @@
 }
 
 .admin-login-page__checkbox:checked + .admin-login-page__checkbox-box {
-  background-color: #f59e53;
-  border-color: #f59e53;
+  background-color: #704832;
+  border-color: #704832;
 }
 
 .admin-login-page__checkbox:checked + .admin-login-page__checkbox-box::after {
@@ -365,18 +368,18 @@
   font-size: 0.88rem;
 }
 
-/* ── SUBMIT BUTTON — Orange pill ── */
+/* ── SUBMIT BUTTON — Espresso pill ── */
 .admin-login-page__submit {
   width: 100%;
   padding: 0.9rem;
-  background: #f59e53;
+  background: #704832;
   color: #ffffff;
   border: none;
   border-radius: 10px;
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(245, 158, 83, 0.35);
+  box-shadow: 0 4px 14px rgba(112, 72, 50, 0.25);
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
@@ -387,9 +390,9 @@
 }
 
 .admin-login-page__submit:hover:not(:disabled) {
-  background: #e07b39;
+  background: #543221;
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(224, 123, 57, 0.45);
+  box-shadow: 0 6px 20px rgba(84, 50, 33, 0.35);
 }
 
 .admin-login-page__submit:disabled {

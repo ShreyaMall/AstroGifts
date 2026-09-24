@@ -7,7 +7,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000
  * Get stored token if any
  */
 export const getAuthToken = () => {
-  return localStorage.getItem('woodmart_token') || sessionStorage.getItem('woodmart_token') || null;
+  return localStorage.getItem('astrogifts_token') || sessionStorage.getItem('astrogifts_token') || null;
 };
 
 /**
@@ -15,14 +15,14 @@ export const getAuthToken = () => {
  */
 export const setAuthToken = (token, persistent = true) => {
   if (!token) {
-    localStorage.removeItem('woodmart_token');
-    sessionStorage.removeItem('woodmart_token');
+    localStorage.removeItem('astrogifts_token');
+    sessionStorage.removeItem('astrogifts_token');
     return;
   }
   if (persistent) {
-    localStorage.setItem('woodmart_token', token);
+    localStorage.setItem('astrogifts_token', token);
   } else {
-    sessionStorage.setItem('woodmart_token', token);
+    sessionStorage.setItem('astrogifts_token', token);
   }
 };
 
@@ -58,7 +58,7 @@ async function request(endpoint, options = {}) {
 
     return data;
   } catch (err) {
-    console.warn(`[WoodMart API Request to ${endpoint}]:`, err.message);
+    console.warn(`[AstroGifts API Request to ${endpoint}]:`, err.message);
     throw err;
   }
 }
@@ -72,6 +72,24 @@ export const authApi = {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
+  },
+
+  sendOtp: async (email, password) => {
+    return request('/auth/send-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+  },
+
+  verifyOtp: async (email, otp) => {
+    const res = await request('/auth/verify-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email, otp }),
+    });
+    if (res.token) {
+      localStorage.setItem('astrogifts_token', res.token);
+    }
+    return res;
   },
 
   adminLogin: async (email, password) => {
@@ -138,6 +156,27 @@ export const productsApi = {
   },
 };
 
+export const reviewsApi = {
+  getAll: async () => {
+    return request('/reviews');
+  },
+  submitGeneral: async (data) => {
+    return request('/reviews', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+  getByProduct: async (productId) => {
+    return request(`/products/${productId}/reviews`);
+  },
+  addReview: async (productId, reviewData) => {
+    return request(`/products/${productId}/reviews`, {
+      method: 'POST',
+      body: JSON.stringify(reviewData),
+    });
+  },
+};
+
 /**
  * Addresses API (Requires Auth)
  */
@@ -182,6 +221,18 @@ export const articlesApi = {
   },
 };
 
+export const commentsApi = {
+  getBySlug: async (slug) => {
+    return request(`/articles/${slug}/comments`);
+  },
+  create: async (slug, data) => {
+    return request(`/articles/${slug}/comments`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+};
+
 /* ══════════════════════════════════════════════════
    4. CHECKOUT, ORDERS & COUPONS
 ══════════════════════════════════════════════════ */
@@ -206,8 +257,24 @@ export const ordersApi = {
     return request(`/orders/${orderNumber}`);
   },
 
-  getUserOrders: async () => {
-    return request('/user/orders');
+  getUserOrders: async (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.email) query.append('email', params.email);
+    if (params.order_numbers) {
+      const numbers = Array.isArray(params.order_numbers) 
+        ? params.order_numbers.join(',') 
+        : params.order_numbers;
+      query.append('order_numbers', numbers);
+    }
+    const qs = query.toString();
+    return request(`/user/orders${qs ? '?' + qs : ''}`);
+  },
+
+  requestReturn: async (orderNumber, returnData) => {
+    return request(`/orders/${orderNumber}/return-request`, {
+      method: 'POST',
+      body: JSON.stringify(returnData),
+    });
   },
 };
 
@@ -226,10 +293,11 @@ export const adminApi = {
     return request(`/admin/orders?${params.toString()}`);
   },
 
-  updateOrderStatus: async (orderId, status) => {
+  updateOrderStatus: async (orderId, statusOrData) => {
+    const bodyData = typeof statusOrData === 'object' ? statusOrData : { status: statusOrData };
     return request(`/admin/orders/${orderId}/status`, {
       method: 'PUT',
-      body: JSON.stringify({ status }),
+      body: JSON.stringify(bodyData),
     });
   },
 
@@ -248,16 +316,20 @@ export const adminApi = {
     const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api'}/admin/upload`, {
       method: 'POST',
       headers: {
+        'Accept': 'application/json',
         ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
       },
       body: formData,
     });
     
+    const resData = await response.json().catch(() => ({}));
+
     if (!response.ok) {
-      throw new Error('Image upload failed');
+      const msg = resData.message || (resData.errors ? Object.values(resData.errors).flat().join(', ') : `Image upload failed (HTTP ${response.status})`);
+      throw new Error(msg);
     }
     
-    return response.json();
+    return resData;
   },
 
   createProduct: async (productData) => {
@@ -284,8 +356,48 @@ export const adminApi = {
     return request('/admin/categories');
   },
 
+  createCategory: async (data) => {
+    return request('/admin/categories', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateCategory: async (id, data) => {
+    return request(`/admin/categories/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteCategory: async (id) => {
+    return request(`/admin/categories/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
   getSliders: async () => {
     return request('/admin/sliders');
+  },
+
+  createSlider: async (data) => {
+    return request('/admin/sliders', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateSlider: async (id, data) => {
+    return request(`/admin/sliders/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteSlider: async (id) => {
+    return request(`/admin/sliders/${id}`, {
+      method: 'DELETE',
+    });
   },
 
   getPosts: async () => {
@@ -295,6 +407,101 @@ export const adminApi = {
   getUsers: async () => {
     return request('/admin/users');
   },
+
+  getReviews: async () => {
+    return request('/admin/reviews');
+  },
+
+  addReview: async (data) => {
+    return request('/admin/reviews', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateReview: async (id, data) => {
+    return request(`/admin/reviews/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteReview: async (id) => {
+    return request(`/admin/reviews/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  getSizes: async () => {
+    return request('/admin/sizes');
+  },
+
+  addSize: async (data) => {
+    return request('/admin/sizes', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateSize: async (id, data) => {
+    return request(`/admin/sizes/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteSize: async (id) => {
+    return request(`/admin/sizes/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  getColors: async () => {
+    return request('/admin/colors');
+  },
+
+  addColor: async (data) => {
+    return request('/admin/colors', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateColor: async (id, data) => {
+    return request(`/admin/colors/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteColor: async (id) => {
+    return request(`/admin/colors/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  getComments: async () => {
+    return request('/admin/comments');
+  },
+
+  deleteComment: async (id) => {
+    return request(`/admin/comments/${id}`, {
+      method: 'DELETE',
+    });
+  },
+};
+
+export const contactApi = {
+  submit: (data) => request('/contact', { method: 'POST', body: JSON.stringify(data) }),
+  getAll: () => request('/admin/contacts'),
+  delete: (id) => request(`/admin/contacts/${id}`, { method: 'DELETE' }),
+};
+
+export const faqApi = {
+  getAll: () => request('/faqs'),
+  adminCreate: (data) => request('/admin/faqs', { method: 'POST', body: JSON.stringify(data) }),
+  adminUpdate: (id, data) => request(`/admin/faqs/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  adminDelete: (id) => request(`/admin/faqs/${id}`, { method: 'DELETE' }),
 };
 
 export default {
@@ -306,4 +513,7 @@ export default {
   coupons: couponsApi,
   orders: ordersApi,
   admin: adminApi,
+  reviews: reviewsApi,
+  contact: contactApi,
+  faq: faqApi,
 };

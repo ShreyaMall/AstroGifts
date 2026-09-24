@@ -1,8 +1,8 @@
 /* ===== OUR CATEGORIES ===== */
 .our-categories {
-  background: var(--gray-100);
-  padding: 50px 0 20px;
-  font-family: 'Jost', 'Work Sans', Arial, sans-serif;
+  background: var(--bg-main);
+  padding: 50px 0 10px;
+  font-family: var(--font-body);
 }
 
 .our-categories__container {
@@ -16,18 +16,18 @@
 }
 
 .our-categories__title {
-  font-family: 'Jost', 'Work Sans', Arial, sans-serif;
+  font-family: var(--font-heading);
   font-size: 30px;
   font-weight: 700;
-  color: #1c1c1c;
+  color: var(--text-heading);
   margin-bottom: 6px;
   letter-spacing: -0.3px;
 }
 
 .our-categories__subtitle {
-  font-family: 'Jost', 'Work Sans', Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 15px;
-  color: var(--gray-500);
+  color: var(--text-muted);
 }
 
 /* Grid: 6 circles per row */
@@ -57,13 +57,14 @@
   aspect-ratio: 1;
   border-radius: 50%;
   overflow: hidden;
-  background: var(--gray-200);
+  background: var(--bg-card);
+  border: 1px solid var(--gray-300);
   transition: transform 0.35s ease, box-shadow 0.35s ease;
 }
 
 .cat-card:hover .cat-card__circle {
   transform: scale(1.03);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 12px 36px rgba(92, 56, 38, 0.15);
 }
 
 .cat-card__img {
@@ -77,29 +78,31 @@
   transform: scale(1.08);
 }
 
-/* White Pill Label centered OVER Image */
+/* Pill Label centered OVER Image */
 .cat-card__label {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 3;
-  background: #ffffff;
-  color: #1c1c1c;
-  font-family: 'Jost', 'Work Sans', Arial, sans-serif;
+  background: var(--brand-primary);
+  color: #ffffff;
+  border: 1px solid var(--brand-primary);
+  font-family: var(--font-body);
   font-size: 13px;
   font-weight: 700;
   padding: 7px 18px;
   border-radius: 50px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 14px rgba(92, 56, 38, 0.25);
   transition: all 0.25s ease;
   white-space: nowrap;
   pointer-events: none;
 }
 
 .cat-card:hover .cat-card__label {
-  background: #1a1a1a;
+  background: var(--brand-primary-hover);
   color: #ffffff;
+  border-color: transparent;
   transform: translate(-50%, -50%) scale(1.04);
 }
 
@@ -110,10 +113,47 @@
 }
 
 @media (max-width: 768px) {
-  .our-categories__grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
-  .our-categories__container { padding: 0 20px; }
-}
-
-@media (max-width: 480px) {
-  .our-categories__grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .our-categories__container { padding: 0 16px; }
+  .our-categories__header { margin-bottom: 24px; }
+  .our-categories__title { font-size: 26px; }
+  
+  .our-categories__grid { 
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 16px;
+    padding-bottom: 16px;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+  }
+  .our-categories__grid::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .cat-card { 
+    flex: 0 0 140px;
+    max-width: none;
+    scroll-snap-align: start;
+  }
+  
+  .cat-card__circle { 
+    width: 140px;
+    height: 140px;
+    max-width: none;
+    border-radius: 50%;
+  }
+  
+  /* Ensure images in the circle have a dark overlay as per original design */
+  .cat-card__circle::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.15);
+    border-radius: 50%;
+    z-index: 1;
+  }
+  .cat-card__label {
+    z-index: 2;
+  }
 }

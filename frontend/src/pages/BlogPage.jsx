@@ -25,8 +25,8 @@ export default function BlogPage() {
     <div className="blog-page">
       <Header />
       <div className="blog-hero">
-        <h1 className="blog-hero__title">Homewood Decor Journal</h1>
-        <p className="blog-hero__subtitle">Interior design trends, carpentry craftsmanship & furniture styling guides</p>
+        <h1 className="blog-hero__title">AstroGifts Journal</h1>
+        <p className="blog-hero__subtitle">Gifts trends, crystal guides & astrology insights</p>
       </div>
 
       <div className="blog-container">
@@ -37,7 +37,30 @@ export default function BlogPage() {
             {articles.map(art => (
               <Link key={art.id} to={`/blog/${art.slug}`} className="blog-card">
               <div className="blog-card__img-wrap">
-                <img src={art.img || art.image_url || art.image} alt={art.title} className="blog-card__img" />
+                <img 
+                  src={(() => {
+                    const title = (art.title || '').toLowerCase();
+                    const slug = (art.slug || '').toLowerCase();
+                    const category = (art.category || '').toLowerCase();
+                    if (title.includes('toy') || slug.includes('toy') || category.includes('toy')) return '/article_toys.png';
+                    if (title.includes('gemstone') || title.includes('crystal') || slug.includes('gemstone') || category.includes('astro')) return '/article_astrology.png';
+                    if (title.includes('gifting') || title.includes('birthday') || title.includes('anniversary') || slug.includes('gift')) return '/article_gifting.png';
+                    if (title.includes('wood') || title.includes('flower') || title.includes('decor') || category.includes('material') || category.includes('home')) return '/article_wood.png';
+                    const raw = art.image || art.image_url || art.img;
+                    if (!raw || typeof raw !== 'string' || !raw.trim()) return '/article_gifting.png';
+                    const t = raw.trim();
+                    if (t.startsWith('http://') || t.startsWith('https://') || t.startsWith('data:')) return t;
+                    if (t.startsWith('storage/') || t.startsWith('/storage/')) return `http://127.0.0.1:8000/${t.replace(/^\//, '')}`;
+                    if (t.startsWith('/')) return t;
+                    return `/${t}`;
+                  })()} 
+                  alt={art.title} 
+                  className="blog-card__img" 
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = '/article_gifting.png';
+                  }}
+                />
               </div>
               <div className="blog-card__body">
                 <div className="blog-card__meta">
@@ -56,7 +79,7 @@ export default function BlogPage() {
           </div>
         )}
       </div>
-
-      </div>
+      <Footer />
+    </div>
   );
 }

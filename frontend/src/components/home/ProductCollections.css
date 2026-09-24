@@ -10,10 +10,9 @@
   width: 100%;
   max-width: 1500px;
   margin: 0 auto;
-  padding: 24px 28px 50px;
-  background: #f5f4f2;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    'Helvetica Neue', sans-serif;
+  padding: 10px 28px 20px;
+  background: var(--bg-main);
+  font-family: var(--font-body);
 }
 
 /* ── HEADER ── */
@@ -22,15 +21,16 @@
   margin-bottom: 32px;
 }
 .pc-title {
+  font-family: var(--font-heading);
   font-size: 42px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--text-heading);
   letter-spacing: -0.5px;
   margin-bottom: 10px;
 }
 .pc-subtitle {
   font-size: 16px;
-  color: #888;
+  color: var(--text-muted);
 }
 
 /* ─────────────────────────────────────────────────────
@@ -56,7 +56,8 @@
   border-radius: 16px;
   overflow: hidden;
   position: relative;
-  background: #e5e3e0;
+  background: var(--bg-card);
+  border: 1px solid var(--gray-300);
   cursor: pointer;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
   width: 100%;
@@ -64,7 +65,8 @@
 }
 .pc-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 14px 36px rgba(0,0,0,0.13);
+  box-shadow: 0 14px 36px rgba(92, 56, 38, 0.12);
+  border-color: var(--brand-accent);
 }
 
 .pc-img {
@@ -73,7 +75,7 @@
   object-fit: cover;
   display: block;
   transition: transform 0.35s ease;
-  background: #ddd8d0;
+  background: var(--bg-card);
 }
 .pc-card:hover .pc-img {
   transform: scale(1.05);
@@ -88,22 +90,32 @@
 
 /* ── TEXT CARDS ── */
 .card-hallan {
-  background: #b8c8d5;
+  background: #f4ebd9;
+  border: 1px solid #e2d2b5;
   display: flex;
   align-items: center;
   cursor: default;
 }
+.card-hallan .pc-text-label { color: var(--brand-primary); }
+.card-hallan .pc-text-title { color: var(--text-heading); }
+.card-hallan .pc-text-desc  { color: var(--text-muted); }
+
 .card-hallan:hover {
   transform: none;
   box-shadow: none;
 }
 
 .card-gladom {
-  background: #ece7df;
+  background: #f4ebd9;
+  border: 1px solid #e2d2b5;
   display: flex;
   align-items: center;
   cursor: default;
 }
+.card-gladom .pc-text-label { color: var(--brand-primary); }
+.card-gladom .pc-text-title { color: var(--text-heading); }
+.card-gladom .pc-text-desc  { color: var(--text-muted); }
+
 .card-gladom:hover {
   transform: none;
   box-shadow: none;
@@ -123,23 +135,65 @@
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: #6b7f8e;
 }
 .pc-text-title {
-  font-family: var(--font-body);
+  font-family: var(--font-heading);
   font-size: 30px;
   font-weight: 800;
-  color: #1a1a1a;
   letter-spacing: 0.5px;
   line-height: 1.1;
 }
 .pc-text-desc {
   font-family: var(--font-body);
   font-size: 13px;
-  color: #666666;
   line-height: 1.5;
   font-weight: 400;
   max-width: 220px;
+}
+
+/* ── VIDEO PLAY OVERLAY ── */
+.pc-card--video {
+  position: relative;
+}
+.pc-video-play-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 5;
+  pointer-events: none;
+}
+.pc-play-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--brand-primary);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  padding-left: 3px;
+  box-shadow: 0 8px 24px rgba(92, 56, 38, 0.3);
+  transition: transform 0.3s ease;
+}
+.pc-card:hover .pc-play-icon {
+  transform: scale(1.15);
+  background: var(--brand-primary-hover);
+}
+.pc-play-label {
+  background: rgba(92, 56, 38, 0.85);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  padding: 4px 12px;
+  border-radius: 20px;
 }
 
 /* ── RESPONSIVE ── */
@@ -154,13 +208,19 @@
 }
 
 @media (max-width: 540px) {
-  .pc-wrapper { padding: 32px 12px 80px; }
+  .pc-wrapper { padding: 32px 12px 20px; }
   .pc-title   { font-size: 26px; }
   .pc-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
   }
-  .h-325, .h-350, .h-300, .h-450, .h-200 {
-    height: 240px;
+  .pc-col {
+    display: contents;
   }
+  .h-325, .h-350, .h-300, .h-450, .h-200 {
+    height: 180px;
+  }
+  .pc-text-inner { padding: 12px; }
+  .pc-text-title { font-size: 20px; }
+  .pc-text-desc { font-size: 11px; }
 }

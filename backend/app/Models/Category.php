@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use MongoDB\Laravel\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Category extends Model
@@ -14,14 +14,19 @@ class Category extends Model
         'name',
         'slug',
         'icon',
+        'image',
         'description',
+        'parent_category',
+        'show_in_menu',
         'sort_order',
         'is_active',
+        'status',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'sort_order' => 'integer',
+        'show_in_menu' => 'boolean',
     ];
 
     public function products(): HasMany

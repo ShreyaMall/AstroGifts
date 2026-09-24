@@ -4,6 +4,7 @@ import { addressesApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
+import ProfileSidebar from '../components/layout/ProfileSidebar';
 
 const NAV = [
   { label: 'User Info', icon: '👤', to: '/profile' },
@@ -41,9 +42,26 @@ export default function AddressPage() {
 
   const handleLogout = async () => { await logout(); navigate('/login'); };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = async (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+
+    if (name === 'pincode' && value.length === 6) {
+      try {
+        const res = await fetch(`https://api.postalpincode.in/pincode/${value}`);
+        const data = await res.json();
+        if (data && data[0]?.Status === 'Success') {
+          const postOffice = data[0].PostOffice[0];
+          setFormData(prev => ({
+            ...prev,
+            city: postOffice.District,
+            state: postOffice.State
+          }));
+        }
+      } catch (err) {
+        console.error('Error fetching pincode details', err);
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -93,48 +111,34 @@ export default function AddressPage() {
 
   return (
     <>
+      <style>{`
+        .profile-layout-container {
+          max-width: 1120px; margin: 0 auto; padding: 40px 20px 80px; display: flex; gap: 28px; align-items: flex-start;
+        }
+        .profile-sidebar { width: 200px; flex-shrink: 0; background: #fff; border-radius: 12px; box-shadow: 0 1px 8px rgba(0,0,0,0.07); padding: 24px 0; position: sticky; top: 100px; }
+        .profile-main { flex: 1; min-width: 0; }
+        @media (max-width: 768px) {
+          .profile-layout-container { flex-direction: column; padding: 20px 16px 60px; }
+          .profile-sidebar { width: 100%; position: static; top: auto; margin-bottom: 10px; }
+          .profile-main { width: 100%; }
+        }
+      `}</style>
       <Header />
-      <div style={{ minHeight: 'calc(100vh - 400px)', background: '#f5f5f5', fontFamily: 'Inter, sans-serif' }}>
-        <div style={{ maxWidth: '1120px', margin: '0 auto', padding: '40px 20px 80px', display: 'flex', gap: '28px', alignItems: 'flex-start' }}>
+      <div style={{ minHeight: 'calc(100vh - 150px)', background: '#f5f5f5', fontFamily: 'Inter, sans-serif' }}>
+        <div className="profile-layout-container">
 
           {/* ── Sidebar ── */}
-          <aside style={{ width: '200px', flexShrink: 0, background: '#fff', borderRadius: '12px', boxShadow: '0 1px 8px rgba(0,0,0,0.07)', padding: '24px 0', position: 'sticky', top: '100px' }}>
-            <div style={{ padding: '0 20px 16px', borderBottom: '1px solid #f0f0f0', fontWeight: '700', fontSize: '15px', color: '#111' }}>
-              User Profile
-            </div>
-            <nav style={{ padding: '10px 0' }}>
-              {NAV.map(item => (
-                <Link key={item.label} to={item.to} style={{
-                  display: 'flex', alignItems: 'center', gap: '10px',
-                  padding: '10px 20px', textDecoration: 'none', fontSize: '14px',
-                  fontWeight: item.active ? '600' : '400',
-                  color: item.active ? '#d96b27' : '#444',
-                  background: item.active ? '#fff7f0' : 'transparent',
-                  borderLeft: item.active ? '3px solid #d96b27' : '3px solid transparent',
-                }}>
-                  <span>{item.icon}</span>{item.label}
-                </Link>
-              ))}
-              <button onClick={handleLogout} style={{
-                display: 'flex', alignItems: 'center', gap: '10px',
-                padding: '10px 20px', width: '100%', textAlign: 'left',
-                fontSize: '14px', color: '#e53e3e', background: 'none',
-                border: 'none', borderLeft: '3px solid transparent', cursor: 'pointer',
-              }}>
-                🚪 Logout
-              </button>
-            </nav>
-          </aside>
+          <ProfileSidebar activeTab="address" />
 
           {/* ── Main Content ── */}
-          <div style={{ flex: 1 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
+          <div className="profile-main">
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
               <div>
                 <h1 style={{ fontSize: '26px', fontWeight: '700', margin: '0 0 6px', color: '#111' }}>My Addresses</h1>
                 <p style={{ color: '#888', margin: 0, fontSize: '14px' }}>Manage your shipping addresses</p>
               </div>
               {!showForm && (
-                <button onClick={() => { setShowForm(true); setEditingId(null); setFormData({name: '', phone: '', pincode: '', locality: '', address_line: '', city: '', state: '', is_default: false}); }} style={{ padding: '10px 20px', background: '#d96b27', color: '#fff', borderRadius: '8px', border: 'none', fontWeight: '600', cursor: 'pointer' }}>
+                <button onClick={() => { setShowForm(true); setEditingId(null); setFormData({name: '', phone: '', pincode: '', locality: '', address_line: '', city: '', state: '', is_default: false}); }} style={{ padding: '10px 20px', background: '#d96b27', color: '#fff', borderRadius: '8px', border: 'none', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                   + Add New Address
                 </button>
               )}

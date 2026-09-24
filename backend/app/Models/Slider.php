@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use MongoDB\Laravel\Eloquent\Model;
 
 class Slider extends Model
 {
@@ -16,6 +16,9 @@ class Slider extends Model
         'image',
         'cta_text',
         'link',
+        'badge_text',
+        'badge_category',
+        'designer',
         'status',
         'sort_order',
     ];

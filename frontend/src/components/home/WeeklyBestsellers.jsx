@@ -3,9 +3,28 @@ import { useNavigate, Link } from 'react-router-dom';
 import './WeeklyBestsellers.css';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
-import { productsApi } from '../../services/api';
+import { productsApi, categoriesApi } from '../../services/api';
+import ProductDetailModal from './ProductDetailModal';
 
-const TABS = ['All', 'Chairs', 'Sofas', 'Armchairs', 'Tables'];
+import giftsImg from '../../assets/gifts.png';
+import giftItemImg from '../../assets/gift image.jpg';
+import astroImg from '../../assets/astro.png';
+import flowersImg from '../../assets/flowers.png';
+import crystalImg from '../../assets/Rose_Quartz.webp';
+
+const ALLOWED_TABS = ['All', 'Gifts', 'Toys', 'Astrology', 'Flowers', 'Decor'];
+const DEFAULT_TABS = ['All', 'Gifts', 'Toys', 'Astrology', 'Flowers', 'Decor'];
+
+const STATIC_BESTSELLERS = [
+  { id: 'b1', name: 'Luxury Birthday Gift Hamper', price: 1499, originalPrice: 1899, img: giftItemImg, category: 'Gifts', badge: 'BESTSELLER', featured: true, rating: 5.0 },
+  { id: 'b2', name: 'Personalized Couple Anniversary Box', price: 1299, originalPrice: 1599, img: giftsImg, category: 'Gifts', badge: '-20%', featured: true, rating: 4.9 },
+  { id: 'b3', name: 'Cute Giant Teddy Bear (Soft Toy)', price: 899, originalPrice: 1199, img: '/toy1.jpg', category: 'Toys', badge: 'HOT', featured: true, rating: 4.8 },
+  { id: 'b4', name: 'Wooden Heritage Train Set', price: 699, originalPrice: 899, img: '/toy2.jpg', category: 'Toys', badge: 'NEW', featured: true, rating: 5.0 },
+  { id: 'b5', name: 'Natural Rose Quartz Healing Crystal', price: 799, originalPrice: 999, img: crystalImg, category: 'Astrology', badge: 'SACRED', featured: true, rating: 5.0 },
+  { id: 'b6', name: 'Certified Yellow Sapphire Gemstone Ring', price: 2499, originalPrice: 2999, img: astroImg, category: 'Astrology', badge: 'CERTIFIED', featured: true, rating: 4.9 },
+  { id: 'b7', name: 'Fresh Red Roses Premium Bouquet', price: 599, originalPrice: 799, img: flowersImg, category: 'Flowers', badge: 'FRESH', featured: true, rating: 5.0 },
+  { id: 'b8', name: 'Terracotta Minimalist Vase', price: 499, originalPrice: 649, img: '/decor1.jpg', category: 'Decor', badge: 'HOT', featured: true, rating: 5.0 },
+];
 
 function Stars({ rating }) {
   if (!rating) return null;
@@ -19,15 +38,24 @@ function Stars({ rating }) {
   );
 }
 
-function ProductCard({ product }) {
+function ProductCard({ product, onQuickView }) {
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
-  const [selectedColor, setSelectedColor] = useState(product.colors ? product.colors[0] : null);
+  const [selectedColor, setSelectedColor] = useState(null);
+  const navigate = useNavigate();
 
   const wishlisted = isInWishlist(product.id);
   const slug = product.slug || String(product.name).toLowerCase().replace(/[^a-z0-9]+/g, '-');
   const productUrl = `/product/${slug}`;
   const categoryUrl = `/category/${product.category.toLowerCase()}`;
+
+  const activeColor = selectedColor || product.color || (product.colors && product.colors.length > 0 ? product.colors[0] : null);
+
+  const handleAddToCart = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    addToCart(activeColor ? { ...product, color: activeColor } : product);
+  };
 
   return (
     <div className="wb-card">
@@ -54,22 +82,42 @@ function ProductCard({ product }) {
 
         <Link to={productUrl}>
           <img
-            src={product.img}
+            src={product.img || giftItemImg}
             alt={product.name}
             className="wb-card__img wb-card__img--main"
+            onError={(e) => {
+              e.target.onerror = null;
+              const staticMatch = STATIC_BESTSELLERS.find(s => s.name.toLowerCase() === (product.name || '').toLowerCase());
+              e.target.src = staticMatch?.img || giftItemImg;
+            }}
           />
         </Link>
 
         <div className="wb-card__hover-actions">
           <button
             className="wb-card__add-cart-btn"
+            onClick={handleAddToCart}
+          >
+            Add to cart
+          </button>
+          <button
+            className="wb-card__view-btn"
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
-              addToCart(product);
+              if (onQuickView) {
+                onQuickView(activeColor ? { ...product, color: activeColor } : product);
+              } else {
+                navigate(productUrl);
+              }
             }}
+            title="Quick View"
+            aria-label="Quick View"
           >
-            Add to cart
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
           </button>
         </div>
       </div>
@@ -98,7 +146,7 @@ function ProductCard({ product }) {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  setSelectedColor(color);
+                  setSelectedColor(prev => prev === color ? null : color);
                 }}
                 title={color}
               />
@@ -112,6 +160,13 @@ function ProductCard({ product }) {
           )}
           <span className="wb-card__price">₹{product.price.toFixed(2)}</span>
         </div>
+
+        <button
+          className="wb-card__add-cart-btn-static"
+          onClick={handleAddToCart}
+        >
+          Add to cart
+        </button>
       </div>
     </div>
   );
@@ -119,8 +174,22 @@ function ProductCard({ product }) {
 
 export default function WeeklyBestsellers() {
   const [activeTab, setActiveTab] = useState('All');
-  const [apiProducts, setApiProducts] = useState([]); // Dynamic data only
+  const [apiProducts, setApiProducts] = useState(STATIC_BESTSELLERS); // Default to AstroGifts items
+  const [dynamicTabs, setDynamicTabs] = useState(ALLOWED_TABS);
   const [loading, setLoading] = useState(true);
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
+
+  useEffect(() => {
+    categoriesApi.getAll().then(res => {
+      if (res?.data && res.data.length > 0) {
+        const activeCategoryNames = res.data.map(c => c.name);
+        const filteredTabs = ALLOWED_TABS.filter(tab => tab === 'All' || activeCategoryNames.some(ac => ac.toLowerCase() === tab.toLowerCase()));
+        if (filteredTabs.length > 1) {
+          setDynamicTabs(filteredTabs);
+        }
+      }
+    }).catch(console.error);
+  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -129,21 +198,40 @@ export default function WeeklyBestsellers() {
         // Step 3: React Frontend mein API Call
         const response = await productsApi.getBestsellers();
         
-        if (response.status === 'success' && response.data.length > 0) {
+        if (response.status === 'success' && Array.isArray(response.data) && response.data.length > 0) {
           // Backend se aaye data ko format karna taaki ProductCard use samajh sake
-          const formattedProducts = response.data.map(p => ({
-            ...p,
-            id: p.id,
-            name: p.name,
-            price: p.price,
-            originalPrice: p.old_price,
-            img: p.image_url || p.image, 
-            category: p.category_name || 'All',
-            // Yahan hum dynamic badge set kar rahe hain jo API se aayega
-            badge: p.badge || (p.is_new ? 'NEW' : (p.discount_percentage ? `-${p.discount_percentage}%` : null)),
-            featured: true,
-            rating: p.rating || 5
-          }));
+          const formattedProducts = response.data.map(p => {
+            const staticMatch = STATIC_BESTSELLERS.find(s => String(s.id) === String(p.id) || s.name.toLowerCase() === (p.name || '').toLowerCase());
+            
+            const rawImg = p.image || p.image_url || p.img;
+            let finalImg = staticMatch?.img || giftItemImg;
+
+            if (rawImg && typeof rawImg === 'string' && rawImg.trim()) {
+              const trimmed = rawImg.trim();
+              if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('data:')) {
+                finalImg = trimmed;
+              } else if (trimmed.startsWith('storage/') || trimmed.startsWith('/storage/')) {
+                finalImg = `http://127.0.0.1:8000/${trimmed.replace(/^\//, '')}`;
+              } else if (trimmed.startsWith('/')) {
+                finalImg = trimmed;
+              } else {
+                finalImg = `/${trimmed}`;
+              }
+            }
+
+            return {
+              ...p,
+              id: p.id,
+              name: p.name,
+              price: Number(p.price) || 0,
+              originalPrice: p.old_price ? Number(p.old_price) : null,
+              img: finalImg, 
+              category: p.category_name || p.category || 'Gifts',
+              badge: p.badge || (p.is_new ? 'NEW' : (p.discount_percentage ? `-${p.discount_percentage}%` : null)),
+              featured: true,
+              rating: p.rating || 5
+            };
+          });
           setApiProducts(formattedProducts);
         }
       } catch (error) {
@@ -158,17 +246,19 @@ export default function WeeklyBestsellers() {
 
   let filtered = [];
   if (activeTab === 'All') {
-    const chairs = apiProducts.filter(p => p.featured && p.category === 'Chairs').slice(0, 2);
-    const sofas = apiProducts.filter(p => p.featured && p.category === 'Sofas').slice(0, 2);
-    const armchairs = apiProducts.filter(p => p.featured && p.category === 'Armchairs').slice(0, 2);
-    const tables = apiProducts.filter(p => p.featured && p.category === 'Tables').slice(0, 2);
-    filtered = [...chairs, ...sofas, ...armchairs, ...tables];
+    let allFiltered = [];
+    for (const tab of dynamicTabs) {
+      if (tab === 'All') continue;
+      const tabProducts = apiProducts.filter(p => p.featured && (p.category === tab || p.category_name === tab)).slice(0, 2);
+      allFiltered = [...allFiltered, ...tabProducts];
+    }
+    filtered = allFiltered;
     if (filtered.length < 8) {
        const others = apiProducts.filter(p => p.featured && !filtered.includes(p));
        filtered = [...filtered, ...others].slice(0, 8);
     }
   } else {
-    filtered = apiProducts.filter(p => p.category === activeTab);
+    filtered = apiProducts.filter(p => p.category === activeTab || p.category_name === activeTab);
   }
 
   return (
@@ -184,7 +274,7 @@ export default function WeeklyBestsellers() {
 
           {/* Filter Tabs */}
           <div className="wb-tabs">
-            {TABS.map(tab => (
+            {dynamicTabs.map(tab => (
               <button
                 key={tab}
                 className={`wb-tab${activeTab === tab ? ' wb-tab--active' : ''}`}
@@ -199,9 +289,17 @@ export default function WeeklyBestsellers() {
         {/* Product Grid */}
         <div className="wb-grid">
           {filtered.map(product => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard key={product.id} product={product} onQuickView={(p) => setQuickViewProduct(p)} />
           ))}
         </div>
+
+        {quickViewProduct && (
+          <ProductDetailModal
+            product={quickViewProduct}
+            allProducts={apiProducts}
+            onClose={() => setQuickViewProduct(null)}
+          />
+        )}
 
       </div>
     </section>

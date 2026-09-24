@@ -2,6 +2,7 @@ import React from 'react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { getColorName, getHexColor } from '../../utils/colorUtils';
 import './CartDrawer.css';
 
 export default function CartDrawer() {
@@ -14,7 +15,6 @@ export default function CartDrawer() {
     clearCart,
     cartCount,
     cartTotal,
-    openCheckout,
   } = useCart();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -48,7 +48,9 @@ export default function CartDrawer() {
         <div className="cart-drawer__body">
           {cartItems.length === 0 ? (
             <div className="cart-drawer__empty">
-              <div className="cart-drawer__empty-icon">🛒</div>
+              <div className="cart-drawer__empty-icon" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+              </div>
               <p className="cart-drawer__empty-text">Your cart is currently empty.</p>
               <button className="cart-drawer__shop-btn" onClick={closeCart}>
                 Return To Shop
@@ -63,14 +65,70 @@ export default function CartDrawer() {
                       src={item.image}
                       alt={item.name}
                       className="cart-drawer__item-img"
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => {
+                        closeCart();
+                        navigate(`/product/${item.slug || String(item.name).toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
+                      }}
                     />
                   )}
                   <div className="cart-drawer__item-info">
-                    <h4 className="cart-drawer__item-name">{item.name}</h4>
-                    <div className="cart-drawer__item-price-row">
+                    <h4
+                      className="cart-drawer__item-name"
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => {
+                        closeCart();
+                        navigate(`/product/${item.slug || String(item.name).toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
+                      }}
+                      title="View product page"
+                    >
+                      {item.name}
+                    </h4>
+                    {item.color && (
+                      <div className="cart-drawer__item-color" style={{ fontSize: '12px', color: '#555', margin: '2px 0 6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span>Color: <strong>{getColorName(item.color)}</strong></span>
+                        <span
+                          style={{
+                            width: '12px',
+                            height: '12px',
+                            borderRadius: '50%',
+                            backgroundColor: getHexColor(item.color),
+                            display: 'inline-block',
+                            border: '1px solid #ccc',
+                            flexShrink: 0
+                          }}
+                          title={getColorName(item.color)}
+                        />
+                      </div>
+                    )}
+                    <div className="cart-drawer__item-price-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
                       <span className="cart-drawer__item-price">
                         ₹{item.price.toFixed(2)}
                       </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          closeCart();
+                          navigate(`/product/${item.slug || String(item.name).toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
+                        }}
+                        style={{
+                          background: '#f8fafc',
+                          border: '1px solid #cbd5e1',
+                          borderRadius: '4px',
+                          color: '#334155',
+                          fontSize: '11px',
+                          fontWeight: '600',
+                          padding: '2px 8px',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                        title="View item details"
+                      >
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        View
+                      </button>
                     </div>
 
                     <div className="cart-drawer__qty-controls">
@@ -136,7 +194,8 @@ export default function CartDrawer() {
                     closeCart();
                     navigate('/login');
                   } else {
-                    openCheckout();
+                    closeCart();
+                    navigate('/checkout');
                   }
                 }}
               >

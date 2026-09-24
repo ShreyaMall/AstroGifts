@@ -1,7 +1,7 @@
 /* ===== WEEKLY BESTSELLERS ===== */
 .wb-section {
-  background: #f6f5f2;
-  padding: 20px 0 24px;
+  background: var(--bg-main);
+  padding: 10px 0 10px;
 }
 
 .wb-container {
@@ -25,16 +25,17 @@
 }
 
 .wb-title {
+  font-family: var(--font-heading);
   font-size: 30px;
   font-weight: 700;
-  color: #1c1c1c;
+  color: var(--text-heading);
   letter-spacing: -0.3px;
   margin: 0;
 }
 
 .wb-subtitle {
   font-size: 14px;
-  color: #999;
+  color: var(--text-muted);
   margin: 0;
 }
 
@@ -43,12 +44,19 @@
   display: flex;
   gap: 28px;
   align-items: center;
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 5px; /* for scrollbar spacing */
+}
+.wb-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .wb-tab {
   font-size: 14px;
   font-weight: 500;
-  color: #999;
+  color: var(--text-muted);
   background: none;
   border: none;
   cursor: pointer;
@@ -57,10 +65,10 @@
   transition: color 0.2s;
   font-family: inherit;
 }
-.wb-tab:hover { color: #1c1c1c; }
+.wb-tab:hover { color: var(--text-heading); }
 .wb-tab--active {
-  color: #1c1c1c;
-  font-weight: 600;
+  color: var(--text-heading);
+  font-weight: 700;
 }
 .wb-tab--active::after {
   content: '';
@@ -69,7 +77,7 @@
   left: 0;
   width: 100%;
   height: 2px;
-  background: #e07b39;
+  background: var(--brand-primary);
   border-radius: 2px;
 }
 
@@ -84,7 +92,8 @@
    PRODUCT CARD
    ══════════════════════════════════════════════════ */
 .wb-card {
-  background: #ffffff;
+  background: var(--bg-card);
+  border: 1px solid var(--gray-300);
   border-radius: 12px;
   padding: 14px;
   display: flex;
@@ -92,11 +101,13 @@
   position: relative;
   cursor: pointer;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
+  min-width: 0; /* Prevents grid blowout from large images */
 }
 
 .wb-card:hover {
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.09);
+  box-shadow: 0 10px 30px rgba(92, 56, 38, 0.12);
   transform: translateY(-3px);
+  border-color: var(--brand-accent);
 }
 
 /* ── Image Container ── */
@@ -106,7 +117,7 @@
   aspect-ratio: 1 / 1;
   border-radius: 8px;
   overflow: hidden;
-  background: #f0ece6;
+  background: var(--bg-main);
   margin-bottom: 12px;
   flex-shrink: 0;
 }
@@ -152,7 +163,7 @@
   pointer-events: none;
 }
 .wb-badge--new  { background: #39b54a; color: #fff; }
-.wb-badge--sale { background: #e07b39; color: #fff; }
+.wb-badge--sale { background: var(--brand-accent); color: #fff; }
 
 /* ── Wishlist ♡ ── */
 .wb-card__wish {
@@ -168,14 +179,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #aaaaaa;
+  color: var(--text-muted);
   cursor: pointer;
   padding: 0;
   box-shadow: 0 1px 4px rgba(0,0,0,0.10);
   transition: color 0.2s ease, transform 0.2s ease;
 }
-.wb-card__wish:hover   { color: #e07b39; transform: scale(1.1); }
-.wb-card__wish--active { color: #e07b39; }
+.wb-card__wish:hover   { color: var(--brand-primary); transform: scale(1.1); }
+.wb-card__wish--active { color: var(--brand-primary); }
 
 /* ── Hover Actions Bar ── */
 .wb-card__hover-actions {
@@ -201,7 +212,7 @@
 
 .wb-card__add-cart-btn {
   flex: 1;
-  background: #f59e53;
+  background: var(--brand-primary);
   color: #ffffff;
   border: none;
   border-radius: 25px;
@@ -212,10 +223,52 @@
   white-space: nowrap;
   transition: background 0.2s ease;
   font-family: inherit;
-  box-shadow: 0 4px 12px rgba(245, 158, 83, 0.35);
+  box-shadow: 0 4px 12px rgba(92, 56, 38, 0.25);
 }
 .wb-card__add-cart-btn:hover {
-  background: #e07b39;
+  background: var(--brand-primary-hover);
+}
+
+.wb-card__view-btn {
+  background: #ffffff;
+  color: var(--text-dark);
+  border: 1px solid var(--gray-300);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: all 0.2s ease;
+}
+.wb-card__view-btn:hover {
+  background: var(--brand-primary);
+  color: #ffffff;
+  border-color: var(--brand-primary);
+  transform: scale(1.05);
+}
+
+.wb-card__add-cart-btn-static {
+  display: none;
+  width: 100%;
+  background: var(--brand-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: 25px;
+  padding: 9px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.2s ease;
+  font-family: inherit;
+  text-align: center;
+}
+.wb-card__add-cart-btn-static:hover {
+  background: var(--brand-primary-hover);
 }
 
 /* ── Info Section ── */
@@ -223,6 +276,7 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  flex: 1;
 }
 
 .wb-card__title-row {
@@ -235,7 +289,7 @@
 .wb-card__name {
   font-size: 15px;
   font-weight: 700;
-  color: #1c1c1c;
+  color: var(--text-heading);
   margin: 0;
 }
 
@@ -247,12 +301,12 @@
 .wb-stars__val {
   font-size: 12px;
   font-weight: 600;
-  color: #888;
+  color: var(--text-muted);
 }
 
 .wb-card__cat {
   font-size: 13px;
-  color: #aaa;
+  color: var(--text-muted);
   margin: 0 0 6px;
   display: block;
 }
@@ -261,16 +315,17 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-top: auto;
 }
 .wb-card__old-price {
   font-size: 13px;
-  color: #aaa;
+  color: var(--text-light);
   text-decoration: line-through;
 }
 .wb-card__price {
   font-size: 16px;
   font-weight: 700;
-  color: #f59e53;
+  color: var(--brand-primary);
 }
 
 .wb-card__colors {
@@ -292,7 +347,7 @@
   transform: scale(1.1);
 }
 .wb-card__dot--active {
-  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1), 0 0 0 2px #d96b27;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1), 0 0 0 2px var(--brand-accent);
   border: 2px solid #fff;
 }
 
@@ -304,6 +359,16 @@
   .wb-grid { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 600px) {
-  .wb-grid { grid-template-columns: repeat(2, 1fr); }
-  .wb-container { padding: 0 16px; }
+  .wb-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .wb-container { padding: 0 12px; }
+  .wb-card { padding: 10px; }
+  .wb-header { flex-direction: column; align-items: flex-start; gap: 15px; }
+  .wb-tabs { gap: 16px; padding-bottom: 0; width: 100%; }
+  
+  .wb-card__hover-actions {
+    display: none; /* Hide hover button on mobile */
+  }
+  .wb-card__add-cart-btn-static {
+    display: block; /* Show static button on mobile */
+  }
 }

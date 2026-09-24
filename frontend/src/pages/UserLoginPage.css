@@ -1,4 +1,4 @@
-/* ===== WOODMART SIGN IN OFF-CANVAS DRAWER & VIEW ===== */
+/* ===== ASTROGIFTS SIGN IN OFF-CANVAS DRAWER & VIEW ===== */
 
 .user-login-view {
   position: relative;
@@ -15,12 +15,12 @@
 }
 
 /* ── BACKDROP OVERLAY ── */
-.woodmart-login-backdrop {
+.astrogifts-login-backdrop {
   position: fixed;
   inset: 0;
   background-color: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(2px);
-  z-index: 9998;
+  z-index: 99998;
   animation: fadeIn 0.25s ease-out forwards;
   cursor: pointer;
 }
@@ -31,14 +31,14 @@
 }
 
 /* ── OFF-CANVAS RIGHT DRAWER PANEL ── */
-.woodmart-login-drawer {
+.astrogifts-login-drawer {
   position: fixed;
   top: 0;
   right: 0;
   bottom: 0;
   width: 420px;
   max-width: 100vw;
-  z-index: 9999;
+  z-index: 99999;
   background: #ffffff;
   box-shadow: -5px 0 30px rgba(0, 0, 0, 0.18);
   display: flex;
@@ -48,12 +48,12 @@
   font-family: var(--wd-text-font, 'Work Sans', system-ui, -apple-system, sans-serif);
 }
 
-.woodmart-login-drawer--open {
+.astrogifts-login-drawer--open {
   transform: translateX(0);
 }
 
 /* ── DRAWER HEADER ── */
-.woodmart-login-drawer__header {
+.astrogifts-login-drawer__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -61,7 +61,7 @@
   border-bottom: 1px solid #f2f2f2;
 }
 
-.woodmart-login-drawer__title {
+.astrogifts-login-drawer__title {
   font-size: 22px;
   font-weight: 700;
   color: #242424;
@@ -69,7 +69,7 @@
   letter-spacing: -0.2px;
 }
 
-.woodmart-login-drawer__close-btn {
+.astrogifts-login-drawer__close-btn {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -84,18 +84,18 @@
   transition: color 0.2s ease, background-color 0.2s ease;
 }
 
-.woodmart-login-drawer__close-btn:hover {
+.astrogifts-login-drawer__close-btn:hover {
   color: #111111;
   background-color: #f5f5f5;
 }
 
-.woodmart-login-drawer__close-icon {
+.astrogifts-login-drawer__close-icon {
   font-size: 13px;
   font-weight: 700;
 }
 
 /* ── DRAWER BODY ── */
-.woodmart-login-drawer__body {
+.astrogifts-login-drawer__body {
   flex: 1;
   overflow-y: auto;
   padding: 30px;
@@ -103,32 +103,32 @@
   flex-direction: column;
 }
 
-.woodmart-login-drawer__form {
+.astrogifts-login-drawer__form {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
 /* ── INPUT FIELDS ── */
-.woodmart-login-drawer__field {
+.astrogifts-login-drawer__field {
   display: flex;
   flex-direction: column;
   gap: 7px;
 }
 
-.woodmart-login-drawer__label {
+.astrogifts-login-drawer__label {
   font-size: 13px;
   font-weight: 600;
   color: #333333;
 }
 
-.woodmart-login-drawer__required {
+.astrogifts-login-drawer__required {
   color: #e53935;
   margin-left: 2px;
   font-weight: 700;
 }
 
-.woodmart-login-drawer__input {
+.astrogifts-login-drawer__input {
   width: 100%;
   height: 44px;
   border: 1px solid #e1e1e1;
@@ -141,21 +141,21 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.woodmart-login-drawer__input:focus {
+.astrogifts-login-drawer__input:focus {
   border-color: #242424;
   box-shadow: 0 0 0 1px #242424;
 }
 
-.woodmart-login-drawer__password-wrap {
+.astrogifts-login-drawer__password-wrap {
   position: relative;
   width: 100%;
 }
 
-.woodmart-login-drawer__input--password {
+.astrogifts-login-drawer__input--password {
   padding-right: 48px;
 }
 
-.woodmart-login-drawer__eye-btn {
+.astrogifts-login-drawer__eye-btn {
   position: absolute;
   right: 16px;
   top: 50%;
@@ -171,12 +171,12 @@
   transition: color 0.2s ease;
 }
 
-.woodmart-login-drawer__eye-btn:hover {
+.astrogifts-login-drawer__eye-btn:hover {
   color: #242424;
 }
 
 /* ── ERROR MESSAGE ── */
-.woodmart-login-drawer__error {
+.astrogifts-login-drawer__error {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -189,7 +189,7 @@
 }
 
 /* ── SUBMIT BUTTON (Log in) ── */
-.woodmart-login-drawer__submit-btn {
+.astrogifts-login-drawer__submit-btn {
   width: 100%;
   height: 46px;
   border-radius: 30px;
@@ -207,18 +207,18 @@
   justify-content: center;
 }
 
-.woodmart-login-drawer__submit-btn:hover:not(:disabled) {
+.astrogifts-login-drawer__submit-btn:hover:not(:disabled) {
   background-color: #e5823e;
   box-shadow: 0 6px 18px rgba(243, 146, 80, 0.45);
   transform: translateY(-1px);
 }
 
-.woodmart-login-drawer__submit-btn:disabled {
+.astrogifts-login-drawer__submit-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
 }
 
-.woodmart-login-drawer__spinner {
+.astrogifts-login-drawer__spinner {
   width: 20px;
   height: 20px;
   border: 2px solid rgba(255, 255, 255, 0.3);
@@ -232,14 +232,14 @@
 }
 
 /* ── OPTIONS ROW (Remember me / Lost password) ── */
-.woodmart-login-drawer__options {
+.astrogifts-login-drawer__options {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 14px;
 }
 
-.woodmart-login-drawer__remember-label {
+.astrogifts-login-drawer__remember-label {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -249,14 +249,14 @@
   user-select: none;
 }
 
-.woodmart-login-drawer__checkbox {
+.astrogifts-login-drawer__checkbox {
   width: 16px;
   height: 16px;
   accent-color: #f39250;
   cursor: pointer;
 }
 
-.woodmart-login-drawer__forgot-link {
+.astrogifts-login-drawer__forgot-link {
   font-size: 13px;
   color: #f39250;
   font-weight: 500;
@@ -264,40 +264,40 @@
   transition: color 0.2s ease;
 }
 
-.woodmart-login-drawer__forgot-link:hover {
+.astrogifts-login-drawer__forgot-link:hover {
   color: #d96b27;
   text-decoration: underline;
 }
 
 /* ── DIVIDER ── */
-.woodmart-login-drawer__divider {
+.astrogifts-login-drawer__divider {
   margin: 36px 0 28px 0;
   border-top: 1px solid #f0f0f0;
 }
 
 /* ── NO ACCOUNT SECTION ── */
-.woodmart-login-drawer__no-account {
+.astrogifts-login-drawer__no-account {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
 }
 
-.woodmart-login-drawer__avatar-wrap {
+.astrogifts-login-drawer__avatar-wrap {
   margin-bottom: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.woodmart-login-drawer__no-account-title {
+.astrogifts-login-drawer__no-account-title {
   font-size: 16px;
   font-weight: 700;
   color: #242424;
   margin: 0 0 8px 0;
 }
 
-.woodmart-login-drawer__create-link {
+.astrogifts-login-drawer__create-link {
   font-size: 13px;
   font-weight: 700;
   color: #242424;
@@ -309,12 +309,12 @@
   transition: color 0.2s ease;
 }
 
-.woodmart-login-drawer__create-link:hover {
+.astrogifts-login-drawer__create-link:hover {
   color: #f39250;
 }
 
 /* ── DEMO & ADMIN HELPER ── */
-.woodmart-login-drawer__demo-helper {
+.astrogifts-login-drawer__demo-helper {
   margin-top: auto;
   padding-top: 24px;
   display: flex;
@@ -322,7 +322,7 @@
   gap: 10px;
 }
 
-.woodmart-login-drawer__demo-info {
+.astrogifts-login-drawer__demo-info {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -333,19 +333,19 @@
   border-radius: 6px;
 }
 
-.woodmart-login-drawer__demo-info code {
+.astrogifts-login-drawer__demo-info code {
   font-family: monospace;
   font-weight: 600;
   color: #242424;
 }
 
-.woodmart-login-drawer__demo-actions {
+.astrogifts-login-drawer__demo-actions {
   display: flex;
   gap: 8px;
 }
 
-.woodmart-login-drawer__demo-btn,
-.woodmart-login-drawer__admin-switch {
+.astrogifts-login-drawer__demo-btn,
+.astrogifts-login-drawer__admin-switch {
   flex: 1;
   padding: 8px 12px;
   font-size: 12px;
@@ -359,30 +359,30 @@
   text-align: center;
 }
 
-.woodmart-login-drawer__demo-btn:hover {
+.astrogifts-login-drawer__demo-btn:hover {
   background-color: #f0f0f0;
   border-color: #cccccc;
 }
 
-.woodmart-login-drawer__admin-switch {
+.astrogifts-login-drawer__admin-switch {
   background-color: #242424;
   color: #ffffff;
   border-color: #242424;
 }
 
-.woodmart-login-drawer__admin-switch:hover {
+.astrogifts-login-drawer__admin-switch:hover {
   background-color: #383838;
 }
 
 /* ── RESPONSIVE MOBILE ── */
 @media (max-width: 480px) {
-  .woodmart-login-drawer {
+  .astrogifts-login-drawer {
     width: 100vw;
   }
-  .woodmart-login-drawer__header {
+  .astrogifts-login-drawer__header {
     padding: 18px 20px;
   }
-  .woodmart-login-drawer__body {
+  .astrogifts-login-drawer__body {
     padding: 20px;
   }
 }

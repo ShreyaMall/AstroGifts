@@ -1,16 +1,15 @@
-/* ===== FOOTER — WoodMart 4 Equal Columns Grid ===== */
-@import url('https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&display=swap');
+/* ===== FOOTER — AstroGifts 4 Equal Columns Grid ===== */
 
 .footer {
-  background: #000000;
-  color: #ffffff;
-  font-family: 'Jost', 'Work Sans', Arial, sans-serif;
+  background: #3b2216;
+  color: #faf4eb;
+  font-family: var(--font-body);
   width: 100%;
 }
 
 .footer__main {
-  background: #000000;
-  padding: 60px 0 30px;
+  background: #3b2216;
+  padding: 30px 0 15px;
 }
 
 .footer__container {
@@ -26,7 +25,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 50px;
+  margin-bottom: 25px;
 }
 
 /* Logo */
@@ -39,16 +38,16 @@
 }
 
 .footer__logo-text {
-  font-family: 'Jost', 'Work Sans', Arial, sans-serif;
+  font-family: var(--font-heading);
   font-size: 32px;
   font-weight: 700;
-  color: #ffffff;
+  color: #faf4eb;
   letter-spacing: -0.5px;
   line-height: 1;
 }
 
 .footer__logo-dot {
-  color: #d96b27;
+  color: #b87d57;
 }
 
 /* Subscribe us block */
@@ -59,9 +58,10 @@
 }
 
 .footer__social-label {
+  font-family: var(--font-heading);
   font-size: 20px;
   font-weight: 700;
-  color: #ffffff;
+  color: #faf4eb;
   letter-spacing: -0.2px;
   white-space: nowrap;
 }
@@ -73,41 +73,32 @@
 }
 
 .footer__social-btn {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
   text-decoration: none;
   transition: transform 0.2s ease, opacity 0.2s ease;
   flex-shrink: 0;
+  border-radius: 50%;
 }
 
 .footer__social-btn svg {
-  width: 17px;
-  height: 17px;
+  width: 32px;
+  height: 32px;
 }
 
 .footer__social-btn:hover {
   opacity: 0.85;
   transform: translateY(-2px);
 }
-
-.footer__social-btn--facebook  { background: #3b5998; }
-.footer__social-btn--twitter   { background: #111111; border: 1px solid #333333; }
-.footer__social-btn--instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
-.footer__social-btn--youtube   { background: #ff0000; }
-
 /* ══════════════════════════════════════════════════
    MIDDLE ROW: 4 Equal Columns Grid (25% each)
    ══════════════════════════════════════════════════ */
 .footer__cols-row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 40px;
-  padding-bottom: 50px;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 20px;
+  padding-bottom: 25px;
 }
 
 .footer__col {
@@ -116,17 +107,18 @@
 }
 
 .footer__col-title {
-  font-size: 22px;
+  font-family: var(--font-heading);
+  font-size: 20px;
   font-weight: 700;
-  color: #ffffff;
-  margin: 0 0 22px 0;
+  color: #faf4eb;
+  margin: 0 0 14px 0;
   letter-spacing: -0.2px;
   white-space: nowrap;
 }
 
 /* Col 3: Storage... list without title (aligned under categories top) */
 .footer__col--aligned {
-  padding-top: 48px; /* Height of title (22px + 26px line/margin) */
+  padding-top: 34px; /* Height of title */
 }
 
 .footer__list {
@@ -135,13 +127,19 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 8px;
+}
+
+.footer__list--2cols {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 15px;
 }
 
 .footer__link {
   font-size: 17px;
   font-weight: 500;
-  color: #b0b0b0;
+  color: #e2d2b5;
   text-decoration: none;
   transition: color 0.2s ease;
   white-space: nowrap;
@@ -160,7 +158,7 @@
 
 .footer__app-subtitle {
   font-size: 16px;
-  color: #999999;
+  color: #d9c5ab;
   margin: -10px 0 22px 0;
 }
 
@@ -186,30 +184,30 @@
    BOTTOM BAR (Copyright & Payment Icons)
    ══════════════════════════════════════════════════ */
 .footer__bottom-bar {
-  padding-top: 25px;
-  padding-bottom: 10px;
-  border-top: 1px solid #1a1a1a;
+  padding-top: 15px;
+  padding-bottom: 30px;
+  border-top: 1px solid rgba(244, 235, 217, 0.15);
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 12px;
 }
 
 .footer__copyright {
   font-size: 15px;
-  color: #888888;
+  color: #d9c5ab;
   margin: 0;
 }
 
 .footer__copyright-brand {
   font-weight: 700;
-  color: #bbbbbb;
+  color: #faf4eb;
 }
 
 .footer__copyright strong {
   font-weight: 700;
-  color: #bbbbbb;
+  color: #faf4eb;
 }
 
 /* Real Card SVG Icons Row */
@@ -250,8 +248,15 @@
     gap: 20px;
   }
   .footer__cols-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px 10px;
+  }
+  .footer__list--2cols {
     grid-template-columns: 1fr;
-    gap: 30px;
+  }
+  .footer__col--app {
+    grid-column: 1 / -1;
+    margin-top: 10px;
   }
   .footer__bottom-bar {
     flex-direction: column;

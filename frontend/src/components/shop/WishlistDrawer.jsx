@@ -1,9 +1,11 @@
 import React from 'react';
 import { useWishlist } from '../../context/WishlistContext';
 import { useCart } from '../../context/CartContext';
+import { useNavigate } from 'react-router-dom';
 import './WishlistDrawer.css';
 
 export default function WishlistDrawer() {
+  const navigate = useNavigate();
   const {
     isWishlistOpen,
     closeWishlist,
@@ -44,9 +46,11 @@ export default function WishlistDrawer() {
         <div className="wishlist-drawer__body">
           {wishlistItems.length === 0 ? (
             <div className="wishlist-drawer__empty">
-              <div className="wishlist-drawer__empty-icon">♡</div>
+              <div className="wishlist-drawer__empty-icon" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+              </div>
               <p className="wishlist-drawer__empty-text">Your wishlist is currently empty.</p>
-              <button className="wishlist-drawer__shop-btn" onClick={closeWishlist}>
+              <button className="wishlist-drawer__shop-btn" onClick={() => { closeWishlist(); navigate('/products'); }}>
                 Explore Products
               </button>
             </div>

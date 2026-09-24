@@ -4,6 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
+import ProfileSidebar from '../components/layout/ProfileSidebar';
+import { User, Heart, Package, MapPin, LogOut, Shield, ShoppingBag } from 'lucide-react';
 
 const STATUS_STYLE = {
   Delivered:  { background: '#22c55e', color: '#fff' },
@@ -13,62 +15,80 @@ const STATUS_STYLE = {
 };
 
 const NAV = [
-  { label: 'User Info', icon: '👤', to: '/profile',   active: true },
-  { label: 'Wishlist',  icon: '🤍', to: '/wishlist' },
-  { label: 'Orders',    icon: '📦', to: '/my-orders' },
-  { label: 'Address',   icon: '📍', to: '/address' },
+  { label: 'User Info', icon: <User size={18} />, to: '/profile',   active: true },
+  { label: 'Wishlist',  icon: <Heart size={18} />, to: '/wishlist' },
+  { label: 'Orders',    icon: <Package size={18} />, to: '/my-orders' },
+  { label: 'Address',   icon: <MapPin size={18} />, to: '/address' },
 ];
+
+import { ordersApi } from '../services/api';
 
 export default function UserProfilePage() {
   const { user, logout, authRole } = useAuth();
   const navigate = useNavigate();
   const [recentOrders, setRecentOrders] = useState([]);
+  const [totalOrderCount, setTotalOrderCount] = useState(0);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    const saved = localStorage.getItem('woodmart_user_orders');
-    if (saved) setRecentOrders(JSON.parse(saved).slice(0, 3)); // show last 3
-  }, []);
+    
+    // 1. Load user-specific cached orders from localStorage
+    const saved = localStorage.getItem('astrogifts_user_orders');
+    let userOrders = [];
+    if (saved) {
+      try {
+        const allLocal = JSON.parse(saved);
+        userOrders = user?.email
+          ? allLocal.filter(o => !o.email || o.email.toLowerCase() === user.email.toLowerCase())
+          : allLocal;
+        setRecentOrders(userOrders.slice(0, 3));
+        setTotalOrderCount(userOrders.length);
+      } catch (e) {
+        console.error('Failed to parse local orders', e);
+      }
+    }
+
+    // 2. Fetch fresh user-specific orders from database API
+    if (user?.email) {
+      ordersApi.getUserOrders({ email: user.email })
+        .then(res => {
+          const apiOrders = res?.data || res?.orders || (Array.isArray(res) ? res : []);
+          if (Array.isArray(apiOrders) && apiOrders.length > 0) {
+            setRecentOrders(apiOrders.slice(0, 3));
+            setTotalOrderCount(apiOrders.length);
+          }
+        })
+        .catch(err => {
+          console.error('Failed to fetch user orders from API', err);
+        });
+    }
+  }, [user?.email]);
 
   const handleLogout = async () => { await logout(); navigate('/login'); };
 
   return (
     <>
+      <style>{`
+        .profile-layout-container {
+          max-width: 1120px; margin: 0 auto; padding: 40px 20px 80px; display: flex; gap: 28px; align-items: flex-start;
+        }
+        .profile-sidebar { width: 200px; flex-shrink: 0; background: #fff; border-radius: 12px; box-shadow: 0 1px 8px rgba(0,0,0,0.07); padding: 24px 0; position: sticky; top: 100px; }
+        .profile-main { flex: 1; min-width: 0; }
+        @media (max-width: 768px) {
+          .profile-layout-container { flex-direction: column; padding: 20px 16px 60px; }
+          .profile-sidebar { width: 100%; position: static; top: auto; margin-bottom: 10px; }
+          .profile-main { width: 100%; }
+        }
+      `}</style>
       <Header />
-      <div style={{ minHeight: 'calc(100vh - 400px)', background: '#f5f5f5', fontFamily: 'Inter, sans-serif' }}>
-        <div style={{ maxWidth: '1120px', margin: '0 auto', padding: '40px 20px 80px', display: 'flex', gap: '28px', alignItems: 'flex-start' }}>
+      <div style={{ minHeight: 'calc(100vh - 150px)', background: '#f5f5f5', fontFamily: 'Inter, sans-serif' }}>
+        <div className="profile-layout-container">
 
           {/* ── Sidebar ── */}
-          <aside style={{ width: '200px', flexShrink: 0, background: '#fff', borderRadius: '12px', boxShadow: '0 1px 8px rgba(0,0,0,0.07)', padding: '24px 0', position: 'sticky', top: '100px' }}>
-            <div style={{ padding: '0 20px 16px', borderBottom: '1px solid #f0f0f0', fontWeight: '700', fontSize: '15px', color: '#111' }}>
-              User Profile
-            </div>
-            <nav style={{ padding: '10px 0' }}>
-              {NAV.map(item => (
-                <Link key={item.label} to={item.to} style={{
-                  display: 'flex', alignItems: 'center', gap: '10px',
-                  padding: '10px 20px', textDecoration: 'none', fontSize: '14px',
-                  fontWeight: item.active ? '600' : '400',
-                  color: item.active ? '#d96b27' : '#444',
-                  background: item.active ? '#fff7f0' : 'transparent',
-                  borderLeft: item.active ? '3px solid #d96b27' : '3px solid transparent',
-                }}>
-                  <span>{item.icon}</span>{item.label}
-                </Link>
-              ))}
-              <button onClick={handleLogout} style={{
-                display: 'flex', alignItems: 'center', gap: '10px',
-                padding: '10px 20px', width: '100%', textAlign: 'left',
-                fontSize: '14px', color: '#e53e3e', background: 'none',
-                border: 'none', borderLeft: '3px solid transparent', cursor: 'pointer',
-              }}>
-                🚪 Logout
-              </button>
-            </nav>
-          </aside>
+          <ProfileSidebar activeTab="profile" />
 
           {/* ── Main Content ── */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div className="profile-main" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
             {/* Profile Card */}
             <div style={{ background: '#fff', borderRadius: '12px', padding: '28px', boxShadow: '0 1px 8px rgba(0,0,0,0.06)' }}>
@@ -78,7 +98,7 @@ export default function UserProfilePage() {
                 </div>
                 <div style={{ flex: 1 }}>
                   <h1 style={{ fontSize: '20px', fontWeight: '700', margin: '0 0 4px', color: '#111' }}>{user?.name || 'Customer'}</h1>
-                  <p style={{ margin: 0, color: '#888', fontSize: '13px' }}>{user?.email || 'user@woodmart.com'}</p>
+                  <p style={{ margin: 0, color: '#888', fontSize: '13px' }}>{user?.email || 'user@astrogifts.com'}</p>
                 </div>
                 <span style={{ background: '#fff7f0', color: '#d96b27', padding: '4px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: '600', textTransform: 'capitalize' }}>
                   {authRole || 'Customer'}
@@ -89,7 +109,7 @@ export default function UserProfilePage() {
                 {[
                   { label: 'Account Type',        value: 'Verified Member' },
                   { label: 'Currency',             value: 'INR (₹)' },
-                  { label: 'Total Orders',         value: recentOrders.length || '—' },
+                  { label: 'Total Orders',         value: totalOrderCount > 0 ? totalOrderCount : (recentOrders.length || 0) },
                 ].map(info => (
                   <div key={info.label} style={{ background: '#f9f9f9', padding: '14px', borderRadius: '8px' }}>
                     <div style={{ fontSize: '11px', color: '#999', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{info.label}</div>
@@ -99,8 +119,8 @@ export default function UserProfilePage() {
               </div>
 
               {authRole === 'admin' && (
-                <Link to="/admin/dashboard" style={{ display: 'inline-block', padding: '9px 20px', background: '#1e293b', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: '600', fontSize: '13px' }}>
-                  🛡 Go to Admin Dashboard
+                <Link to="/admin/dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '9px 20px', background: '#1e293b', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: '600', fontSize: '13px' }}>
+                  <Shield size={16} /> Go to Admin Dashboard
                 </Link>
               )}
             </div>
@@ -108,7 +128,9 @@ export default function UserProfilePage() {
             {/* Recent Orders Section */}
             <div style={{ background: '#fff', borderRadius: '12px', boxShadow: '0 1px 8px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 22px', borderBottom: '1px solid #f0f0f0' }}>
-                <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#111' }}>📦 Recent Orders</h2>
+                <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#111', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Package size={18} color="#d96b27" /> Recent Orders
+                </h2>
                 <Link to="/my-orders" style={{ fontSize: '13px', color: '#d96b27', textDecoration: 'none', fontWeight: '600' }}>
                   View All →
                 </Link>
@@ -116,7 +138,9 @@ export default function UserProfilePage() {
 
               {recentOrders.length === 0 ? (
                 <div style={{ padding: '40px 22px', textAlign: 'center', color: '#888', fontSize: '14px' }}>
-                  <div style={{ fontSize: '32px', marginBottom: '10px' }}>🛒</div>
+                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
+                    <ShoppingBag size={36} color="#bbb" />
+                  </div>
                   <p style={{ margin: '0 0 16px' }}>No orders placed yet.</p>
                   <Link to="/category/chairs" style={{ padding: '9px 20px', background: '#d96b27', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: '600', fontSize: '13px' }}>
                     Shop Now
@@ -135,7 +159,9 @@ export default function UserProfilePage() {
                         {ord.customer_name && (
                           <div>
                             <div style={{ fontSize: '11px', color: '#999', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '2px' }}>Customer</div>
-                            <div style={{ fontSize: '13px', color: '#333', fontWeight: '600' }}>👤 {ord.customer_name}</div>
+                            <div style={{ fontSize: '13px', color: '#333', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <User size={14} color="#666" /> {ord.customer_name}
+                            </div>
                           </div>
                         )}
                         <div>
