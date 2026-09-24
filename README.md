@@ -1,70 +1,79 @@
-# Getting Started with Create React App
+# AstroGifts — Full-Stack E-Commerce Platform
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern, responsive full-stack e-commerce application built with React, Node.js, Express, and MongoDB. **AstroGifts** provides an immersive online shopping experience featuring dynamic product variant selection, real-time color image previews, cart & wishlist management, pincode delivery estimation, and an interactive admin dashboard.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 🚀 Key Features
 
-### `npm start`
+- **Dynamic Product Variants:** Real-time color variant switching and dynamic image previewing.
+- **Mobile-First Responsive Design:** Custom header with inline vertical accordion navigation drawers for mobile views.
+- **Pincode Delivery Estimator:** Instant pincode check and estimated delivery calculation.
+- **Authentication & Access Control:** Role-Based Access Control (RBAC) with secure JWT tokens for Customers and Administrators.
+- **Admin Management Panel:** Full CRUD management for products, categories, subcategories, variants, and order fulfillment.
+- **Global Cart & Wishlist State:** Persistent client-side shopping cart and wishlist powered by React Context API.
+- **Invoice & PDF Generation:** Automated order invoice PDF generation.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 🛠️ Tech Stack
 
-### `npm test`
+### Frontend
+- **Framework:** React.js (Vite)
+- **Styling:** Vanilla CSS3 (Custom Design Tokens)
+- **Icons & Assets:** Custom SVG Icon library
+- **State Management:** React Context API
+- **Routing:** React Router v6
+- **PDF Generation:** jsPDF / jsPDF-AutoTable
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Backend
+- **Runtime:** Node.js / Express.js
+- **Database:** MongoDB & Mongoose ORM
+- **Authentication:** JSON Web Tokens (JWT) & bcrypt password hashing
+- **API Architecture:** RESTful APIs
 
-### `npm run build`
+---
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 📁 Repository Structure
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```
+woodmart-clone/
+├── frontend/             # Vite + React Frontend Application
+│   ├── src/
+│   │   ├── assets/       # Icons, Images, SVGs
+│   │   ├── components/   # UI Layout, Home, Shop & Modal components
+│   │   ├── context/      # Auth, Cart, Wishlist Contexts
+│   │   ├── pages/        # Route views (Home, Category, ProductDetail, Admin)
+│   │   └── services/     # Axios API integrations
+│   └── package.json
+└── backend/              # Node.js Express REST API Server
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+---
 
-### `npm run eject`
+## ⚡ Quick Start
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### 1. Clone the repository
+```bash
+git clone https://github.com/ShreyaMall/Homewood-Decor.git
+cd Homewood-Decor
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 2. Setup & Run Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### 3. Setup & Run Backend
+```bash
+cd ../backend
+npm install
+npm start
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+---
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## 📄 License
+This project is open source and available under the [MIT License](LICENSE).
