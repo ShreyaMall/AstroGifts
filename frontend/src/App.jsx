@@ -10,10 +10,12 @@ import { WishlistProvider } from './context/WishlistContext';
 /* Global UI Overlay Components */
 import CartNotification from './components/shop/CartNotification';
 import CartDrawer from './components/shop/CartDrawer';
+import FloatingCartBar from './components/shop/FloatingCartBar';
 import WishlistNotification from './components/shop/WishlistNotification';
 import WishlistDrawer from './components/shop/WishlistDrawer';
 import MobileBottomNav from './components/layout/MobileBottomNav';
 import PageLoader from './components/layout/PageLoader';
+import WhatsAppFloat from './components/layout/WhatsAppFloat';
 
 /* Routes */
 import AppRoutes from './routes/AppRoutes';
@@ -29,11 +31,13 @@ export default function App() {
             <AppRoutes />
 
             {/* ── GLOBAL DRAWERS & MODALS ── */}
+            <FloatingCartBar />
             <CartNotification />
             <CartDrawer />
             <WishlistNotification />
             <WishlistDrawer />
             <MobileBottomNav />
+            <WhatsAppFloat />
 
           </WishlistProvider>
         </CartProvider>

@@ -8,7 +8,7 @@ import astriImg from '../../assets/astri image.jpg';
 import astroVideoFile from '../../assets/same_as_it_video_cahiye_but_wo.mp4';
 import thodaVideoFile from '../../assets/thoda_change_kar_do_cup_ko_rem.mp4';
 import whatsAppVideoFile from '../../assets/WhatsApp Video.mp4';
-import toysBannerImg from '../../assets/toys_collection_banner.jpg';
+import stackedGiftBoxesImg from '../../assets/Download premium png of Stacked gift boxes editable mockup about christmas.jpg';
 
 const ProductCollections = () => {
   const videoRef1 = useRef(null);
@@ -64,7 +64,7 @@ const ProductCollections = () => {
           </div>
         </div>
 
-        {/* Column 3: Astrology Video Showcase & Toys */}
+        {/* Column 3: Astrology Video Showcase & Stacked Gift Boxes */}
         <div className="pc-col">
           <div className="pc-card h-325 pc-card--video">
             <video
@@ -77,12 +77,8 @@ const ProductCollections = () => {
               playsInline
             />
           </div>
-          <div className="pc-card h-325 pc-card--video">
-            <img src={toysBannerImg} alt="Toys Collection Showcase" className="pc-img" />
-            <div className="pc-video-play-overlay">
-              <div className="pc-play-icon">▶</div>
-              <span className="pc-play-label">TOYS COLLECTION</span>
-            </div>
+          <div className="pc-card h-325">
+            <img src={stackedGiftBoxesImg} alt="Stacked Gift Boxes Showcase" className="pc-img" />
           </div>
         </div>
 

@@ -13,18 +13,28 @@ class CategoryController extends Controller
      * Main (parent) categories — used by Header nav
      * Only returns top-level categories (parent_category = null)
      */
-"    public function index(): JsonResponse
+    public function index(): JsonResponse
     {
         $all = Category::where('is_active', true)
             ->orderBy('sort_order', 'asc')
             ->get();
 
-        // Main categories (no parent)
-        $parents = $all->whereNull('parent_category')->values();
+        // Main categories (parent_category is null, empty, or 'None')
+        $parents = $all->filter(function ($c) {
+            $p = strtolower(trim((string)($c->parent_category ?? '')));
+            return $p === '' || $p === 'none' || $p === 'null';
+        })->values();
 
         // Attach subcategories to each parent
         $result = $parents->map(function ($parent) use ($all) {
-            $subs = $all->where('parent_category', $parent->slug)->values();
+            $parentSlug = strtolower(trim((string)($parent->slug ?? '')));
+            $parentName = strtolower(trim((string)($parent->name ?? '')));
+
+            $subs = $all->filter(function ($c) use ($parentSlug, $parentName) {
+                $p = strtolower(trim((string)($c->parent_category ?? '')));
+                return $p !== '' && $p !== 'none' && $p !== 'null' && ($p === $parentSlug || $p === $parentName);
+            })->values();
+
             $data = $parent->toArray();
             $data['subcategories'] = $subs->toArray();
             return $data;

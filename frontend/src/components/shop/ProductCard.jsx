@@ -4,7 +4,7 @@ import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 
 const HeartIcon = ({ filled }) => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill={filled ? '#e07b39' : 'none'} stroke={filled ? '#e07b39' : 'currentColor'} strokeWidth="1.8">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill={filled ? '#7c3a1d' : 'none'} stroke={filled ? '#7c3a1d' : 'currentColor'} strokeWidth="1.8">
     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
   </svg>
 );
@@ -42,7 +42,7 @@ export const ProductCard = ({ product, viewMode = 'grid-3' }) => {
           <img 
             src={(() => {
               const raw = product.image || product.image_url || product.img;
-              if (!raw || typeof raw !== 'string' || !raw.trim()) return '/chair1.jpg';
+              if (!raw || typeof raw !== 'string' || !raw.trim()) return '/gift image.jpg';
               const t = raw.trim();
               if (t.startsWith('http://') || t.startsWith('https://') || t.startsWith('data:')) return t;
               if (t.startsWith('storage/') || t.startsWith('/storage/')) return `http://127.0.0.1:8000/${t.replace(/^\//, '')}`;
@@ -54,7 +54,7 @@ export const ProductCard = ({ product, viewMode = 'grid-3' }) => {
             loading="lazy" 
             onError={(e) => {
               e.target.onerror = null;
-              e.target.src = '/chair1.jpg';
+              e.target.src = '/gift image.jpg';
             }}
           />
         </Link>

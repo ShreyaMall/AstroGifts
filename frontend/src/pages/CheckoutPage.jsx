@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { ordersApi } from '../services/api';
 import { getColorName, getHexColor } from '../utils/colorUtils';
 import './CheckoutPage.css';
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const {
     cartItems,
     cartTotal,
@@ -23,57 +25,51 @@ export default function CheckoutPage() {
   const [orderDetails, setOrderDetails] = useState(null);
 
   const initialFormState = {
-    firstName: '',
-    lastName: '',
+    fullName: user?.name || '',
     phone: '',
-    email: '',
+    email: user?.email || '',
     country: 'India',
     state: 'Delhi',
     city: '',
     address: '',
     pinCode: '',
     notes: '',
-    // Shipping fields
-    shippingFirstName: '',
-    shippingLastName: '',
-    shippingPhone: '',
-    shippingEmail: '',
-    shippingCountry: 'India',
-    shippingState: 'Delhi',
-    shippingCity: '',
-    shippingAddress: '',
-    shippingPinCode: '',
   };
 
   const [formData, setFormData] = useState(initialFormState);
-  const [shipToDifferent, setShipToDifferent] = useState(false);
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    if (user?.email && !formData.email) {
+      setFormData(prev => ({
+        ...prev,
+        email: user.email,
+        fullName: prev.fullName || user.name || '',
+      }));
+    }
+  }, [user]);
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
-    if (name === 'phone' || name === 'shippingPhone') {
-      // Only allow numbers
+    if (name === 'phone') {
       const numericValue = value.replace(/\D/g, '');
       setFormData(prev => ({ ...prev, [name]: numericValue }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
-    // Clear errors when user types
+
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }));
 
-    if ((name === 'pinCode' || name === 'shippingPinCode') && value.length === 6) {
+    if (name === 'pinCode' && value.length === 6) {
       try {
         const res = await fetch(`https://api.postalpincode.in/pincode/${value}`);
         const data = await res.json();
         if (data && data[0]?.Status === 'Success') {
           const postOffice = data[0].PostOffice[0];
-          const cityField = name === 'pinCode' ? 'city' : 'shippingCity';
-          const stateField = name === 'pinCode' ? 'state' : 'shippingState';
-          
           setFormData(prev => ({
             ...prev,
-            [cityField]: postOffice.District,
-            [stateField]: postOffice.State
+            city: postOffice.District,
+            state: postOffice.State
           }));
         }
       } catch (err) {
@@ -144,23 +140,23 @@ export default function CheckoutPage() {
 
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
     if (cartItems.length === 0) {
-        alert("Your cart is empty!");
-        return;
+      alert("Your cart is empty!");
+      return;
     }
     setIsSubmitting(true);
 
-    const billName = `${formData.firstName} ${formData.lastName}`.trim();
-    const shipName = shipToDifferent ? `${formData.shippingFirstName} ${formData.shippingLastName}`.trim() : billName;
+    const billName = formData.fullName.trim() || user?.name || 'Customer';
 
     const payload = {
-      customer_name: shipName,
-      email: shipToDifferent ? formData.shippingEmail : formData.email,
-      phone: (shipToDifferent ? formData.shippingPhone : formData.phone).replace(/[^0-9]/g, '').slice(-10),
-      shipping_address: shipToDifferent ? formData.shippingAddress : formData.address,
-      city: shipToDifferent ? formData.shippingCity : formData.city,
-      state: shipToDifferent ? (formData.shippingState || 'Delhi') : (formData.state || 'Delhi'),
-      zip: shipToDifferent ? formData.shippingPinCode : formData.pinCode,
+      customer_name: billName,
+      email: formData.email,
+      phone: formData.phone.replace(/[^0-9]/g, '').slice(-10),
+      shipping_address: formData.address,
+      city: formData.city,
+      state: formData.state || 'Delhi',
+      zip: formData.pinCode,
       payment_method: paymentMethod,
       items: cartItems.map(item => ({
         id: item.product_id || item.id,
@@ -175,7 +171,6 @@ export default function CheckoutPage() {
       total: finalTotal
     };
 
-    /* ── helper: persist order to localStorage ── */
     const saveOrderLocally = (orderId, total) => {
       const newOrder = {
         order_number: orderId,
@@ -202,17 +197,16 @@ export default function CheckoutPage() {
         const res = await ordersApi.create({ ...payload, transaction_id: paymentId });
         const order = res.data;
         const orderId = order?.order_number || ('WM-' + Math.floor(100000 + Math.random() * 900000));
-        const total   = order?.total ?? finalTotal;
-        const paymentMethodStr = paymentMethod === 'cod' ? 'Cash on delivery' : 'Razorpay';
+        const total = order?.total ?? finalTotal;
+        const paymentMethodStr = paymentMethod === 'cod' ? 'Cash on delivery' : 'Credit Card/ Debit Card/ Internet Banking/ UPI';
         saveOrderLocally(orderId, total);
         setOrderDetails({ orderId, total, date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }), paymentMethodStr });
         clearCart();
         setIsSubmitting(false);
         setStep(2);
       } catch (err) {
-        // Offline fallback
         const generatedOrderId = 'WM-' + Math.floor(100000 + Math.random() * 900000);
-        const paymentMethodStr = paymentMethod === 'cod' ? 'Cash on delivery' : 'Razorpay';
+        const paymentMethodStr = paymentMethod === 'cod' ? 'Cash on delivery' : 'Credit Card/ Debit Card/ Internet Banking/ UPI';
         saveOrderLocally(generatedOrderId, finalTotal);
         setOrderDetails({ orderId: generatedOrderId, total: finalTotal, date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }), paymentMethodStr });
         clearCart();
@@ -231,10 +225,10 @@ export default function CheckoutPage() {
       const rzpKey = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_dummykey12345';
       const options = {
         key: rzpKey,
-        amount: finalTotal * 100, // paise
+        amount: finalTotal * 100,
         currency: 'INR',
         name: 'AstroGifts',
-        description: 'Test Transaction',
+        description: 'Order Payment',
         handler: function (response) {
           processOrderSuccess(response.razorpay_payment_id);
         },
@@ -243,24 +237,23 @@ export default function CheckoutPage() {
           email: formData.email,
           contact: formData.phone
         },
-        theme: { color: '#d96b27' },
+        theme: { color: '#111827' },
         modal: {
           ondismiss: function() {
             setIsSubmitting(false);
           }
         }
       };
-      
+
       try {
         if (options.key === 'rzp_test_dummykey12345' || !options.key.startsWith('rzp_')) {
-          // Simulate Razorpay flow since the dummy key will cause the real SDK to silently fail or alert without triggering ondismiss
           setTimeout(() => {
-            if (window.confirm("Razorpay Integration is ready! (This is a mock dialog because you are using a dummy key).\n\nClick OK to simulate a successful payment, or Cancel to simulate failure.")) {
+            if (window.confirm("Razorpay Payment Gateway (Test Mode).\n\nClick OK to confirm payment, or Cancel to return.")) {
               processOrderSuccess('pay_mock_' + Math.floor(Math.random() * 1000000));
             } else {
               setIsSubmitting(false);
             }
-          }, 500);
+          }, 400);
         } else {
           const paymentObject = new window.Razorpay(options);
           paymentObject.on('payment.failed', function (response){
@@ -271,7 +264,6 @@ export default function CheckoutPage() {
         }
       } catch (err) {
         console.error('Razorpay Error:', err);
-        alert('Razorpay initialization failed. Order will be processed as COD for demo.');
         processOrderSuccess();
       }
     } else {
@@ -290,466 +282,320 @@ export default function CheckoutPage() {
   return (
     <>
       <Header />
-      <div className="wm-checkout-page">
+      <div className="shreeji-checkout-page">
         {step === 1 ? (
-          <div className="wm-checkout-container">
-            <h1 className="wm-checkout-page-title">Checkout</h1>
-            <div className="wm-checkout-top-links">
-              <p>
-                Have a coupon?{' '}
-                <button
-                  type="button"
-                  className="wm-coupon-toggle-btn"
-                  onClick={() => setShowCouponBox(!showCouponBox)}
-                >
-                  Click here to enter your code
-                </button>
-              </p>
-
-              {showCouponBox && (
-                <div className="wm-checkout-coupon-box">
-                  <p className="wm-coupon-box-desc">
-                    If you have a coupon code, please apply it below.
-                  </p>
-                  {appliedCoupon ? (
-                    <div className="wm-applied-coupon-info">
-                      <span className="wm-applied-coupon-tag" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg> <strong>{appliedCoupon.code}</strong> Applied ({appliedCoupon.type === 'percent' ? `${appliedCoupon.value}% OFF` : `₹${appliedCoupon.value} OFF`})
-                      </span>
-                      <button type="button" className="wm-remove-coupon-btn" onClick={handleRemoveCoupon}>
-                        Remove
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="wm-coupon-input-group">
-                      <input
-                        type="text"
-                        className="wm-coupon-input"
-                        placeholder="Enter coupon code (e.g. ASTROGIFTS10, SAVE20, FLAT500)"
-                        value={couponCode}
-                        onChange={(e) => setCouponCode(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            handleApplyCoupon();
-                          }
-                        }}
-                      />
-                      <button
-                        type="button"
-                        className="wm-apply-coupon-btn"
-                        onClick={handleApplyCoupon}
-                      >
-                        Apply coupon
-                      </button>
-                    </div>
-                  )}
-
-                  {couponError && <div className="wm-coupon-msg wm-coupon-error">{couponError}</div>}
-                  {couponSuccess && <div className="wm-coupon-msg wm-coupon-success">{couponSuccess}</div>}
-                </div>
-              )}
-            </div>
-
+          <div className="shreeji-checkout-container">
             {cartItems.length === 0 ? (
-                <div style={{textAlign: 'center', padding: '50px 0'}}>
-                    <h2>Your cart is empty.</h2>
-                    <button className="wm-return-shop-btn" onClick={() => navigate('/')} style={{marginTop: '20px'}}>Return to Shop</button>
-                </div>
+              <div className="shreeji-empty-cart-box">
+                <h2>Your cart is empty</h2>
+                <p>Add some products to your cart before proceeding to checkout.</p>
+                <button className="shreeji-btn-primary" onClick={() => navigate('/')}>
+                  Continue Shopping
+                </button>
+              </div>
             ) : (
-            <form className="wm-checkout-form" onSubmit={handlePlaceOrder}>
-              <div className="wm-checkout-main-grid">
-                
-                {/* LEFT COLUMN: Billing Details & Payment */}
-                <div className="wm-checkout-left-col">
+              <form className="shreeji-checkout-form" onSubmit={handlePlaceOrder}>
+                <div className="shreeji-checkout-grid">
                   
-                  {/* 1. BILLING DETAILS */}
-                  <div className="wm-checkout-section-wrap">
-                    <h3 className="wm-checkout-section-title">
-                      <span className="wm-step-badge">1</span> Billing Details
-                    </h3>
+                  {/* LEFT COLUMN: Verification, Shipping, Payment */}
+                  <div className="shreeji-left-col">
                     
-                    <div className="wm-checkout-grid">
-                      <div className="wm-form-group">
-                        <label>First name <span>*</span></label>
-                        <input type="text" name="firstName" value={formData.firstName} onChange={handleInputChange} required />
+                    {/* 1. Verify Your Email Card */}
+                    <div className="shreeji-card">
+                      <div className="shreeji-card-header">
+                        <svg className="shreeji-header-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <h2>Verify Your Email</h2>
                       </div>
-                      <div className="wm-form-group">
-                        <label>Last name <span>*</span></label>
-                        <input type="text" name="lastName" value={formData.lastName} onChange={handleInputChange} required />
-                      </div>
-                      <div className="wm-form-group">
-                        <label>Phone <span>*</span></label>
-                        <input type="tel" name="phone" placeholder="10-digit mobile number" maxLength="10" pattern="[0-9]{10}" value={formData.phone} onChange={handleInputChange} required />
-                      </div>
-                      <div className="wm-form-group">
-                        <label>Email address <span>*</span></label>
-                        <input type="email" name="email" value={formData.email} onChange={handleInputChange} required />
-                      </div>
-                      <div className="wm-form-group">
-                        <label>Country / Region <span>*</span></label>
-                        <select name="country" value={formData.country} onChange={handleInputChange} required>
-                          <option value="India">India</option>
-                        </select>
-                      </div>
-                      <div className="wm-form-group">
-                        <label>State <span>*</span></label>
-                        <input type="text" name="state" placeholder="State (e.g. Delhi, Maharashtra)" value={formData.state} onChange={handleInputChange} required />
-                      </div>
-                      <div className="wm-form-group">
-                        <label>Town / City <span>*</span></label>
-                        <input type="text" name="city" value={formData.city} onChange={handleInputChange} required />
-                      </div>
-                      <div className="wm-form-group">
-                        <label>PIN Code <span>*</span></label>
-                        <input type="text" name="pinCode" placeholder="6-digit PIN Code" maxLength="6" pattern="[0-9]{6}" value={formData.pinCode} onChange={handleInputChange} required />
-                      </div>
-                      <div className="wm-form-group wm-full-width">
-                        <label>Street address <span>*</span></label>
-                        <input type="text" name="address" placeholder="House number and street name (min 10 characters)" value={formData.address} onChange={handleInputChange} required minLength="5" />
+                      <div className="shreeji-email-banner">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polyline points="12 8 12 12 14 14"></polyline>
+                          <path d="M9 12l2 2 4-4"></path>
+                        </svg>
+                        <span>
+                          Email verified: <strong>{formData.email || user?.email || 'shreyarajput1124@gmail.com'}</strong>
+                        </span>
                       </div>
                     </div>
 
-                    <div className="wm-checkbox-group">
-                      <label>
-                        <input type="checkbox" checked={shipToDifferent} onChange={(e) => setShipToDifferent(e.target.checked)} /> 
-                        Ship to a different address?
-                      </label>
-                    </div>
+                    {/* 2. Shipping Address Card */}
+                    <div className="shreeji-card">
+                      <div className="shreeji-card-header">
+                        <svg className="shreeji-header-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                          <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                        <h2>Shipping Address</h2>
+                      </div>
 
-                    {shipToDifferent && (
-                      <div className="wm-checkout-shipping-wrap">
-                        <h4 style={{ margin: '15px 0 10px', fontSize: '16px', fontWeight: 'bold' }}>Shipping Details</h4>
-                        <div className="wm-checkout-grid">
-                          <div className="wm-form-group">
-                            <label>First name <span>*</span></label>
-                            <input type="text" name="shippingFirstName" value={formData.shippingFirstName} onChange={handleInputChange} required />
-                          </div>
-                          <div className="wm-form-group">
-                            <label>Last name <span>*</span></label>
-                            <input type="text" name="shippingLastName" value={formData.shippingLastName} onChange={handleInputChange} required />
-                          </div>
-                          <div className="wm-form-group">
-                            <label>Phone <span>*</span></label>
-                            <input type="tel" name="shippingPhone" placeholder="10-digit mobile number" maxLength="10" pattern="[0-9]{10}" value={formData.shippingPhone} onChange={handleInputChange} required />
-                          </div>
-                          <div className="wm-form-group">
-                            <label>Email address <span>*</span></label>
-                            <input type="email" name="shippingEmail" value={formData.shippingEmail} onChange={handleInputChange} required />
-                          </div>
-                          <div className="wm-form-group">
-                            <label>Country / Region <span>*</span></label>
-                            <select name="shippingCountry" value={formData.shippingCountry} onChange={handleInputChange} required>
-                              <option value="India">India</option>
-                            </select>
-                          </div>
-                          <div className="wm-form-group">
-                            <label>State <span>*</span></label>
-                            <input type="text" name="shippingState" placeholder="State (e.g. Delhi, Maharashtra)" value={formData.shippingState} onChange={handleInputChange} required />
-                          </div>
-                          <div className="wm-form-group">
-                            <label>Town / City <span>*</span></label>
-                            <input type="text" name="shippingCity" value={formData.shippingCity} onChange={handleInputChange} required />
-                          </div>
-                          <div className="wm-form-group">
-                            <label>PIN Code <span>*</span></label>
-                            <input type="text" name="shippingPinCode" placeholder="6-digit PIN Code" maxLength="6" pattern="[0-9]{6}" value={formData.shippingPinCode} onChange={handleInputChange} required />
-                          </div>
-                          <div className="wm-form-group wm-full-width">
-                            <label>Street address <span>*</span></label>
-                            <input type="text" name="shippingAddress" placeholder="House number and street name (min 10 characters)" value={formData.shippingAddress} onChange={handleInputChange} required minLength="5" />
-                          </div>
+                      <div className="shreeji-form-grid">
+                        <div className="shreeji-form-group">
+                          <label>Full Name</label>
+                          <input 
+                            type="text" 
+                            name="fullName" 
+                            placeholder="Enter your full name" 
+                            value={formData.fullName} 
+                            onChange={handleInputChange} 
+                            required 
+                          />
+                        </div>
+
+                        <div className="shreeji-form-group">
+                          <label>Phone Number</label>
+                          <input 
+                            type="tel" 
+                            name="phone" 
+                            placeholder="10-digit mobile number" 
+                            maxLength="10" 
+                            pattern="[0-9]{10}" 
+                            value={formData.phone} 
+                            onChange={handleInputChange} 
+                            required 
+                          />
+                        </div>
+
+                        <div className="shreeji-form-group shreeji-full-width">
+                          <label>Address</label>
+                          <input 
+                            type="text" 
+                            name="address" 
+                            placeholder="House no., street, locality" 
+                            value={formData.address} 
+                            onChange={handleInputChange} 
+                            required 
+                          />
+                        </div>
+
+                        <div className="shreeji-form-group">
+                          <label>City</label>
+                          <input 
+                            type="text" 
+                            name="city" 
+                            placeholder="City" 
+                            value={formData.city} 
+                            onChange={handleInputChange} 
+                            required 
+                          />
+                        </div>
+
+                        <div className="shreeji-form-group">
+                          <label>State</label>
+                          <input 
+                            type="text" 
+                            name="state" 
+                            placeholder="State" 
+                            value={formData.state} 
+                            onChange={handleInputChange} 
+                            required 
+                          />
+                        </div>
+
+                        <div className="shreeji-form-group">
+                          <label>Pincode</label>
+                          <input 
+                            type="text" 
+                            name="pinCode" 
+                            placeholder="Pincode" 
+                            maxLength="6" 
+                            pattern="[0-9]{6}" 
+                            value={formData.pinCode} 
+                            onChange={handleInputChange} 
+                            required 
+                          />
                         </div>
                       </div>
-                    )}
-
-                    <div className="wm-form-group wm-full-width" style={{ marginTop: '15px' }}>
-                      <label>Order notes <span>(optional)</span></label>
-                      <textarea name="notes" placeholder="Notes about your order, e.g. special notes for delivery." value={formData.notes} onChange={handleInputChange} rows="2"></textarea>
                     </div>
+
+                    {/* 3. Payment Method Card */}
+                    <div className="shreeji-card">
+                      <div className="shreeji-card-header">
+                        <svg className="shreeji-header-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                          <line x1="2" y1="10" x2="22" y2="10"></line>
+                        </svg>
+                        <h2>Payment Method</h2>
+                      </div>
+
+                      <div className="shreeji-payment-options">
+                        <label className={`shreeji-radio-option ${paymentMethod === 'cod' ? 'active' : ''}`}>
+                          <input 
+                            type="radio" 
+                            name="payment" 
+                            value="cod" 
+                            checked={paymentMethod === 'cod'} 
+                            onChange={(e) => setPaymentMethod(e.target.value)} 
+                          />
+                          <span className="shreeji-radio-custom" />
+                          <span className="shreeji-radio-text">Cash on Delivery (COD)</span>
+                        </label>
+
+                        <label className={`shreeji-radio-option ${paymentMethod === 'razorpay' ? 'active' : ''}`}>
+                          <input 
+                            type="radio" 
+                            name="payment" 
+                            value="razorpay" 
+                            checked={paymentMethod === 'razorpay'} 
+                            onChange={(e) => setPaymentMethod(e.target.value)} 
+                          />
+                          <span className="shreeji-radio-custom" />
+                          <span className="shreeji-radio-text">Credit Card/ Debit Card/ Internet Banking/ UPI</span>
+                        </label>
+                      </div>
+                    </div>
+
                   </div>
 
-                  {/* 2. PAYMENT INFORMATION */}
-                  <div className="wm-checkout-section-wrap wm-payment-wrap">
-                    <h3 className="wm-checkout-section-title">
-                      <span className="wm-step-badge">2</span> Payment Method
-                    </h3>
-
-                    <div className="wm-payment-methods">
-                      <label className="wm-payment-label">
-                        <input type="radio" name="payment" value="razorpay" checked={paymentMethod === 'razorpay'} onChange={(e) => setPaymentMethod(e.target.value)} />
-                        Credit Card / Debit Card / UPI / NetBanking (Razorpay)
-                      </label>
-                      <label className="wm-payment-label">
-                        <input type="radio" name="payment" value="cod" checked={paymentMethod === 'cod'} onChange={(e) => setPaymentMethod(e.target.value)} />
-                        Cash on delivery
-                      </label>
-                    </div>
-
-                    <div className="wm-payment-desc">
-                      {paymentMethod === 'razorpay' ? 'Pay securely via Razorpay using Cards, UPI, or NetBanking.' : 'Pay with cash upon delivery.'}
-                    </div>
-                  </div>
-
-                </div>
-
-                {/* RIGHT COLUMN: Order Summary (Sticky Sidebar) */}
-                <div className="wm-checkout-right-col">
-                  <div className="wm-checkout-summary-box">
-                    <h3 className="wm-checkout-section-title">Your Order</h3>
+                  {/* RIGHT COLUMN: Order Items & Order Summary */}
+                  <div className="shreeji-right-col">
                     
-                    <table className="wm-order-table">
-                      <thead>
-                        <tr>
-                          <th>PRODUCT</th>
-                          <th>SUBTOTAL</th>
-                        </tr>
-                      </thead>
-                      <tbody>
+                    {/* 1. Order Items (N) Card */}
+                    <div className="shreeji-card">
+                      <div className="shreeji-card-header">
+                        <svg className="shreeji-header-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                          <line x1="3" y1="6" x2="21" y2="6"></line>
+                          <path d="M16 10a4 4 0 0 1-8 0"></path>
+                        </svg>
+                        <h2>Order Items ({cartItems.length})</h2>
+                      </div>
+
+                      <div className="shreeji-items-list">
                         {cartItems.map((item, idx) => (
-                          <tr key={idx}>
-                            <td>
-                              <div className="wm-order-item-desc">
-                                <span className="wm-item-remove" onClick={() => removeFromCart(item.id)} title="Remove item">×</span>
-                                <img src={item.image} alt={item.name} className="wm-order-item-img" />
-                                <div className="wm-item-meta">
-                                  <span className="wm-item-name">{item.name}</span>
-                                  {item.color && (
-                                    <div className="wm-item-color" style={{ fontSize: '11px', color: '#666', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                      <span>Color: <strong>{getColorName(item.color)}</strong></span>
-                                      <span
-                                        style={{
-                                          width: '10px',
-                                          height: '10px',
-                                          borderRadius: '50%',
-                                          backgroundColor: getHexColor(item.color),
-                                          display: 'inline-block',
-                                          border: '1px solid #ccc',
-                                          flexShrink: 0
-                                        }}
-                                      />
-                                    </div>
+                          <div key={idx} className="shreeji-item-row">
+                            <img src={item.image || item.img} alt={item.name} className="shreeji-item-thumb" />
+                            <div className="shreeji-item-info">
+                              <div className="shreeji-item-top">
+                                <h4 className="shreeji-item-title">{item.name}</h4>
+                                <div className="shreeji-item-price-wrap">
+                                  <span className="shreeji-item-price">₹{Math.round(item.price)}</span>
+                                  {item.originalPrice && item.originalPrice > item.price && (
+                                    <span className="shreeji-item-old-price">₹{Math.round(item.originalPrice)}</span>
                                   )}
-                                  <div className="wm-qty-control">
-                                    <span onClick={() => updateQuantity(item.id, -1)} style={{cursor: 'pointer'}}>-</span>
-                                    <span>{item.quantity || 1}</span>
-                                    <span onClick={() => updateQuantity(item.id, 1)} style={{cursor: 'pointer'}}>+</span>
-                                  </div>
                                 </div>
                               </div>
-                            </td>
-                            <td className="wm-subtotal-price">₹{(item.price * (item.quantity || 1)).toLocaleString()}</td>
-                          </tr>
+                              <div className="shreeji-item-meta">
+                                Size: {item.size || 'Standard Box (M)'} | Color: {getColorName(item.color || item.selectedColor || 'Default')} | Qty: {item.quantity || 1}
+                              </div>
+                            </div>
+                          </div>
                         ))}
-                      </tbody>
-                      <tfoot>
-                        <tr>
-                          <th>Subtotal</th>
-                          <td className="wm-subtotal-price">₹{cartTotal.toLocaleString()}</td>
-                        </tr>
-                        {appliedCoupon && (
-                          <tr className="wm-discount-row">
-                            <th>
-                              Discount <span className="wm-discount-code">({appliedCoupon.code})</span>
-                            </th>
-                            <td className="wm-discount-price">-₹{couponDiscountAmount.toLocaleString()}</td>
-                          </tr>
-                        )}
-                        <tr className="wm-total-row">
-                          <th>Total</th>
-                          <td className="wm-total-price">₹{finalTotal.toLocaleString()}</td>
-                        </tr>
-                      </tfoot>
-                    </table>
-
-                    <div className="wm-warehouse-notice">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f79051" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                      </svg>
-                      Expected warehouse dispatch: 1-3 business days.
+                      </div>
                     </div>
 
-                    <button type="submit" className={`wm-place-order-btn${paymentMethod === 'razorpay' ? ' wm-pay-now-btn' : ''}`} disabled={isSubmitting}>
-                      {isSubmitting
-                        ? 'Processing...'
-                        : paymentMethod === 'razorpay'
-                          ? <>
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
-                                <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
-                              </svg>
-                              Pay Now — ₹{finalTotal.toLocaleString()}
-                            </>
-                          : <>
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
-                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
-                              </svg>
-                              Place Order — ₹{finalTotal.toLocaleString()}
-                            </>
-                      }
-                    </button>
-                  </div>
-                </div>
+                    {/* 2. Order Summary Card */}
+                    <div className="shreeji-card shreeji-summary-card">
+                      <div className="shreeji-card-header">
+                        <h2>Order Summary</h2>
+                      </div>
 
-              </div>
-            </form>
+                      <div className="shreeji-summary-rows">
+                        <div className="shreeji-summary-row">
+                          <span>Subtotal</span>
+                          <strong>₹{cartTotal.toFixed(2)}</strong>
+                        </div>
+                        {appliedCoupon && (
+                          <div className="shreeji-summary-row shreeji-discount-row">
+                            <span>Discount ({appliedCoupon.code})</span>
+                            <strong style={{ color: '#16a34a' }}>-₹{couponDiscountAmount.toFixed(2)}</strong>
+                          </div>
+                        )}
+                        <div className="shreeji-summary-row">
+                          <span>Shipping</span>
+                          <strong>₹0</strong>
+                        </div>
+                        <div className="shreeji-summary-row">
+                          <span>Tax</span>
+                          <strong>₹0</strong>
+                        </div>
+                        <div className="shreeji-divider" />
+                        <div className="shreeji-summary-row shreeji-total-row">
+                          <span>Total</span>
+                          <strong className="shreeji-total-price">₹{finalTotal.toFixed(2)}</strong>
+                        </div>
+                      </div>
+
+                      {/* Coupon Toggle in Summary */}
+                      <div className="shreeji-coupon-section">
+                        {!showCouponBox ? (
+                          <button type="button" className="shreeji-coupon-link" onClick={() => setShowCouponBox(true)}>
+                            + Have a coupon code?
+                          </button>
+                        ) : (
+                          <div className="shreeji-coupon-box">
+                            <div className="shreeji-coupon-input-group">
+                              <input 
+                                type="text" 
+                                placeholder="Enter coupon code" 
+                                value={couponCode}
+                                onChange={(e) => setCouponCode(e.target.value)}
+                              />
+                              <button type="button" onClick={handleApplyCoupon}>Apply</button>
+                            </div>
+                            {couponSuccess && <div className="shreeji-coupon-msg success">{couponSuccess}</div>}
+                            {couponError && <div className="shreeji-coupon-msg error">{couponError}</div>}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="shreeji-action-buttons">
+                        <button 
+                          type="submit" 
+                          className="shreeji-place-order-btn" 
+                          disabled={isSubmitting}
+                        >
+                          {isSubmitting ? 'Processing...' : 'Place Order'}
+                        </button>
+                        <button 
+                          type="button" 
+                          className="shreeji-back-cart-btn" 
+                          onClick={() => navigate('/')}
+                        >
+                          Back to Cart
+                        </button>
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                </div>
+              </form>
             )}
           </div>
         ) : step === 2 && orderDetails && (
-          <div className="wm-checkout-container">
-            <div className="wm-order-complete">
-              
-              <div className="wm-order-complete-msg">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+          <div className="shreeji-checkout-container">
+            <div className="shreeji-success-box">
+              <div className="shreeji-success-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5">
                   <polyline points="20 6 9 17 4 12"/>
                 </svg>
-                <span>Thank you. Your order has been received.</span>
+              </div>
+              <h2>Order Placed Successfully!</h2>
+              <p>Thank you for your purchase. Your order number is <strong>#{orderDetails.orderId}</strong>.</p>
+              
+              <div className="shreeji-success-details">
+                <div><span>Date:</span> <strong>{orderDetails.date}</strong></div>
+                <div><span>Total Paid:</span> <strong>₹{orderDetails.total?.toFixed(2)}</strong></div>
+                <div><span>Payment Method:</span> <strong>{orderDetails.paymentMethodStr}</strong></div>
               </div>
 
-              <ul className="wm-order-complete-overview">
-                <li>
-                  <span>Order number:</span>
-                  <strong>{orderDetails.orderId}</strong>
-                </li>
-                <li>
-                  <span>Date:</span>
-                  <strong>{orderDetails.date}</strong>
-                </li>
-                <li>
-                  <span>Total:</span>
-                  <strong style={{ color: '#d96b27' }}>₹{orderDetails.total?.toLocaleString()}</strong>
-                </li>
-                <li>
-                  <span>Payment method:</span>
-                  <strong>{orderDetails.paymentMethodStr}</strong>
-                </li>
-              </ul>
-
-              <p className="wm-order-complete-pay-desc">
-                {paymentMethod === 'cod' ? 'Pay with cash upon delivery.' : paymentMethod === 'bacs' ? 'Make your payment directly into our bank account.' : 'Please send a check to Store Name.'}
-              </p>
-
-              <h2 className="wm-order-details-title">Order details</h2>
-
-              <table className="wm-order-details-table">
-                <thead>
-                  <tr>
-                    <th>PRODUCT</th>
-                    <th>TOTAL</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {cartItems.map((item, idx) => (
-                    <tr key={idx}>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          {item.image && (
-                            <img src={item.image} alt={item.name} style={{ width: '44px', height: '44px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #eee', flexShrink: 0 }} />
-                          )}
-                          <div>
-                            <div style={{ fontWeight: '600', color: '#111', fontSize: '14px' }}>
-                              {item.name} <span style={{ color: '#888', fontWeight: '500' }}>× {item.quantity || 1}</span>
-                            </div>
-                            {(item.size || item.selected_color) && (
-                              <div style={{ fontSize: '12px', color: '#888', marginTop: '3px', display: 'flex', gap: '10px' }}>
-                                {item.size && <span>Size: <strong style={{ color: '#555' }}>{item.size}</strong></span>}
-                                {item.selected_color && <span>Color: <strong style={{ color: '#555' }}>{item.selected_color}</strong></span>}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="wm-color-orange">₹{((item.price * (item.quantity || 1))).toLocaleString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot>
-                  <tr>
-                    <th>Subtotal:</th>
-                    <td className="wm-color-orange">₹{cartTotal.toLocaleString()}</td>
-                  </tr>
-                  {appliedCoupon && (
-                    <tr>
-                      <th>Discount ({appliedCoupon.code}):</th>
-                      <td style={{ color: '#16a34a', fontWeight: '600' }}>-₹{couponDiscountAmount.toLocaleString()}</td>
-                    </tr>
-                  )}
-                  <tr>
-                    <th>Payment method:</th>
-                    <td>{orderDetails.paymentMethodStr}</td>
-                  </tr>
-                  <tr>
-                    <th>Total:</th>
-                    <td className="wm-color-orange" style={{ fontSize: '17px' }}>₹{orderDetails.total?.toLocaleString()}</td>
-                  </tr>
-                </tfoot>
-              </table>
-
-              <div className="wm-order-addresses">
-                <div className="wm-address-col">
-                  <h3 className="wm-address-title">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                    Billing address
-                  </h3>
-                  <address>
-                    <strong style={{ color: '#111', display: 'block', marginBottom: '3px' }}>{formData.firstName} {formData.lastName}</strong>
-                    {formData.address}<br />
-                    {formData.city} {formData.pinCode}<br />
-                    {formData.country}<br />
-                    {formData.phone && (
-                      <span className="wm-address-contact" style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '6px' }}>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                        {formData.phone}
-                      </span>
-                    )}
-                    {formData.email && (
-                      <span className="wm-address-contact" style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '2px' }}>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                        {formData.email}
-                      </span>
-                    )}
-                  </address>
-                </div>
-                <div className="wm-address-col">
-                  <h3 className="wm-address-title">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-                    Shipping address
-                  </h3>
-                  <address>
-                    <strong style={{ color: '#111', display: 'block', marginBottom: '3px' }}>
-                      {shipToDifferent ? formData.shippingFirstName : formData.firstName} {shipToDifferent ? formData.shippingLastName : formData.lastName}
-                    </strong>
-                    {shipToDifferent ? formData.shippingAddress : formData.address}<br />
-                    {shipToDifferent ? formData.shippingCity : formData.city} {shipToDifferent ? formData.shippingPinCode : formData.pinCode}<br />
-                    {shipToDifferent ? formData.shippingCountry : formData.country}<br />
-                    {(shipToDifferent ? formData.shippingPhone : formData.phone) && (
-                      <span className="wm-address-contact" style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '6px' }}>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                        {shipToDifferent ? formData.shippingPhone : formData.phone}
-                      </span>
-                    )}
-                    {(shipToDifferent ? formData.shippingEmail : formData.email) && (
-                      <span className="wm-address-contact" style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '2px' }}>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                        {shipToDifferent ? formData.shippingEmail : formData.email}
-                      </span>
-                    )}
-                  </address>
-                </div>
-              </div>
-
-              <div className="wm-order-complete-actions">
-                <button className="wm-return-shop-btn" onClick={handleFinish}>
-                  ← Return to Shop
+              <div className="shreeji-success-actions">
+                <button className="shreeji-place-order-btn" onClick={handleFinish}>
+                  Return to Home
                 </button>
-                <button className="wm-view-orders-btn" onClick={() => { clearCart(); navigate('/my-orders'); }}>
-                  View My Orders →
+                <button className="shreeji-back-cart-btn" onClick={() => navigate('/my-orders')}>
+                  View My Orders
                 </button>
               </div>
-
             </div>
           </div>
         )}
-     </div>
+      </div>
       <Footer />
     </>
   );

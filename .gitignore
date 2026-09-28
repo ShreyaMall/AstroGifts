@@ -9,6 +9,11 @@ node_modules/
 # production & build
 /build
 dist/
+frontend/dist/
+frontend/node_modules/
+backend/storage/framework/cache/
+backend/storage/framework/sessions/
+backend/storage/framework/views/
 
 # misc
 .DS_Store

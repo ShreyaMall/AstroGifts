@@ -372,4 +372,200 @@ class OrderController extends Controller
             'data' => $order,
         ]);
     }
+
+    /**
+     * Cancel an individual item in an order (Amazon / Myntra style)
+     */
+    public function cancelItem(Request $request, string $orderNumber): JsonResponse
+    {
+        $order = Order::where('order_number', $orderNumber)->first();
+        if (!$order) {
+            return response()->json(['status' => 'error', 'message' => 'Order not found'], 404);
+        }
+
+        if (in_array($order->status, ['Shipped', 'Delivered', 'Cancelled'])) {
+            return response()->json([
+                'status' => 'error', 
+                'message' => "Order is already {$order->status}. Items cannot be cancelled at this stage."
+            ], 400);
+        }
+
+        $validated = $request->validate([
+            'item_index' => 'nullable|integer',
+            'product_id' => 'nullable|string',
+            'reason' => 'nullable|string|max:255',
+        ]);
+
+        $items = $order->items ?? [];
+        if (empty($items)) {
+            return response()->json(['status' => 'error', 'message' => 'No items found in this order'], 400);
+        }
+
+        $targetIndex = null;
+
+        if (isset($validated['item_index']) && isset($items[$validated['item_index']])) {
+            $targetIndex = (int)$validated['item_index'];
+        } elseif (!empty($validated['product_id'])) {
+            foreach ($items as $idx => $it) {
+                $pId = $it['productId'] ?? $it['product_id'] ?? $it['id'] ?? null;
+                if ($pId == $validated['product_id'] && ($it['status'] ?? 'Pending') !== 'Cancelled') {
+                    $targetIndex = $idx;
+                    break;
+                }
+            }
+        }
+
+        if ($targetIndex === null || !isset($items[$targetIndex])) {
+            return response()->json(['status' => 'error', 'message' => 'Item not found or already cancelled'], 404);
+        }
+
+        $itemToCancel = $items[$targetIndex];
+        if (($itemToCancel['status'] ?? 'Pending') === 'Cancelled') {
+            return response()->json(['status' => 'error', 'message' => 'This item is already cancelled.'], 400);
+        }
+
+        // Mark item as Cancelled
+        $items[$targetIndex]['status'] = 'Cancelled';
+        $items[$targetIndex]['cancel_reason'] = $validated['reason'] ?? 'Cancelled by customer';
+        $items[$targetIndex]['cancelled_at'] = now()->toDateTimeString();
+
+        // Also update OrderItem table if exists
+        try {
+            $pId = $itemToCancel['productId'] ?? $itemToCancel['product_id'] ?? null;
+            $query = OrderItem::where('order_id', $order->id);
+            if ($pId) {
+                $query->where(function($q) use ($pId) {
+                    $q->where('product_id', $pId)->orWhere('productId', (string)$pId);
+                });
+            }
+            $orderItemModel = $query->first();
+            if ($orderItemModel) {
+                $orderItemModel->update(['status' => 'Cancelled']);
+            }
+        } catch (\Throwable $e) {
+            Log::error('Failed updating OrderItem row: ' . $e->getMessage());
+        }
+
+        // Restore Stock to Product
+        try {
+            $qtyToRestore = (int)($itemToCancel['quantity'] ?? $itemToCancel['qty'] ?? 1);
+            $pId = $itemToCancel['productId'] ?? $itemToCancel['product_id'] ?? null;
+            $product = null;
+            if ($pId) {
+                $product = Product::find($pId) ?? Product::where('_id', $pId)->first();
+            }
+            if (!$product && !empty($itemToCancel['title'] ?? $itemToCancel['name'])) {
+                $product = Product::where('name', $itemToCancel['title'] ?? $itemToCancel['name'])->first();
+            }
+
+            if ($product) {
+                $currentStock = is_numeric($product->stock) ? (int)$product->stock : 0;
+                $product->stock = $currentStock + $qtyToRestore;
+                $product->in_stock = true;
+                $product->save();
+            }
+        } catch (\Throwable $e) {
+            Log::error('Stock restoration failed for cancelled item: ' . $e->getMessage());
+        }
+
+        // Recalculate Subtotal & Total
+        $newSubtotal = 0;
+        $activeCount = 0;
+        foreach ($items as $it) {
+            if (($it['status'] ?? 'Pending') !== 'Cancelled') {
+                $price = (float)($it['price'] ?? 0);
+                $qty = (int)($it['quantity'] ?? $it['qty'] ?? 1);
+                $newSubtotal += ($price * $qty);
+                $activeCount++;
+            }
+        }
+
+        $discount = (float)($order->discount ?? 0);
+        $shipping = (float)($order->shipping ?? $order->shipping_cost ?? 0);
+        $newTotal = max(0, $newSubtotal - $discount + $shipping);
+
+        $newOrderStatus = $order->status;
+        if ($activeCount === 0) {
+            $newOrderStatus = 'Cancelled';
+        } else {
+            $newOrderStatus = 'Partially Cancelled';
+        }
+
+        $order->update([
+            'items' => $items,
+            'subtotal' => (float)$newSubtotal,
+            'total' => (float)$newTotal,
+            'status' => $newOrderStatus,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Item cancelled successfully and stock updated.',
+            'data' => $order->fresh(),
+        ]);
+    }
+
+    /**
+     * Cancel the full order
+     */
+    public function cancelOrder(Request $request, string $orderNumber): JsonResponse
+    {
+        $order = Order::where('order_number', $orderNumber)->first();
+        if (!$order) {
+            return response()->json(['status' => 'error', 'message' => 'Order not found'], 404);
+        }
+
+        if (in_array($order->status, ['Shipped', 'Delivered', 'Cancelled'])) {
+            return response()->json([
+                'status' => 'error', 
+                'message' => "Order is already {$order->status} and cannot be cancelled."
+            ], 400);
+        }
+
+        $reason = $request->input('reason', 'Cancelled by customer');
+        $items = $order->items ?? [];
+
+        foreach ($items as $idx => &$it) {
+            if (($it['status'] ?? 'Pending') !== 'Cancelled') {
+                $it['status'] = 'Cancelled';
+                $it['cancel_reason'] = $reason;
+                $it['cancelled_at'] = now()->toDateTimeString();
+
+                // Restore stock
+                try {
+                    $qtyToRestore = (int)($it['quantity'] ?? $it['qty'] ?? 1);
+                    $pId = $it['productId'] ?? $it['product_id'] ?? null;
+                    $product = null;
+                    if ($pId) {
+                        $product = Product::find($pId) ?? Product::where('_id', $pId)->first();
+                    }
+                    if (!$product && !empty($it['title'] ?? $it['name'])) {
+                        $product = Product::where('name', $it['title'] ?? $it['name'])->first();
+                    }
+                    if ($product) {
+                        $product->stock = (is_numeric($product->stock) ? (int)$product->stock : 0) + $qtyToRestore;
+                        $product->in_stock = true;
+                        $product->save();
+                    }
+                } catch (\Throwable $e) {
+                    Log::error('Stock restore failed in full cancel: ' . $e->getMessage());
+                }
+            }
+        }
+
+        OrderItem::where('order_id', $order->id)->update(['status' => 'Cancelled']);
+
+        $order->update([
+            'items' => $items,
+            'status' => 'Cancelled',
+            'notes' => ($order->notes ? $order->notes . ' | ' : '') . "Cancelled reason: {$reason}",
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Order cancelled successfully.',
+            'data' => $order->fresh(),
+        ]);
+    }
 }
+

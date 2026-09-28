@@ -276,6 +276,20 @@ export const ordersApi = {
       body: JSON.stringify(returnData),
     });
   },
+
+  cancelItem: async (orderNumber, itemData) => {
+    return request(`/orders/${orderNumber}/cancel-item`, {
+      method: 'POST',
+      body: JSON.stringify(itemData),
+    });
+  },
+
+  cancelOrder: async (orderNumber, reasonData = {}) => {
+    return request(`/orders/${orderNumber}/cancel`, {
+      method: 'POST',
+      body: JSON.stringify(reasonData),
+    });
+  },
 };
 
 /* ══════════════════════════════════════════════════

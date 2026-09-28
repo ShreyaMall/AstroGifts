@@ -892,31 +892,146 @@
   background: #c2591d;
 }
 
+/* ── MOBILE MENU TOGGLE BUTTON (Hidden on desktop) ── */
+.admin__mobile-menu-toggle {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  background: #704832;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.admin__mobile-menu-toggle:hover {
+  background: #543221;
+}
+
+.admin__sidebar-close-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  color: #faf4eb;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+}
+
+.admin__sidebar-overlay {
+  display: none;
+}
+
 /* ── RESPONSIVE ──────────────────────────────── */
 @media (max-width: 1200px) {
   .admin__stats { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 900px) {
-  .admin { display: flex; flex-direction: column; }
-  .admin__sidebar { position: static; height: auto; flex-shrink: 0; }
-  .admin__main { height: auto; flex: 1; overflow-y: auto; }
-  .admin__nav { flex: none; flex-direction: row; flex-wrap: wrap; padding: 10px; }
-  .admin__nav-item { width: auto; }
-  .admin__stats { grid-template-columns: repeat(2, 1fr); padding: 20px; }
-  .admin__page-panel { padding: 20px; }
-  .admin__orders-section { margin: 20px; }
-  .admin__topbar { padding: 16px 20px; }
+  .admin {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  .admin__mobile-menu-toggle {
+    display: flex;
+  }
+  
+  .admin__sidebar-close-btn {
+    display: block;
+  }
+
+  .admin__sidebar-overlay {
+    display: block;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(3px);
+    z-index: 9998;
+  }
+
+  .admin__sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    max-width: 85vw;
+    height: 100vh;
+    z-index: 9999;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 6px 0 25px rgba(0, 0, 0, 0.3);
+    background: #3b2216;
+  }
+
+  .admin__sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  .admin__nav {
+    flex: 1;
+    flex-direction: column !important;
+    padding: 16px 10px !important;
+    overflow-y: auto;
+  }
+
+  .admin__nav-item {
+    width: 100% !important;
+  }
+
+  .admin__main {
+    height: 100vh;
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .admin__topbar {
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .admin__topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .admin__page-title {
+    font-size: 16px;
+  }
+
+  .admin__stats { grid-template-columns: repeat(2, 1fr); padding: 18px; }
+  .admin__page-panel { padding: 18px; }
+  .admin__orders-section { margin: 18px; }
 }
 
 @media (max-width: 600px) {
-  .admin__stats { grid-template-columns: 1fr; padding: 16px; }
-  .admin__page-panel { padding: 16px; }
-  .admin__orders-section { margin: 16px; }
+  .admin__stats { grid-template-columns: 1fr; padding: 14px; }
+  .admin__page-panel { padding: 14px; }
+  .admin__orders-section { margin: 14px; }
   
-  .admin__topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
-  .admin__topbar-right { width: 100%; justify-content: space-between; }
-  
+  .admin__topbar {
+    padding: 10px 14px;
+  }
+
+  .admin__topbar-right {
+    gap: 10px;
+  }
+
+  .admin__topbar-date {
+    display: none; /* Hide full date on small phones to keep topbar ultra clean */
+  }
+
   .admin__table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .admin__table { min-width: 600px; } /* Force table width so it scrolls instead of squishing */
   
@@ -925,9 +1040,4 @@
   .admin__date-input { width: 100%; }
   
   .admin__form-grid--2col, .admin__form-grid--3col { grid-template-columns: 1fr; }
-  
-  .admin__nav { flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
-  .admin__nav::-webkit-scrollbar { display: none; }
-  .admin__nav > div { flex: 0 0 auto; display: inline-block; }
-  .admin__nav-item { flex: 0 0 auto; }
 }

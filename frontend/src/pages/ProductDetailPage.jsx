@@ -13,6 +13,27 @@ import fallbackGift1 from '../assets/gift image.jpg';
 import fallbackGift2 from '../assets/decor1.jpg';
 import fallbackGift3 from '../assets/textile1.webp';
 
+const getFormattedImageUrl = (rawUrl) => {
+  if (!rawUrl || typeof rawUrl !== 'string' || !rawUrl.trim()) {
+    return fallbackGift1;
+  }
+  const t = rawUrl.trim();
+  if (t.startsWith('http://') || t.startsWith('https://') || t.startsWith('data:')) {
+    return t;
+  }
+  const backendBase = import.meta.env.VITE_API_BASE_URL 
+    ? import.meta.env.VITE_API_BASE_URL.replace(/\/api\/?$/, '') 
+    : 'http://127.0.0.1:8000';
+
+  if (t.startsWith('storage/') || t.startsWith('/storage/') || t.startsWith('uploads/') || t.startsWith('/uploads/')) {
+    return `${backendBase}/${t.replace(/^\//, '')}`;
+  }
+  if (t.startsWith('/')) {
+    return t;
+  }
+  return `/${t}`;
+};
+
 export default function ProductDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -25,18 +46,16 @@ export default function ProductDetailPage() {
   const [activeImage, setActiveImage] = useState('');
   const [activeImgIndex, setActiveImgIndex] = useState(0);
   const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedPlating, setSelectedPlating] = useState('Gold Plated');
+  const [selectedRingSize, setSelectedRingSize] = useState('Size 14');
+  const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('desc');
   const [relatedProducts, setRelatedProducts] = useState([]);
 
-  const galleryImages = React.useMemo(() => {
+  // 1. All raw product images (unfiltered across all colors)
+  const allProductImages = React.useMemo(() => {
     if (!product) return [];
-
-    // If product defines isolated color_gallery per color variant, show color-specific gallery
-    if (selectedColor && product.color_gallery && Array.isArray(product.color_gallery[selectedColor]) && product.color_gallery[selectedColor].length > 0) {
-      return product.color_gallery[selectedColor].filter(Boolean);
-    }
-
     let list = [];
     if (Array.isArray(product.images) && product.images.length > 0) {
       list = product.images.filter(Boolean);
@@ -63,12 +82,103 @@ export default function ProductDetailPage() {
     ].filter(Boolean);
 
     list = [...list, ...extraImgs];
+    return Array.from(new Set(list.filter(Boolean)));
+  }, [product]);
 
-    // Filter unique distinct images
-    let uniqueList = Array.from(new Set(list.filter(Boolean)));
+  // 2. Filtered gallery images for the currently selected color
+  const galleryImages = React.useMemo(() => {
+    if (!product) return [];
 
-    return uniqueList;
-  }, [product, selectedColor]);
+    const effectiveColor = selectedColor || (product.colors && product.colors.length > 0 ? product.colors[0] : null);
+    const colorIndex = (product.colors && effectiveColor) 
+      ? product.colors.findIndex(c => String(c).toLowerCase().trim() === String(effectiveColor).toLowerCase().trim()) 
+      : -1;
+
+    // Check if product defines color_gallery map (e.g. product.color_gallery['Black'])
+    if (effectiveColor && product.color_gallery) {
+      const colKey = Object.keys(product.color_gallery).find(k => k.toLowerCase() === effectiveColor.toLowerCase());
+      if (colKey && Array.isArray(product.color_gallery[colKey]) && product.color_gallery[colKey].length > 0) {
+        return product.color_gallery[colKey].filter(Boolean);
+      }
+    }
+
+    // Check if product defines color_images map (e.g. product.color_images['Black'])
+    if (effectiveColor && product.color_images) {
+      const colKey = Object.keys(product.color_images).find(k => k.toLowerCase() === effectiveColor.toLowerCase());
+      if (colKey) {
+        const val = product.color_images[colKey];
+        if (Array.isArray(val) && val.length > 0) return val.filter(Boolean);
+        if (typeof val === 'string' && val.trim()) return [val.trim()];
+      }
+    }
+
+    // Filter allProductImages by matching color name in path/URL
+    if (effectiveColor && allProductImages.length > 1) {
+      const colorLower = effectiveColor.toLowerCase();
+      const colorFiltered = allProductImages.filter(img => {
+        const str = (typeof img === 'string' ? img : '').toLowerCase();
+        return str.includes(colorLower);
+      });
+
+      if (colorFiltered.length > 0) {
+        return colorFiltered;
+      }
+    }
+
+    // Divide allProductImages equally among product.colors if multiple images exist
+    if (colorIndex >= 0 && Array.isArray(product.colors) && product.colors.length > 1 && allProductImages.length >= product.colors.length) {
+      const numPerColor = Math.floor(allProductImages.length / product.colors.length);
+      if (numPerColor >= 1) {
+        const colorSlice = allProductImages.slice(colorIndex * numPerColor, (colorIndex + 1) * numPerColor);
+        if (colorSlice.length > 0) return colorSlice;
+      }
+    }
+
+    return allProductImages;
+  }, [product, selectedColor, allProductImages]);
+
+  // Helper to find the representative swatch thumbnail image for a color variant
+  const getColorSwatchImage = (colorName, cIndex) => {
+    if (!product || !colorName) return null;
+    const cLower = colorName.toLowerCase().trim();
+
+    if (product.color_images) {
+      const colKey = Object.keys(product.color_images).find(k => k.toLowerCase() === cLower);
+      if (colKey) {
+        const val = product.color_images[colKey];
+        if (typeof val === 'string' && val.trim()) return val.trim();
+        if (Array.isArray(val) && val[0]) return val[0];
+      }
+    }
+
+    if (product.color_gallery) {
+      const colKey = Object.keys(product.color_gallery).find(k => k.toLowerCase() === cLower);
+      if (colKey && Array.isArray(product.color_gallery[colKey]) && product.color_gallery[colKey][0]) {
+        return product.color_gallery[colKey][0];
+      }
+    }
+
+    const matchedImg = allProductImages.find(img => typeof img === 'string' && img.toLowerCase().includes(cLower));
+    if (matchedImg) return matchedImg;
+
+    if (Array.isArray(product.colors) && product.colors.length > 1 && allProductImages.length >= product.colors.length) {
+      const numPerColor = Math.floor(allProductImages.length / product.colors.length);
+      if (numPerColor >= 1 && cIndex >= 0 && cIndex < product.colors.length) {
+        const sliced = allProductImages.slice(cIndex * numPerColor, (cIndex + 1) * numPerColor);
+        if (sliced.length > 0) return sliced[0];
+      }
+    }
+
+    return null;
+  };
+
+  // Sync main image when selected color changes
+  useEffect(() => {
+    if (galleryImages && galleryImages.length > 0) {
+      setActiveImage(galleryImages[0]);
+      setActiveImgIndex(0);
+    }
+  }, [selectedColor]);
 
   // Delivery & Pincode State
   const [pincode, setPincode] = useState('');
@@ -173,7 +283,7 @@ export default function ProductDetailPage() {
         rating: Number(reviewForm.rating),
         comment: reviewForm.comment.trim(),
         product_name: product?.name || 'Chair',
-        product_image: product?.image || product?.img || '/chair1.jpg',
+        product_image: product?.image || product?.img || '/gift image.jpg',
         status: 'Pending'
       });
     } catch (err) {
@@ -638,6 +748,36 @@ export default function ProductDetailPage() {
   const wishlisted = isInWishlist(product.id);
   const approvedReviews = reviews.filter(r => r.status === 'Approved');
 
+  const pName = (product.name || '').toLowerCase();
+  const pCat = (product.category || '').toLowerCase();
+  const pSubcat = (product.subcategory || product.raw?.subcategory || '').toLowerCase();
+
+  // Ring products check
+  const isRingProduct = 
+    pName.includes('ring') || 
+    pName.includes('angoothi') || 
+    pCat.includes('ring') || 
+    pSubcat.includes('ring') ||
+    Boolean(product.ring_size || product.raw?.ring_size);
+
+  // Jewelry / Metal products check for Plating Finish
+  const isJewelryOrMetalProduct = 
+    isRingProduct ||
+    pName.includes('pendant') || 
+    pName.includes('bracelet') || 
+    pName.includes('kada') || 
+    pName.includes('locket') || 
+    pName.includes('chain') || 
+    pName.includes('mala') || 
+    pName.includes('yantra') || 
+    pName.includes('kavach') ||
+    pName.includes('coin') ||
+    pCat.includes('jewelry') ||
+    pSubcat.includes('jewelry') ||
+    pSubcat.includes('pendant') ||
+    pSubcat.includes('bracelet') ||
+    Boolean(product.plating || product.raw?.plating || product.raw?.metal_finish);
+
   const renderTrustBadgeIcon = (iconName) => {
     switch (iconName) {
       case 'warranty': return <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path></svg>;
@@ -665,13 +805,13 @@ export default function ProductDetailPage() {
         <div className="pdp-breadcrumb">
           <Link to="/">Home</Link>
           <span className="pdp-sep">/</span>
-          <Link to={`/category/${product.category?.toLowerCase() || 'chairs'}`}>{product.category || 'Category'}</Link>
+          <Link to={`/category/${product.category?.toLowerCase() || 'gifts'}`}>{product.category || 'Category'}</Link>
           <span className="pdp-sep">/</span>
           <Link to={`/product/${product.id || String(product.name).toLowerCase().replace(/\s+/g, '-')}`} className="pdp-breadcrumb-current">{product.name}</Link>
         </div>
 
         {/* Main Product Grid */}
-        <div className="pdp-main-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
+        <div className="pdp-main-grid">
           {/* 1. Images (Gallery) */}
           <div className="pdp-gallery">
             {/* Thumbs (Left - Only show if more than 1 image) */}
@@ -687,7 +827,14 @@ export default function ProductDetailPage() {
                     }}
                     title={`View ${i + 1}`}
                   >
-                    <img src={imgUrl} alt={`${product.name} view ${i+1}`} />
+                    <img 
+                      src={getFormattedImageUrl(imgUrl)} 
+                      alt={`${product.name} view ${i+1}`}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = fallbackGift1;
+                      }}
+                    />
                   </button>
                 ))}
               </div>
@@ -705,12 +852,20 @@ export default function ProductDetailPage() {
                 onClick={() => toggleWishlist(product)}
                 title={wishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill={wishlisted ? "#d96b27" : "none"} stroke={wishlisted ? "#d96b27" : "currentColor"} strokeWidth="2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill={wishlisted ? "#7c3a1d" : "none"} stroke={wishlisted ? "#7c3a1d" : "currentColor"} strokeWidth="2">
                   <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                 </svg>
               </button>
 
-              <img src={galleryImages[activeImgIndex] || activeImage || product.image || product.img} alt={product.name} className="pdp-main-img" />
+              <img 
+                src={getFormattedImageUrl(activeImage || (galleryImages && galleryImages[activeImgIndex]) || product.image || product.img)} 
+                alt={product.name} 
+                className="pdp-main-img" 
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = fallbackGift1;
+                }}
+              />
             </div>
           </div>
 
@@ -718,7 +873,7 @@ export default function ProductDetailPage() {
           <div className="pdp-info">
             {/* 2. Product Name */}
             <h1 className="pdp-title">{product.name}</h1>
-            <div style={{ fontSize: '13px', color: '#d96b27', fontWeight: '500', marginBottom: '8px' }}>
+            <div style={{ fontSize: '13px', color: '#7c3a1d', fontWeight: '500', marginBottom: '8px' }}>
               Premium Gift Item • Handcrafted • Express Delivery
             </div>
 
@@ -742,7 +897,7 @@ export default function ProductDetailPage() {
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: '#d96b27',
+                  color: '#7c3a1d',
                   textDecoration: 'underline',
                   fontSize: '13px',
                   cursor: 'pointer',
@@ -768,7 +923,7 @@ export default function ProductDetailPage() {
             <div style={{ fontSize: '12px', color: '#777', marginBottom: '20px' }}>Inclusive of all taxes</div>
 
             {/* 5. Description */}
-            <div className="pdp-short-desc" style={{ fontSize: '14px', color: '#555', lineHeight: '1.6', marginBottom: '20px', background: '#fcf8f5', padding: '14px 16px', borderRadius: '8px', borderLeft: '4px solid #d96b27' }}>
+            <div className="pdp-short-desc" style={{ fontSize: '14px', color: '#555', lineHeight: '1.6', marginBottom: '20px', background: '#fcf8f5', padding: '14px 16px', borderRadius: '8px', borderLeft: '4px solid #7c3a1d' }}>
               {product.description || `Make memories unforgettable with this handcrafted anniversary gift box from AstroGifts. Designed with premium materials and personalized touches to celebrate love and togetherness.`}
             </div>
 
@@ -776,13 +931,13 @@ export default function ProductDetailPage() {
             {product.colors && product.colors.length > 0 ? (
               <div style={{ margin: '0 0 20px' }}>
                 <span style={{ fontSize: '13px', fontWeight: '700', color: '#111', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '8px' }}>
-                  MORE COLORS: <span style={{ fontWeight: '500', color: '#d96b27', textTransform: 'none', letterSpacing: 'normal' }}>{getColorName(selectedColor || product.colors[0])}</span>
+                  MORE COLORS: <span style={{ fontWeight: '500', color: '#7c3a1d', textTransform: 'none', letterSpacing: 'normal' }}>{getColorName(selectedColor || product.colors[0])}</span>
                 </span>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
                   {product.colors.map((c, cIndex) => {
                     const stock = product.stock_by_color?.[c] ?? baseStock;
                     const isColOutOfStock = stock <= 0;
-                    const colorThumbImg = product.color_images?.[c] || galleryImages[cIndex];
+                    const colorThumbImg = getColorSwatchImage(c, cIndex);
 
                     if (colorThumbImg) {
                       return (
@@ -792,28 +947,35 @@ export default function ProductDetailPage() {
                           onClick={() => {
                             if (!isColOutOfStock) {
                               setSelectedColor(c);
-                              setActiveImage(colorThumbImg);
-                              const foundIdx = galleryImages.indexOf(colorThumbImg);
-                              if (foundIdx !== -1) setActiveImgIndex(foundIdx);
+                              setActiveImgIndex(0);
+                              if (colorThumbImg) setActiveImage(colorThumbImg);
                             }
                           }}
                           disabled={isColOutOfStock}
-                          title={c}
+                          title={getColorName(c)}
                           style={{
                             width: '48px',
                             height: '56px',
                             borderRadius: '6px',
-                            border: selectedColor === c ? '2px solid #d96b27' : '1px solid #e2e8f0',
+                            border: (selectedColor || product.colors[0]) === c ? '2px solid #7c3a1d' : '1px solid #e2e8f0',
                             padding: '2px',
                             background: '#fff',
                             cursor: isColOutOfStock ? 'not-allowed' : 'pointer',
                             position: 'relative',
                             overflow: 'hidden',
-                            boxShadow: selectedColor === c ? '0 2px 8px rgba(217, 107, 39, 0.25)' : '0 1px 3px rgba(0,0,0,0.05)',
+                            boxShadow: (selectedColor || product.colors[0]) === c ? '0 2px 8px rgba(124, 58, 29, 0.25)' : '0 1px 3px rgba(0,0,0,0.05)',
                             transition: 'all 0.15s ease'
                           }}
                         >
-                          <img src={colorThumbImg} alt={c} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px', opacity: isColOutOfStock ? 0.4 : 1 }} />
+                          <img 
+                            src={getFormattedImageUrl(colorThumbImg)} 
+                            alt={c} 
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px', opacity: isColOutOfStock ? 0.4 : 1 }} 
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = fallbackGift1;
+                            }}
+                          />
                           {isColOutOfStock && (
                             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(255,255,255,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', color: '#dc2626', fontWeight: 'bold' }}>
                               OUT
@@ -830,19 +992,22 @@ export default function ProductDetailPage() {
                         onClick={() => {
                           if (!isColOutOfStock) {
                             setSelectedColor(c);
+                            setActiveImgIndex(0);
                           }
                         }}
                         disabled={isColOutOfStock}
-                        title={c}
+                        title={getColorName(c)}
                         style={{
-                          width: '30px', height: '30px',
+                          width: '32px', height: '32px',
                           borderRadius: '50%',
-                          border: selectedColor === c ? '2px solid #111' : '1px solid #ddd',
+                          border: (selectedColor || product.colors[0]) === c ? '2px solid #7c3a1d' : '1px solid #ddd',
                           background: getHexColor(c),
                           cursor: isColOutOfStock ? 'not-allowed' : 'pointer',
                           position: 'relative',
                           padding: '2px',
-                          backgroundClip: 'content-box'
+                          backgroundClip: 'content-box',
+                          boxShadow: (selectedColor || product.colors[0]) === c ? '0 0 0 2px rgba(124, 58, 29, 0.3)' : 'none',
+                          transition: 'all 0.15s ease'
                         }}
                       >
                         {isColOutOfStock && (
@@ -855,15 +1020,85 @@ export default function ProductDetailPage() {
               </div>
             ) : null}
 
-            {/* Variations - Size / Gift Edition */}
-            <div className="pdp-size-selector" style={{ marginBottom: '20px' }}>
-              <span className="pdp-size-label">Gift Edition / Size: <strong>{selectedSize || 'Standard Box (M)'}</strong></span>
-              <div className="pdp-size-options" style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
-                <button type="button" className={`pdp-size-btn ${selectedSize === 'Compact Box (S)' ? 'pdp-size-btn--active' : ''}`} onClick={() => setSelectedSize('Compact Box (S)')}>Compact Box (S)</button>
-                <button type="button" className={`pdp-size-btn ${(selectedSize === 'Standard Box (M)' || !selectedSize) ? 'pdp-size-btn--active' : ''}`} onClick={() => setSelectedSize('Standard Box (M)')}>Standard Box (M)</button>
-                <button type="button" className={`pdp-size-btn ${selectedSize === 'Royal Hamper (XL)' ? 'pdp-size-btn--active' : ''}`} onClick={() => setSelectedSize('Royal Hamper (XL)')}>Royal Hamper (XL)</button>
+            {/* PLATING / METAL FINISH SELECTOR */}
+            {isJewelryOrMetalProduct && (
+              <div className="pdp-plating-selector" style={{ marginBottom: '20px' }}>
+                <span className="pdp-size-label" style={{ fontWeight: '600', fontSize: '13px', color: '#111', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '8px' }}>
+                  PLATING / METAL FINISH: <strong style={{ color: '#7c3a1d', textTransform: 'none' }}>{selectedPlating}</strong>
+                </span>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {[
+                    { name: 'Gold Plated', color: '#d4af37' },
+                    { name: 'Silver Plated', color: '#c0c0c0' },
+                    { name: 'Brass / Panchdhatu', color: '#b87333' },
+                    { name: 'Rose Gold', color: '#b76e79' }
+                  ].map(p => (
+                    <button
+                      key={p.name}
+                      type="button"
+                      onClick={() => setSelectedPlating(p.name)}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '6px 14px',
+                        borderRadius: '20px',
+                        border: selectedPlating === p.name ? '2px solid #7c3a1d' : '1px solid #ddd',
+                        background: selectedPlating === p.name ? '#fdf8f5' : '#ffffff',
+                        color: selectedPlating === p.name ? '#7c3a1d' : '#444',
+                        fontWeight: selectedPlating === p.name ? '700' : '500',
+                        fontSize: '12.5px',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: p.color, display: 'inline-block' }} />
+                      {p.name}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* RING SIZE SELECTOR & SIZE GUIDE */}
+            {isRingProduct && (
+              <div className="pdp-size-selector" style={{ marginBottom: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span className="pdp-size-label" style={{ fontWeight: '600', fontSize: '13px', color: '#111', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    RING SIZE: <strong style={{ color: '#7c3a1d', textTransform: 'none' }}>{selectedRingSize}</strong>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setIsSizeGuideOpen(true)}
+                    style={{ background: 'none', border: 'none', color: '#7c3a1d', fontSize: '12px', fontWeight: '600', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}
+                  >
+                    📏 Ring Size Guide
+                  </button>
+                </div>
+                <div className="pdp-size-options" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {['Size 10', 'Size 12', 'Size 14', 'Size 16', 'Size 18', 'Size 20', 'Adjustable'].map(s => (
+                    <button
+                      key={s}
+                      type="button"
+                      className={`pdp-size-btn ${selectedRingSize === s ? 'pdp-size-btn--active' : ''}`}
+                      onClick={() => setSelectedRingSize(s)}
+                      style={{
+                        padding: '6px 14px',
+                        fontSize: '12.5px',
+                        borderRadius: '6px',
+                        border: selectedRingSize === s ? '2px solid #7c3a1d' : '1px solid #ddd',
+                        background: selectedRingSize === s ? '#7c3a1d' : '#fff',
+                        color: selectedRingSize === s ? '#fff' : '#333',
+                        fontWeight: '600',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* 7. Quantity */}
             <div className="pdp-qty-wrap" style={{ marginBottom: '16px' }}>
@@ -896,7 +1131,7 @@ export default function ProductDetailPage() {
             {/* 9. Delivery/Pincode */}
             <div className="pdp-delivery-pincode-box" style={{ background: '#fafafa', border: '1px solid #eaeaea', borderRadius: '10px', padding: '16px', marginBottom: '24px' }}>
               <h4 style={{ margin: '0 0 10px', fontSize: '14px', fontWeight: '600', color: '#222', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d96b27" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c3a1d" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                 Check Delivery & Pincode Availability
               </h4>
               <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
@@ -911,7 +1146,7 @@ export default function ProductDetailPage() {
                 <button 
                   type="button" 
                   onClick={() => handlePincodeSubmit(tempPincode)}
-                  style={{ background: '#d96b27', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '6px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}
+                  style={{ background: '#7c3a1d', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '6px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}
                 >
                   Check
                 </button>
@@ -919,7 +1154,7 @@ export default function ProductDetailPage() {
               {pincode ? (
                 <div style={{ fontSize: '12px', color: '#16a34a', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg><strong>Deliverable {deliveryLocation ? `to ${deliveryLocation}` : ''}</strong></div>
-                  <div style={{ color: '#555', display: 'flex', alignItems: 'center', gap: '6px' }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d96b27" strokeWidth="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>Estimated Delivery by <strong>{deliveryDate}</strong></div>
+                  <div style={{ color: '#555', display: 'flex', alignItems: 'center', gap: '6px' }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7c3a1d" strokeWidth="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>Estimated Delivery by <strong>{deliveryDate}</strong></div>
                   <div style={{ color: '#777', display: 'flex', alignItems: 'center', gap: '6px' }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>Free Gift Packaging & COD available</div>
                 </div>
               ) : (
@@ -934,7 +1169,7 @@ export default function ProductDetailPage() {
                 className="pdp-add-cart-btn"
                 onClick={handleAddToCart}
                 disabled={isOutOfStock}
-                style={{ background: '#d96b27', color: '#fff', border: 'none', flex: 1, height: '46px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: isOutOfStock ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}
+                style={{ background: '#7c3a1d', color: '#fff', border: 'none', flex: 1, height: '46px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: isOutOfStock ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{marginRight: '8px'}}>
                   <circle cx="9" cy="21" r="1"></circle>
@@ -960,7 +1195,7 @@ export default function ProductDetailPage() {
               <div className="pdp-trust-strip" style={{ display: 'flex', gap: '12px', borderTop: '1px solid #f0f0f0', paddingTop: '16px' }}>
                 {activeTrustBadges.map((badge, idx) => (
                   <div key={idx} className="pdp-trust-strip-item" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#555' }}>
-                    <div className="pdp-trust-strip-icon" style={{ color: '#d96b27' }}>{renderTrustBadgeIcon(badge.icon)}</div>
+                    <div className="pdp-trust-strip-icon" style={{ color: '#7c3a1d' }}>{renderTrustBadgeIcon(badge.icon)}</div>
                     <div>
                       <strong style={{ display: 'block', color: '#222' }}>{badge.title}</strong>
                       <span style={{ fontSize: '11px', color: '#777' }}>{badge.description}</span>
@@ -992,30 +1227,90 @@ export default function ProductDetailPage() {
                 <div className="pdp-desc-grid">
                   <div>
                     <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#111', margin: '0 0 16px' }}>Full Product Details</h3>
-                    <p style={{ lineHeight: '1.7', color: '#555', marginBottom: '20px' }}>
+                    <p style={{ lineHeight: '1.7', color: '#555', marginBottom: '20px', fontSize: '14.5px' }}>
                       {product.description || `Celebrate timeless romance with this exquisite AstroGifts anniversary collection. Carefully handcrafted with premium materials, fine detailing, and personalized packaging to make your anniversary moments unforgettable.`}
                     </p>
-                    <ul style={{ paddingLeft: '20px', color: '#555', lineHeight: '1.8' }}>
-                      {product.features && product.features.length > 0 ? (
-                        product.features.map((feature, idx) => (
-                          <li key={idx}>{feature}</li>
-                        ))
-                      ) : (
-                        <>
-                          <li>Premium handcrafted craftsmanship with elegant finishing</li>
-                          <li>Includes custom greeting message card for your special one</li>
-                          <li>Luxurious ribbon gift-box packaging ready for gifting</li>
-                          <li>Durable, long-lasting keepsake designed to cherish forever</li>
-                        </>
-                      )}
-                    </ul>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
+                      {(product.features && product.features.length > 0 ? product.features : [
+                        "Premium handcrafted craftsmanship with elegant finishing",
+                        "Includes custom greeting message card for your special one",
+                        "Luxurious ribbon gift-box packaging ready for gifting",
+                        "Durable, long-lasting keepsake designed to cherish forever"
+                      ]).map((feature, idx) => (
+                        <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', color: '#444', fontSize: '14px', lineHeight: '1.6' }}>
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginTop: '3px', flexShrink: 0 }}>
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                          </svg>
+                          <span>{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', paddingTop: '16px', borderTop: '1px solid #f0f0f0' }}>
+                      <span style={{ background: '#fdf3eb', color: '#7c3a1d', padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg>
+                        Premium Quality
+                      </span>
+                      <span style={{ background: '#f0fdf4', color: '#166534', padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 12 20 22 4 22 4 12"></polyline>
+                          <rect x="2" y="7" width="20" height="5"></rect>
+                          <line x1="12" y1="22" x2="12" y2="7"></line>
+                          <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
+                          <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
+                        </svg>
+                        Gift Box Ready
+                      </span>
+                      <span style={{ background: '#f0f9ff', color: '#075985', padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="1" y="3" width="15" height="13"></rect>
+                          <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                          <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                          <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                        </svg>
+                        Express Shipping
+                      </span>
+                    </div>
                   </div>
 
                   <div>
                     <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#111', margin: '0 0 16px' }}>Product Showcase</h3>
-                    <div style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden' }}>
-                      <img src={activeImage || product.image || product.img} alt="Showcase" style={{ width: '100%', display: 'block', height: '240px', objectFit: 'cover' }} />
+                    <div style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', height: '360px', boxShadow: '0 6px 20px rgba(0,0,0,0.06)', background: '#f8f8f8' }}>
+                      <img 
+                        src={getFormattedImageUrl(activeImage || product.image || product.img)} 
+                        alt="Product Showcase" 
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} 
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = fallbackGift1;
+                        }}
+                      />
                     </div>
+                    {galleryImages && galleryImages.length > 1 && (
+                      <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
+                        {galleryImages.slice(0, 4).map((imgUrl, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => setActiveImage(imgUrl)}
+                            style={{
+                              flex: 1,
+                              height: '70px',
+                              borderRadius: '8px',
+                              overflow: 'hidden',
+                              border: (activeImage === imgUrl || (activeImgIndex === i && !activeImage)) ? '2px solid #7c3a1d' : '1px solid #e2e8f0',
+                              padding: 0,
+                              background: '#fff',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            <img src={getFormattedImageUrl(imgUrl)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1107,42 +1402,42 @@ export default function ProductDetailPage() {
         </div>
 
         {/* 12. What's Included */}
-        <div className="pdp-whats-included-section" style={{ marginTop: '20px', background: '#fff9f5', border: '1px solid #f2e2d9', borderRadius: '12px', padding: '20px 24px' }}>
+        <div className="pdp-whats-included-section" style={{ marginTop: '20px', background: '#fdfbf9', border: '1px solid #ebe2dc', borderRadius: '12px', padding: '20px 24px' }}>
           <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#111', marginBottom: '18px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d96b27" strokeWidth="2"><path d="M20 12v10H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7c3a1d" strokeWidth="2"><path d="M20 12v10H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
             What's Included in this Gift Box
           </h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#ffffff', padding: '14px 16px', borderRadius: '8px', border: '1px solid #f0ded3' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#fff0e6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d96b27" strokeWidth="2"><path d="M20 12v10H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#ffffff', padding: '14px 16px', borderRadius: '8px', border: '1px solid #ede3dc' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#f9f3ef', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3a1d" strokeWidth="2"><path d="M20 12v10H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
               </div>
               <div>
                 <strong style={{ fontSize: '14px', color: '#222', display: 'block' }}>1x Main Anniversary Gift</strong>
                 <span style={{ fontSize: '12px', color: '#666' }}>{product.name}</span>
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#ffffff', padding: '14px 16px', borderRadius: '8px', border: '1px solid #f0ded3' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#fff0e6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d96b27" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#ffffff', padding: '14px 16px', borderRadius: '8px', border: '1px solid #ede3dc' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#f9f3ef', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3a1d" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
               </div>
               <div>
                 <strong style={{ fontSize: '14px', color: '#222', display: 'block' }}>1x Custom Wishing Card</strong>
                 <span style={{ fontSize: '12px', color: '#666' }}>Personalized message insert</span>
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#ffffff', padding: '14px 16px', borderRadius: '8px', border: '1px solid #f0ded3' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#fff0e6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d96b27" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#ffffff', padding: '14px 16px', borderRadius: '8px', border: '1px solid #ede3dc' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#f9f3ef', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3a1d" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
               </div>
               <div>
                 <strong style={{ fontSize: '14px', color: '#222', display: 'block' }}>1x Luxury Rigid Box</strong>
                 <span style={{ fontSize: '12px', color: '#666' }}>Satin ribbon & protective cushion</span>
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#ffffff', padding: '14px 16px', borderRadius: '8px', border: '1px solid #f0ded3' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#fff0e6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d96b27" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#ffffff', padding: '14px 16px', borderRadius: '8px', border: '1px solid #ede3dc' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#f9f3ef', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3a1d" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
               </div>
               <div>
                 <strong style={{ fontSize: '14px', color: '#222', display: 'block' }}>1x Authenticity Card</strong>
@@ -1155,20 +1450,20 @@ export default function ProductDetailPage() {
         {/* 13. Delivery & Return */}
         <div className="pdp-delivery-return-section" style={{ marginTop: '20px', background: '#ffffff', border: '1px solid #eee', borderRadius: '12px', padding: '20px 24px' }}>
           <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#111', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d96b27" strokeWidth="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7c3a1d" strokeWidth="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
             Delivery & Return Policy
           </h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px' }}>
             <div style={{ padding: '16px', background: '#fafafa', borderRadius: '8px', border: '1px solid #f0f0f0' }}>
-              <strong style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#222', marginBottom: '6px' }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d96b27" strokeWidth="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg> Express Dispatch</strong>
+              <strong style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#222', marginBottom: '6px' }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c3a1d" strokeWidth="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg> Express Dispatch</strong>
               <p style={{ margin: 0, fontSize: '13px', color: '#666', lineHeight: '1.5' }}>Orders are processed and dispatched within 24 to 48 hours with live tracking details sent to SMS/Email.</p>
             </div>
             <div style={{ padding: '16px', background: '#fafafa', borderRadius: '8px', border: '1px solid #f0f0f0' }}>
-              <strong style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#222', marginBottom: '6px' }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d96b27" strokeWidth="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg> Free Standard Delivery</strong>
+              <strong style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#222', marginBottom: '6px' }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c3a1d" strokeWidth="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg> Free Standard Delivery</strong>
               <p style={{ margin: 0, fontSize: '13px', color: '#666', lineHeight: '1.5' }}>Free delivery across 25,000+ PIN codes in India. Estimated delivery within 3-5 business days.</p>
             </div>
             <div style={{ padding: '16px', background: '#fafafa', borderRadius: '8px', border: '1px solid #f0f0f0' }}>
-              <strong style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#222', marginBottom: '6px' }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d96b27" strokeWidth="2"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg> 7-Day Easy Replacements</strong>
+              <strong style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#222', marginBottom: '6px' }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c3a1d" strokeWidth="2"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg> 7-Day Easy Replacements</strong>
               <p style={{ margin: 0, fontSize: '13px', color: '#666', lineHeight: '1.5' }}>In the rare event of transit damage or defects, enjoy effortless 7-day doorstep replacement support.</p>
             </div>
           </div>
@@ -1184,7 +1479,7 @@ export default function ProductDetailPage() {
               type="button"
               onClick={() => setIsReviewModalOpen(true)}
               style={{
-                background: '#d96b27',
+                background: '#7c3a1d',
                 color: '#ffffff',
                 border: 'none',
                 padding: '10px 20px',
@@ -1194,8 +1489,11 @@ export default function ProductDetailPage() {
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '6px'
+                gap: '6px',
+                transition: 'background 0.2s'
               }}
+              onMouseOver={(e) => e.currentTarget.style.background = '#5d2b15'}
+              onMouseOut={(e) => e.currentTarget.style.background = '#7c3a1d'}
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="#ffffff" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> Write a Review
             </button>
@@ -1217,7 +1515,9 @@ export default function ProductDetailPage() {
                 <button
                   type="button"
                   onClick={() => setIsReviewModalOpen(true)}
-                  style={{ background: '#d96b27', color: '#fff', border: 'none', padding: '10px 22px', borderRadius: '20px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
+                  style={{ background: '#7c3a1d', color: '#fff', border: 'none', padding: '10px 22px', borderRadius: '20px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'background 0.2s' }}
+                  onMouseOver={(e) => e.currentTarget.style.background = '#5d2b15'}
+                  onMouseOut={(e) => e.currentTarget.style.background = '#7c3a1d'}
                 >
                   Be the first to write a review
                 </button>
@@ -1256,7 +1556,7 @@ export default function ProductDetailPage() {
             <div className="pdp-related-grid">
               {relatedProducts.map(rel => {
                 const relSlug = rel.slug || String(rel.name).toLowerCase().replace(/[^a-z0-9]+/g, '-');
-                const relImg = rel.image_url || rel.image || rel.img || '';
+                const relImg = getFormattedImageUrl(rel.image_url || rel.image || rel.img);
                 const relPrice = typeof rel.price === 'number' ? rel.price : parseFloat(rel.price) || 0;
                 return (
                   <div key={rel.id} className="pdp-rel-card">
@@ -1266,7 +1566,15 @@ export default function ProductDetailPage() {
                           {rel.badge}
                         </span>
                       )}
-                      <img src={relImg} alt={rel.name} className="pdp-rel-img" />
+                      <img 
+                        src={relImg} 
+                        alt={rel.name} 
+                        className="pdp-rel-img" 
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = fallbackGift1;
+                        }}
+                      />
                     </Link>
                     <div className="pdp-rel-info">
                       <span className="pdp-rel-cat">{rel.category_name || rel.category}</span>
@@ -1348,7 +1656,7 @@ export default function ProductDetailPage() {
                       <input type="text" placeholder="City" required value={newAddressForm.city} onChange={e => setNewAddressForm({...newAddressForm, city: e.target.value})} style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px', flex: 1, fontSize: '13px', outline: 'none' }} />
                       <input type="text" placeholder="State" required value={newAddressForm.state} onChange={e => setNewAddressForm({...newAddressForm, state: e.target.value})} style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px', flex: 1, fontSize: '13px', outline: 'none' }} />
                     </div>
-                    <button type="submit" style={{ padding: '10px', background: '#d96b27', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: '600', cursor: 'pointer', marginTop: '4px' }}>Save Address</button>
+                    <button type="submit" style={{ padding: '10px', background: '#7c3a1d', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: '600', cursor: 'pointer', marginTop: '4px' }}>Save Address</button>
                   </form>
                 ) : (
                   <div className="pdp-modal-address-list">
@@ -1475,7 +1783,7 @@ export default function ProductDetailPage() {
                   type="submit"
                   disabled={submittingReview}
                   style={{
-                    background: '#f79051',
+                    background: '#7c3a1d',
                     color: '#ffffff',
                     border: 'none',
                     borderRadius: '25px',
@@ -1483,14 +1791,52 @@ export default function ProductDetailPage() {
                     fontSize: '14px',
                     fontWeight: '600',
                     cursor: submittingReview ? 'not-allowed' : 'pointer',
-                    opacity: submittingReview ? 0.7 : 1
+                    opacity: submittingReview ? 0.7 : 1,
+                    transition: 'background 0.2s'
                   }}
+                  onMouseOver={(e) => { if (!submittingReview) e.currentTarget.style.background = '#5d2b15'; }}
+                  onMouseOut={(e) => { if (!submittingReview) e.currentTarget.style.background = '#7c3a1d'; }}
                 >
                   {submittingReview ? 'Submitting...' : 'Submit Review'}
                 </button>
               </div>
 
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Ring Size Guide Modal */}
+      {isSizeGuideOpen && (
+        <div className="pdp-modal-overlay" onClick={() => setIsSizeGuideOpen(false)}>
+          <div className="pdp-modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '520px', borderRadius: '16px' }}>
+            <div className="pdp-modal-header" style={{ padding: '16px 20px', background: '#fdfbf9', borderBottom: '1px solid #eee' }}>
+              <h3 style={{ margin: 0, fontSize: '17px', color: '#2c1510', fontWeight: '700' }}>📏 Ring Size Chart Guide</h3>
+              <button className="pdp-modal-close" onClick={() => setIsSizeGuideOpen(false)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#888' }}>✕</button>
+            </div>
+            <div className="pdp-modal-body" style={{ padding: '20px' }}>
+              <p style={{ fontSize: '13px', color: '#666', marginBottom: '16px', lineHeight: '1.5' }}>
+                Measure the inner diameter of a ring that fits you, or wrap a string around your finger to find your size:
+              </p>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'center' }}>
+                <thead>
+                  <tr style={{ background: '#7c3a1d', color: '#fff' }}>
+                    <th style={{ padding: '10px 8px', borderRadius: '6px 0 0 0' }}>Indian Ring Size</th>
+                    <th style={{ padding: '10px 8px' }}>Inner Diameter</th>
+                    <th style={{ padding: '10px 8px', borderRadius: '0 6px 0 0' }}>Circumference</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style={{ borderBottom: '1px solid #eee' }}><td style={{ padding: '9px 8px', fontWeight: 'bold' }}>Size 10</td><td>15.7 mm</td><td>49.3 mm</td></tr>
+                  <tr style={{ borderBottom: '1px solid #eee', background: '#fafafa' }}><td style={{ padding: '9px 8px', fontWeight: 'bold' }}>Size 12</td><td>16.5 mm</td><td>51.8 mm</td></tr>
+                  <tr style={{ borderBottom: '1px solid #eee' }}><td style={{ padding: '9px 8px', fontWeight: 'bold' }}>Size 14</td><td>17.3 mm</td><td>54.3 mm</td></tr>
+                  <tr style={{ borderBottom: '1px solid #eee', background: '#fafafa' }}><td style={{ padding: '9px 8px', fontWeight: 'bold' }}>Size 16</td><td>18.1 mm</td><td>56.8 mm</td></tr>
+                  <tr style={{ borderBottom: '1px solid #eee' }}><td style={{ padding: '9px 8px', fontWeight: 'bold' }}>Size 18</td><td>18.9 mm</td><td>59.3 mm</td></tr>
+                  <tr style={{ borderBottom: '1px solid #eee', background: '#fafafa' }}><td style={{ padding: '9px 8px', fontWeight: 'bold' }}>Size 20</td><td>19.8 mm</td><td>62.2 mm</td></tr>
+                  <tr style={{ background: '#fdf5f0' }}><td style={{ padding: '10px 8px', fontWeight: 'bold', color: '#7c3a1d' }}>Adjustable</td><td colSpan="2" style={{ padding: '10px 8px', color: '#7c3a1d', fontWeight: '600' }}>Flexible open band (Fits sizes 10 - 20)</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}

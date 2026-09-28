@@ -47,8 +47,8 @@ class ReviewController extends Controller
 
         try {
             $product = Product::find($productId) ?? Product::where('slug', $productId)->first();
-            $prodName = $request->product_name ?: ($product?->name ?: 'Chair #' . $productId);
-            $prodImg = $request->product_image ?: ($product?->image ?: '/chair1.jpg');
+            $prodName = $request->product_name ?: ($product?->name ?: 'Item #' . $productId);
+            $prodImg = $request->product_image ?: ($product?->image ?: '/gift image.jpg');
             $userName = trim($validated['user_name']);
             $avatar = 'https://ui-avatars.com/api/?name=' . urlencode($userName) . '&background=fbe2d0&color=d96b27';
 
@@ -144,8 +144,8 @@ class ReviewController extends Controller
             $review = Review::create([
                 'product_id'    => $request->product_id ?? 'general',
                 'product_slug'  => $request->product_slug ?? 'general',
-                'product_name'  => $request->product_name ?? 'Homewood Decor Store',
-                'product_image' => $request->product_image ?? '/chair1.jpg',
+                'product_name'  => $request->product_name ?? 'AstroGifts Store',
+                'product_image' => $request->product_image ?? '/gift image.jpg',
                 'user_name'     => $userName,
                 'user_email'    => $validated['user_email'] ?? null,
                 'user_image'    => $avatar,
@@ -199,8 +199,8 @@ class ReviewController extends Controller
                         $rev->product_name = $prod->name;
                         $rev->product_image = $prod->image;
                     } else {
-                        $rev->product_name = 'General Product';
-                        $rev->product_image = '/chair1.jpg';
+                        $rev->product_name = 'General Gift';
+                        $rev->product_image = '/gift image.jpg';
                     }
                 }
             }
@@ -279,8 +279,8 @@ class ReviewController extends Controller
             $review = Review::create([
                 'product_id'    => $request->product_id ?? 'custom',
                 'product_slug'  => $request->product_id ?? 'custom',
-                'product_name'  => $validated['product_name'] ?? 'Premium Chair',
-                'product_image' => $validated['product_image'] ?? '/chair1.jpg',
+                'product_name'  => $validated['product_name'] ?? 'AstroGifts Item',
+                'product_image' => $validated['product_image'] ?? '/gift image.jpg',
                 'user_name'     => trim($validated['user_name']),
                 'user_email'    => $request->user_email ?? null,
                 'user_image'    => $request->user_image ?? $request->image ?? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',

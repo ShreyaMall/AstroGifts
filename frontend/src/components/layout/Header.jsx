@@ -42,8 +42,8 @@ const DEFAULT_CATEGORIES = [
     name: 'Gifts',
     slug: 'gifts',
     subcategories: [
-      { id: 101, name: 'Diwali Gifts', slug: 'diwali-gifts' },
-      { id: 102, name: 'Birthday Gifts', slug: 'birthday-gifts' },
+      { id: 101, name: 'Diwali Gifts',     slug: 'diwali-gifts' },
+      { id: 102, name: 'Birthday Gifts',   slug: 'birthday-gifts' },
       { id: 103, name: 'Anniversary Gifts', slug: 'anniversary-gifts' },
     ]
   },
@@ -52,8 +52,8 @@ const DEFAULT_CATEGORIES = [
     name: 'Toys',
     slug: 'toys',
     subcategories: [
-      { id: 201, name: 'Soft Toys', slug: 'soft-toys' },
-      { id: 202, name: 'Baby Toys', slug: 'baby-toys' },
+      { id: 201, name: 'Soft Toys',   slug: 'soft-toys' },
+      { id: 202, name: 'Baby Toys',   slug: 'baby-toys' },
       { id: 203, name: 'Board Games', slug: 'board-games' },
     ]
   },
@@ -62,9 +62,9 @@ const DEFAULT_CATEGORIES = [
     name: 'Astrology',
     slug: 'astrology',
     subcategories: [
-      { id: 301, name: 'Rings', slug: 'rings' },
-      { id: 302, name: 'Pendants', slug: 'pendants' },
-      { id: 303, name: 'Bracelets', slug: 'bracelets' },
+      { id: 301, name: 'Rings',                slug: 'rings' },
+      { id: 302, name: 'Pendants',             slug: 'pendants' },
+      { id: 303, name: 'Bracelets',            slug: 'bracelets' },
       { id: 304, name: 'Gemstones & Crystals', slug: 'gemstones-crystals' },
     ]
   }
@@ -545,7 +545,10 @@ export default function Header({ onAccountClick }) {
                       {cat.subcategories.map(sub => {
                         const subSlug = sub.slug || sub.name.toLowerCase();
                         return (
-                          <li key={sub.id || sub.name} className="header__dropdown-item">
+                          <li
+                            key={sub.id || sub.name}
+                            className="header__dropdown-item"
+                          >
                             <Link
                               to={`/category/${subSlug}`}
                               className="header__dropdown-link"

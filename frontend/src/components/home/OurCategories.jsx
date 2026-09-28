@@ -11,12 +11,12 @@ import decorImg from '../../assets/decor1.jpg';
 import crystalImg from '../../assets/Rose_Quartz.webp';
 
 const STATIC_FALLBACK_CATEGORIES = [
-  { name: 'Gifts',     slug: 'gifts',     img: giftsImg },
-  { name: 'Toys',      slug: 'toys',      img: toysImg },
-  { name: 'Astrology', slug: 'astrology', img: astroImg },
-  { name: 'Flowers',   slug: 'flowers',   img: flowersImg },
-  { name: 'Decor',     slug: 'decor',     img: decorImg },
-  { name: 'Crystals',  slug: 'crystals',  img: crystalImg },
+  { name: 'Gifts',     slug: 'gifts',              img: giftsImg },
+  { name: 'Toys',      slug: 'toys',               img: toysImg },
+  { name: 'Astrology', slug: 'astrology',          img: astroImg },
+  { name: 'Flowers',   slug: 'flowers',            img: flowersImg },
+  { name: 'Decor',     slug: 'decor',              img: decorImg },
+  { name: 'Crystals',  slug: 'gemstones-crystals', img: crystalImg },
 ];
 
 export default function OurCategories() {
@@ -38,6 +38,14 @@ export default function OurCategories() {
               img: imgSrc || staticMatch?.img || giftsImg,
             };
           });
+
+          // Retain fallback items like Crystals if not returned by main categories API
+          STATIC_FALLBACK_CATEGORIES.forEach(stat => {
+            if (!mapped.some(m => m.slug === stat.slug || m.name.toLowerCase().startsWith('crystal'))) {
+              mapped.push(stat);
+            }
+          });
+
           setCategories(mapped.slice(0, 6));
         }
       })

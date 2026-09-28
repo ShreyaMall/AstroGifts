@@ -60,7 +60,7 @@ export default function WishlistPage() {
                   <Heart size={44} color="#d1d5db" />
                 </div>
                 <p style={{ fontSize: '16px', color: '#666', marginBottom: '24px' }}>Your wishlist is currently empty.</p>
-                <Link to="/shop" style={{ display: 'inline-block', padding: '10px 24px', background: '#d96b27', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: '600' }}>
+                <Link to="/shop" style={{ display: 'inline-block', padding: '10px 24px', background: '#7c3a1d', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: '600' }}>
                   Start Browsing
                 </Link>
               </div>
@@ -81,7 +81,7 @@ export default function WishlistPage() {
                       </div>
                       <div style={{ padding: '16px' }}>
                         <h3 style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</h3>
-                        <div style={{ fontSize: '14px', color: '#d96b27', fontWeight: '700' }}>₹{Number(item.price).toLocaleString('en-IN')}</div>
+                        <div style={{ fontSize: '14px', color: '#7c3a1d', fontWeight: '700' }}>₹{Number(item.price).toLocaleString('en-IN')}</div>
                       </div>
                     </Link>
                   </div>

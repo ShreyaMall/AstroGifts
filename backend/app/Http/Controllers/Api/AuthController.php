@@ -186,21 +186,27 @@ class AuthController extends Controller
         $user = User::where('email', $loginInput)->first();
 
         // Support demo login username shortcut 'user'
-        if (!$user && ($loginInput === 'user' || $loginInput === 'user@astrogifts.com' || $loginInput === 'user@woodmart.com')) {
-            $user = User::where('email', 'user@astrogifts.com')->first()
-                 ?? User::where('email', 'user@woodmart.com')->first();
+        if (!$user && ($loginInput === 'user' || $loginInput === 'user@astrogifts.com')) {
+            $user = User::where('email', 'user@astrogifts.com')->first();
         }
 
-        $isDemoUser = ($loginInput === 'user' || $loginInput === 'user@astrogifts.com' || $loginInput === 'user@woodmart.com') 
+        $isDemoUser = ($loginInput === 'user' || $loginInput === 'user@astrogifts.com') 
                       && $request->password === 'user123';
 
         if (!$user) {
-            $user = User::create([
-                'name' => 'Demo User',
-                'email' => 'user@astrogifts.com',
-                'password' => Hash::make('user123'),
-                'role' => 'customer',
-            ]);
+            if ($isDemoUser) {
+                $user = User::create([
+                    'name' => 'Demo User',
+                    'email' => 'user@astrogifts.com',
+                    'password' => Hash::make('user123'),
+                    'role' => 'customer',
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No account found with this email. Please click "Register" tab to create your account.',
+                ], 404);
+            }
         } else if ($isDemoUser) {
             $user->email = 'user@astrogifts.com';
             $user->password = Hash::make('user123');
@@ -210,7 +216,7 @@ class AuthController extends Controller
         if (!$isDemoUser && !Hash::check($request->password, $user->password)) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Invalid email or password. (Demo: user@astrogifts.com / user123)',
+                'message' => 'Invalid email or password.',
             ], 401);
         }
 
@@ -243,12 +249,11 @@ class AuthController extends Controller
         $user = User::where('email', $loginInput)->first();
 
         // Support demo login username shortcut 'admin'
-        if (!$user && ($loginInput === 'admin' || $loginInput === 'admin@astrogifts.com' || $loginInput === 'admin@woodmart.com')) {
-            $user = User::where('email', 'admin@astrogifts.com')->first()
-                 ?? User::where('email', 'admin@woodmart.com')->first();
+        if (!$user && ($loginInput === 'admin' || $loginInput === 'admin@astrogifts.com')) {
+            $user = User::where('email', 'admin@astrogifts.com')->first();
         }
 
-        $isDemoAdmin = ($loginInput === 'admin' || $loginInput === 'admin@astrogifts.com' || $loginInput === 'admin@woodmart.com') 
+        $isDemoAdmin = ($loginInput === 'admin' || $loginInput === 'admin@astrogifts.com') 
                        && $request->password === 'admin123';
 
         if (!$user) {

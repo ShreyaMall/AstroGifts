@@ -150,7 +150,7 @@
   min-width: 15px;
   height: 15px;
   padding: 0 3px;
-  background: #d96b27;
+  background: #7c3a1d;
   color: #ffffff;
   font-size: 9px;
   font-weight: 700;
@@ -404,6 +404,8 @@
   color: #704832;
 }
 
+
+
 /* Chevron rotation on hover */
 .header__nav-chevron {
   display: flex;
@@ -590,6 +592,36 @@
   .header__nav-chevron {
     margin-left: auto;
     padding-right: 4px;
+  }
+
+  /* Mobile: mega panel is inline below its parent link */
+  .header__mega-panel {
+    position: static !important;
+    transform: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    border-top: 1px solid #e8d9c5 !important;
+    background: #ede1ca !important;
+    padding: 0 !important;
+    pointer-events: all !important;
+  }
+  .header__mega-panel__heading {
+    padding: 8px 20px 6px 56px;
+    font-size: 10px;
+    color: #7c5946;
+  }
+  .header__mega-panel__link {
+    padding: 10px 20px 10px 60px;
+    font-size: 13px;
+    color: #5c3826;
+    border-bottom: 1px solid #e0cdb5;
+  }
+  .header__mega-panel__link:hover {
+    background: #e8d9c5;
+    color: #704832;
   }
 
   .mobile-hidden { display: none !important; }

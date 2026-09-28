@@ -73,6 +73,8 @@ Route::post('/coupons/validate', [CouponController::class, 'validateCoupon']);
 Route::post('/orders', [OrderController::class, 'store']);
 Route::get('/orders/{orderNumber}', [OrderController::class, 'show']);
 Route::post('/orders/{orderNumber}/return-request', [OrderController::class, 'requestReturn']);
+Route::post('/orders/{orderNumber}/cancel-item', [OrderController::class, 'cancelItem']);
+Route::post('/orders/{orderNumber}/cancel', [OrderController::class, 'cancelOrder']);
 
 Route::get('/user/orders', [OrderController::class, 'index']);
 

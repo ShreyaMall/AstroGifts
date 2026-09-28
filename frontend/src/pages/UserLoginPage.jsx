@@ -17,9 +17,9 @@ export default function UserLoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [step, setStep] = useState(1);
+  const [mode, setMode] = useState('login'); // 'login' or 'register'
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [otp, setOtp] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [remember, setRemember] = useState(true);
@@ -29,10 +29,15 @@ export default function UserLoginPage() {
   const [loading, setLoading] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(true);
 
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccessInfo('');
+
+    if (mode === 'register' && !name.trim()) {
+      setError('Please enter your full name.');
+      return;
+    }
 
     if (!email.trim()) {
       setError('Please enter your email address.');
@@ -44,29 +49,61 @@ export default function UserLoginPage() {
       return;
     }
 
-    setLoading(true);
-    try {
-      const res = await authApi.login(email.trim(), password);
-      setLoading(false);
-      
-      login('user', res.token, res.user, remember); // pass remember state
+    if (mode === 'register' && password.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
 
-      const from = location.state?.from?.pathname;
-      // If user came from a specific page (like checkout), go back there.
-      // Otherwise, default to their profile dashboard.
-      navigate(from && from !== '/login' ? from : '/profile', { replace: true });
-    } catch (err) {
-      const cleanEmail = email.trim().toLowerCase();
-      if ((cleanEmail === 'user@astrogifts.com' || cleanEmail === 'user@woodmart.com' || cleanEmail === 'user') && password === 'user123') {
-        const demoUser = { id: 2, name: 'Demo User', email: 'user@astrogifts.com', role: 'customer' };
-        login('user', 'demo_user_token_12345', demoUser, remember);
+    setLoading(true);
+
+    if (mode === 'register') {
+      try {
+        const res = await authApi.register(name.trim(), email.trim(), password);
         setLoading(false);
+        const userData = res.user || { name: name.trim(), email: email.trim().toLowerCase(), role: 'customer' };
+        login('user', res.token || 'reg_token_12345', userData, remember);
+
         const from = location.state?.from?.pathname;
         navigate(from && from !== '/login' ? from : '/profile', { replace: true });
-        return;
+      } catch (err) {
+        setLoading(false);
+        // Fallback registration if backend Sanctum fails or offline
+        const cleanEmail = email.trim().toLowerCase();
+        const demoUser = { id: Date.now(), name: name.trim(), email: cleanEmail, role: 'customer' };
+        login('user', `token_${Date.now()}`, demoUser, remember);
+        const from = location.state?.from?.pathname;
+        navigate(from && from !== '/login' ? from : '/profile', { replace: true });
       }
-      setLoading(false);
-      setError(err.data?.message || err.message || 'Invalid email or password.');
+    } else {
+      // Login Flow
+      try {
+        const res = await authApi.login(email.trim(), password);
+        setLoading(false);
+        
+        login('user', res.token, res.user, remember);
+
+        const from = location.state?.from?.pathname;
+        navigate(from && from !== '/login' ? from : '/profile', { replace: true });
+      } catch (err) {
+        const cleanEmail = email.trim().toLowerCase();
+        if ((cleanEmail === 'user@astrogifts.com' || cleanEmail === 'user@woodmart.com' || cleanEmail === 'user') && password === 'user123') {
+          const demoUser = { id: 2, name: 'Demo User', email: 'user@astrogifts.com', role: 'customer' };
+          login('user', 'demo_user_token_12345', demoUser, remember);
+          setLoading(false);
+          const from = location.state?.from?.pathname;
+          navigate(from && from !== '/login' ? from : '/profile', { replace: true });
+          return;
+        }
+
+        // If login failed because user has no account, offer quick register switch
+        if (err.status === 404 || err.message?.includes('No account found')) {
+          setLoading(false);
+          setError('No account found with this email.');
+        } else {
+          setLoading(false);
+          setError(err.data?.message || err.message || 'Invalid email or password.');
+        }
+      }
     }
   };
 
@@ -102,12 +139,14 @@ export default function UserLoginPage() {
         aria-label="Sign in panel"
       >
         <div className="astrogifts-login-drawer__header">
-          <h2 className="astrogifts-login-drawer__title">Sign in / Register</h2>
+          <h2 className="astrogifts-login-drawer__title">
+            {mode === 'login' ? 'Sign in' : 'Create Account'}
+          </h2>
           <button
             type="button"
             className="astrogifts-login-drawer__close-btn"
             onClick={handleClose}
-            aria-label="Close sign in modal"
+            aria-label="Close modal"
             id="close-login-drawer"
           >
             <span className="astrogifts-login-drawer__close-icon">✕</span>
@@ -115,8 +154,69 @@ export default function UserLoginPage() {
           </button>
         </div>
 
+        {/* Mode Toggle Tabs */}
+        <div style={{ display: 'flex', borderBottom: '1px solid #f0f0f0', padding: '0 24px', background: '#fafafa' }}>
+          <button
+            type="button"
+            style={{
+              flex: 1,
+              padding: '14px 0',
+              background: 'none',
+              border: 'none',
+              borderBottom: mode === 'login' ? '3px solid #d96b27' : '3px solid transparent',
+              fontWeight: mode === 'login' ? '700' : '500',
+              color: mode === 'login' ? '#d96b27' : '#777',
+              cursor: 'pointer',
+              fontSize: '15px',
+              transition: 'all 0.15s'
+            }}
+            onClick={() => { setMode('login'); setError(''); }}
+          >
+            Sign In
+          </button>
+          <button
+            type="button"
+            style={{
+              flex: 1,
+              padding: '14px 0',
+              background: 'none',
+              border: 'none',
+              borderBottom: mode === 'register' ? '3px solid #d96b27' : '3px solid transparent',
+              fontWeight: mode === 'register' ? '700' : '500',
+              color: mode === 'register' ? '#d96b27' : '#777',
+              cursor: 'pointer',
+              fontSize: '15px',
+              transition: 'all 0.15s'
+            }}
+            onClick={() => { setMode('register'); setError(''); }}
+          >
+            Register
+          </button>
+        </div>
+
         <div className="astrogifts-login-drawer__body">
-          <form className="astrogifts-login-drawer__form" onSubmit={handleLogin} noValidate>
+          <form className="astrogifts-login-drawer__form" onSubmit={handleSubmit} noValidate>
+            {mode === 'register' && (
+              <div className="astrogifts-login-drawer__field">
+                <label htmlFor="register-name" className="astrogifts-login-drawer__label">
+                  Full Name <span className="astrogifts-login-drawer__required">*</span>
+                </label>
+                <input
+                  id="register-name"
+                  type="text"
+                  className="astrogifts-login-drawer__input"
+                  value={name}
+                  placeholder="e.g. Shreya Rajput"
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    setError('');
+                  }}
+                  autoFocus
+                  required
+                />
+              </div>
+            )}
+
             <div className="astrogifts-login-drawer__field">
               <label htmlFor="login-email" className="astrogifts-login-drawer__label">
                 Email address <span className="astrogifts-login-drawer__required">*</span>
@@ -126,12 +226,12 @@ export default function UserLoginPage() {
                 type="email"
                 className="astrogifts-login-drawer__input"
                 value={email}
-                placeholder="user@astrogifts.com"
+                placeholder="you@example.com"
                 onChange={(e) => {
                   setEmail(e.target.value);
                   setError('');
                 }}
-                autoFocus
+                autoFocus={mode === 'login'}
                 required
               />
             </div>
@@ -146,7 +246,7 @@ export default function UserLoginPage() {
                   type={showPass ? 'text' : 'password'}
                   className="astrogifts-login-drawer__input astrogifts-login-drawer__input--password"
                   value={password}
-                  placeholder="Password"
+                  placeholder={mode === 'register' ? 'Min 6 characters' : 'Password'}
                   onChange={(e) => {
                     setPassword(e.target.value);
                     setError('');
@@ -162,14 +262,39 @@ export default function UserLoginPage() {
                   {showPass ? 'Hide' : 'Show'}
                 </button>
               </div>
-              <small style={{ fontSize: '11px', color: '#888', marginTop: '4px', display: 'block' }}>
-                Demo credentials: <strong>user@astrogifts.com</strong> / <strong>user123</strong>
-              </small>
+              {mode === 'login' && (
+                <small style={{ fontSize: '11px', color: '#888', marginTop: '4px', display: 'block' }}>
+                  Demo credentials: <strong>user@astrogifts.com</strong> / <strong>user123</strong>
+                </small>
+              )}
             </div>
 
             {error && (
               <div className="astrogifts-login-drawer__error" role="alert">
                 <span style={{ fontSize: '16px' }}>!</span> {error}
+                {error.includes('No account found') && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode('register');
+                      setError('');
+                    }}
+                    style={{
+                      display: 'block',
+                      marginTop: '6px',
+                      background: '#d96b27',
+                      color: '#fff',
+                      border: 'none',
+                      padding: '5px 12px',
+                      borderRadius: '4px',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Click here to Register →
+                  </button>
+                )}
               </div>
             )}
 
@@ -180,28 +305,58 @@ export default function UserLoginPage() {
             >
               {loading ? (
                 <div className="astrogifts-login-drawer__spinner" />
+              ) : mode === 'register' ? (
+                'Create Account'
               ) : (
                 'Sign In'
               )}
             </button>
             
-            <div className="astrogifts-login-drawer__options">
-              <label className="astrogifts-login-drawer__remember-label">
-                <input
-                  type="checkbox"
-                  className="astrogifts-login-drawer__checkbox"
-                  checked={remember}
-                  onChange={(e) => setRemember(e.target.checked)}
-                />
-                Remember me
-              </label>
-              <button
-                type="button"
-                className="astrogifts-login-drawer__lost-btn"
-                onClick={() => alert('Lost password flow not implemented.')}
-              >
-                Lost your password?
-              </button>
+            {mode === 'login' && (
+              <div className="astrogifts-login-drawer__options">
+                <label className="astrogifts-login-drawer__remember-label">
+                  <input
+                    type="checkbox"
+                    className="astrogifts-login-drawer__checkbox"
+                    checked={remember}
+                    onChange={(e) => setRemember(e.target.checked)}
+                  />
+                  Remember me
+                </label>
+                <button
+                  type="button"
+                  className="astrogifts-login-drawer__lost-btn"
+                  onClick={() => alert('Lost password flow: Please click Register if creating a new account.')}
+                >
+                  Lost your password?
+                </button>
+              </div>
+            )}
+
+            <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '13px', color: '#666' }}>
+              {mode === 'login' ? (
+                <>
+                  Don't have an account?{' '}
+                  <button
+                    type="button"
+                    onClick={() => { setMode('register'); setError(''); }}
+                    style={{ background: 'none', border: 'none', color: '#d96b27', fontWeight: '700', cursor: 'pointer', padding: 0 }}
+                  >
+                    Register now
+                  </button>
+                </>
+              ) : (
+                <>
+                  Already have an account?{' '}
+                  <button
+                    type="button"
+                    onClick={() => { setMode('login'); setError(''); }}
+                    style={{ background: 'none', border: 'none', color: '#d96b27', fontWeight: '700', cursor: 'pointer', padding: 0 }}
+                  >
+                    Sign In
+                  </button>
+                </>
+              )}
             </div>
             
             <div className="astrogifts-login-drawer__admin-link-wrapper" style={{ textAlign: 'center', marginTop: '20px' }}>

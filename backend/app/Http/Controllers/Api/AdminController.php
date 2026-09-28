@@ -278,14 +278,14 @@ class AdminController extends Controller
             'trust_badges'   => 'nullable|array',
         ]);
 
-        $catName = $validated['category_name'] ?? $validated['category'] ?? 'Chairs';
+        $catName = $validated['category_name'] ?? $validated['category'] ?? 'Gifts';
         $catSlug = $validated['category_slug'] ?? Str::slug($catName);
 
         $category = Category::where('slug', $catSlug)
             ->orWhere('name', $catName)
             ->first();
 
-        $image = $validated['image'] ?? $validated['image_url'] ?? 'chair1.jpg';
+        $image = $validated['image'] ?? $validated['image_url'] ?? 'gift image.jpg';
         $stock = $validated['stock'] ?? $validated['stock_quantity'] ?? 50;
         $sku   = !empty($validated['sku']) ? $validated['sku'] : ('WM-' . strtoupper(Str::random(6)));
         $status = $validated['status'] ?? (isset($validated['is_active']) && !$validated['is_active'] ? 'Inactive' : 'Active');
@@ -458,10 +458,15 @@ class AdminController extends Controller
             $showInMenu = strtolower($request->showInMenu) === 'yes';
         }
 
+        $rawParent = $request->parent_category ?? $request->parentCategory ?? null;
+        if ($rawParent && in_array(strtolower(trim($rawParent)), ['none', 'null', ''])) {
+            $rawParent = null;
+        }
+
         $category = Category::create([
             'name'            => $request->name,
             'slug'            => $slug,
-            'parent_category' => $request->parent_category ?? $request->parentCategory ?? null,
+            'parent_category' => $rawParent,
             'description'     => $request->description ?? '',
             'image'           => $request->image ?? '',
             'icon'            => $request->icon ?? '',

@@ -1,0 +1,420 @@
+/* ── FloatingCartBar.css ── */
+/* AstroGifts Theme: Warm Brown & Beige Palette */
+
+.floating-cart-container {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9990;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── Cart Popover Dropup Card ── */
+.fcb-popover {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  max-width: calc(100vw - 24px);
+  background: #ffffff;
+  border: 1px solid #ede4d8;
+  border-radius: 18px;
+  box-shadow: 0 16px 40px rgba(44, 21, 16, 0.2), 0 4px 12px rgba(44, 21, 16, 0.08);
+  overflow: hidden;
+  animation: fcbPopoverFadeUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  z-index: 9992;
+}
+
+/* Header */
+.fcb-popover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px 10px 18px;
+  background: #fdfbf8;
+  border-bottom: 1px solid #f2ebe1;
+}
+
+.fcb-popover-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #2c1510;
+  margin: 0;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.fcb-popover-title span {
+  color: #7c3a1d;
+  font-weight: 600;
+}
+
+.fcb-popover-close {
+  background: transparent;
+  border: none;
+  color: #8c766b;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.fcb-popover-close:hover {
+  color: #2c1510;
+  background: #f0e6da;
+}
+
+/* Body / Product Items List */
+.fcb-popover-body {
+  padding: 12px 16px;
+  max-height: 240px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #ffffff;
+}
+
+.fcb-popover-body::-webkit-scrollbar {
+  width: 5px;
+}
+.fcb-popover-body::-webkit-scrollbar-track {
+  background: #fbf8f4;
+}
+.fcb-popover-body::-webkit-scrollbar-thumb {
+  background: #d8c8b8;
+  border-radius: 4px;
+}
+
+/* Item Row */
+.fcb-item-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed #f0e6da;
+}
+
+.fcb-item-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.fcb-item-img-wrap {
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fdfbf8;
+  border: 1px solid #ebe2d5;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fcb-item-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fcb-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.fcb-item-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #2c1510;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.fcb-item-meta {
+  font-size: 11.5px;
+  color: #8c766b;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+
+.fcb-item-price-qty {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.fcb-item-price {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #2c1510;
+}
+
+.fcb-item-qty {
+  font-size: 12px;
+  color: #7c3a1d;
+  font-weight: 500;
+}
+
+/* Delete Button */
+.fcb-item-delete {
+  background: #fff5f5;
+  border: 1px solid #fecaca;
+  color: #e53935;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.fcb-item-delete:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+  transform: scale(1.08);
+}
+
+/* Subtotal Footer */
+.fcb-popover-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px 14px 18px;
+  background: #fdfbf8;
+  border-top: 1px solid #f0e6da;
+}
+
+.fcb-subtotal-label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #6d5b51;
+}
+
+.fcb-subtotal-val {
+  font-size: 16px;
+  font-weight: 800;
+  color: #2c1510;
+  letter-spacing: 0.2px;
+}
+
+/* ── Main Dark Chocolate / Brown Floating Pill ── */
+.floating-cart-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: #2c1510; /* Rich Dark Brown / Chocolate */
+  color: #ffffff;
+  padding: 8px 14px 8px 16px;
+  border-radius: 50px;
+  box-shadow: 0 10px 30px rgba(44, 21, 16, 0.45), 0 0 0 1px rgba(212, 175, 55, 0.25);
+  user-select: none;
+  cursor: default;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: fcbSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.floating-cart-bar:hover {
+  background: #3a1c15;
+  box-shadow: 0 14px 36px rgba(44, 21, 16, 0.55), 0 0 0 1.5px rgba(212, 175, 55, 0.4);
+}
+
+.floating-cart-bar--active {
+  background: #3a1c15;
+  box-shadow: 0 14px 36px rgba(44, 21, 16, 0.55), 0 0 0 1.5px rgba(212, 175, 55, 0.5);
+}
+
+.floating-cart-bar--pulse {
+  animation: fcbPulse 0.5s ease-out;
+}
+
+/* Left Section: Bag + Price + Arrow */
+.fcb-left {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 20px;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.fcb-left:hover {
+  opacity: 0.92;
+  transform: scale(1.02);
+}
+
+.fcb-bag-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fcb-bag-icon {
+  color: #f7f3ee;
+}
+
+.fcb-badge {
+  position: absolute;
+  top: -7px;
+  right: -8px;
+  background: #d93838;
+  color: #ffffff;
+  font-size: 10.5px;
+  font-weight: 700;
+  min-width: 17px;
+  height: 17px;
+  line-height: 17px;
+  padding: 0 4px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fcb-total {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  color: #fbf8f3; /* Light Warm Cream */
+  font-family: inherit;
+}
+
+.fcb-toggle-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #d4af37; /* Warm Gold */
+  transition: transform 0.25s ease;
+  margin-left: -2px;
+}
+
+.fcb-toggle-arrow--open {
+  transform: rotate(180deg);
+}
+
+/* Vertical Divider */
+.fcb-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Right Section: Checkout Button */
+.fcb-checkout-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 6px 4px 6px 6px;
+  border-radius: 20px;
+  transition: transform 0.15s ease, opacity 0.2s ease;
+}
+
+.fcb-checkout-btn:hover {
+  transform: translateX(2px);
+  opacity: 0.95;
+}
+
+.fcb-checkout-text {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: #fbf8f3;
+  text-transform: uppercase;
+}
+
+.fcb-arrow-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.fcb-checkout-btn:hover .fcb-arrow-circle {
+  transform: translateX(3px);
+}
+
+/* Animations */
+@keyframes fcbSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fcbPopoverFadeUp {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 12px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+@keyframes fcbPulse {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.06);
+    box-shadow: 0 16px 40px rgba(44, 21, 16, 0.65), 0 0 0 3px rgba(212, 175, 55, 0.4);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .floating-cart-container {
+    bottom: 74px; /* Above mobile bottom bar */
+  }
+
+  .fcb-popover {
+    width: 310px;
+    max-width: calc(100vw - 24px);
+  }
+
+  .floating-cart-bar {
+    padding: 6px 12px 6px 14px;
+    gap: 10px;
+  }
+  
+  .fcb-total {
+    font-size: 14px;
+  }
+
+  .fcb-checkout-text {
+    font-size: 12px;
+  }
+}

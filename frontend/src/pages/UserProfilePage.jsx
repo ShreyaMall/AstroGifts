@@ -32,30 +32,42 @@ export default function UserProfilePage() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     
-    // 1. Load user-specific cached orders from localStorage
+    // 1. Load cached orders from localStorage (show all local orders on this device)
     const saved = localStorage.getItem('astrogifts_user_orders');
-    let userOrders = [];
+    let localOrders = [];
     if (saved) {
       try {
-        const allLocal = JSON.parse(saved);
-        userOrders = user?.email
-          ? allLocal.filter(o => !o.email || o.email.toLowerCase() === user.email.toLowerCase())
-          : allLocal;
-        setRecentOrders(userOrders.slice(0, 3));
-        setTotalOrderCount(userOrders.length);
+        localOrders = JSON.parse(saved);
+        if (Array.isArray(localOrders) && localOrders.length > 0) {
+          setRecentOrders(localOrders.slice(0, 3));
+          setTotalOrderCount(localOrders.length);
+        }
       } catch (e) {
         console.error('Failed to parse local orders', e);
       }
     }
 
     // 2. Fetch fresh user-specific orders from database API
-    if (user?.email) {
-      ordersApi.getUserOrders({ email: user.email })
+    const fetchParams = {};
+    if (user?.email) fetchParams.email = user.email;
+    if (localOrders.length > 0) {
+      const nums = localOrders.map(o => o.order_number || o.id).filter(Boolean);
+      if (nums.length > 0) fetchParams.order_numbers = nums;
+    }
+
+    if (fetchParams.email || fetchParams.order_numbers) {
+      ordersApi.getUserOrders(fetchParams)
         .then(res => {
           const apiOrders = res?.data || res?.orders || (Array.isArray(res) ? res : []);
           if (Array.isArray(apiOrders) && apiOrders.length > 0) {
-            setRecentOrders(apiOrders.slice(0, 3));
-            setTotalOrderCount(apiOrders.length);
+            // Merge local and API orders
+            const mergedMap = new Map();
+            localOrders.forEach(o => { if (o.order_number || o.id) mergedMap.set(o.order_number || o.id, o); });
+            apiOrders.forEach(o => { if (o.order_number || o.id) mergedMap.set(o.order_number || o.id, { ...mergedMap.get(o.order_number || o.id), ...o }); });
+            
+            const finalOrders = Array.from(mergedMap.values());
+            setRecentOrders(finalOrders.slice(0, 3));
+            setTotalOrderCount(finalOrders.length);
           }
         })
         .catch(err => {
@@ -93,14 +105,14 @@ export default function UserProfilePage() {
             {/* Profile Card */}
             <div style={{ background: '#fff', borderRadius: '12px', padding: '28px', boxShadow: '0 1px 8px rgba(0,0,0,0.06)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px', borderBottom: '1px solid #f0f0f0', paddingBottom: '20px' }}>
-                <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#fff7f0', color: '#d96b27', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '26px', fontWeight: '700', border: '2px solid #f3d5b5' }}>
+                <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#fdf6f0', color: '#7c3a1d', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '26px', fontWeight: '700', border: '2px solid #e8d5c8' }}>
                   {user?.name ? user.name[0].toUpperCase() : 'U'}
                 </div>
                 <div style={{ flex: 1 }}>
                   <h1 style={{ fontSize: '20px', fontWeight: '700', margin: '0 0 4px', color: '#111' }}>{user?.name || 'Customer'}</h1>
                   <p style={{ margin: 0, color: '#888', fontSize: '13px' }}>{user?.email || 'user@astrogifts.com'}</p>
                 </div>
-                <span style={{ background: '#fff7f0', color: '#d96b27', padding: '4px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: '600', textTransform: 'capitalize' }}>
+                <span style={{ background: '#fdf6f0', color: '#7c3a1d', padding: '4px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: '600', textTransform: 'capitalize' }}>
                   {authRole || 'Customer'}
                 </span>
               </div>
@@ -129,9 +141,9 @@ export default function UserProfilePage() {
             <div style={{ background: '#fff', borderRadius: '12px', boxShadow: '0 1px 8px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 22px', borderBottom: '1px solid #f0f0f0' }}>
                 <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#111', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Package size={18} color="#d96b27" /> Recent Orders
+                  <Package size={18} color="#7c3a1d" /> Recent Orders
                 </h2>
-                <Link to="/my-orders" style={{ fontSize: '13px', color: '#d96b27', textDecoration: 'none', fontWeight: '600' }}>
+                <Link to="/my-orders" style={{ fontSize: '13px', color: '#7c3a1d', textDecoration: 'none', fontWeight: '600' }}>
                   View All →
                 </Link>
               </div>
@@ -142,7 +154,7 @@ export default function UserProfilePage() {
                     <ShoppingBag size={36} color="#bbb" />
                   </div>
                   <p style={{ margin: '0 0 16px' }}>No orders placed yet.</p>
-                  <Link to="/category/chairs" style={{ padding: '9px 20px', background: '#d96b27', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: '600', fontSize: '13px' }}>
+                  <Link to="/category/gifts" style={{ padding: '9px 20px', background: '#7c3a1d', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: '600', fontSize: '13px' }}>
                     Shop Now
                   </Link>
                 </div>
@@ -170,7 +182,7 @@ export default function UserProfilePage() {
                         </div>
                         <div>
                           <div style={{ fontSize: '11px', color: '#999', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '2px' }}>Total</div>
-                          <div style={{ fontSize: '14px', fontWeight: '700', color: '#d96b27' }}>₹{Number(ord.total || 0).toLocaleString('en-IN')}</div>
+                          <div style={{ fontSize: '14px', fontWeight: '700', color: '#7c3a1d' }}>₹{Number(ord.total || 0).toLocaleString('en-IN')}</div>
                         </div>
                         <div>
                           <div style={{ fontSize: '11px', color: '#999', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '2px' }}>Items</div>

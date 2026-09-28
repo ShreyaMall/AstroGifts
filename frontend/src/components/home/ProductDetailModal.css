@@ -73,7 +73,7 @@
 }
 
 .pdm-close-btn:hover {
-  background: #e07b39;
+  background: #7c3a1d;
   color: #ffffff;
   transform: rotate(90deg);
 }
@@ -172,7 +172,7 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.12);
 }
 .pdm-badge--new  { background: #39b54a; }
-.pdm-badge--sale { background: #e07b39; }
+.pdm-badge--sale { background: #7c3a1d; }
 
 /* Wishlist Button */
 .pdm-wish-btn {
@@ -196,11 +196,11 @@
 
 .pdm-wish-btn:hover {
   transform: scale(1.1);
-  color: #e07b39;
+  color: #7c3a1d;
 }
 
 .pdm-wish-btn--active {
-  color: #e07b39;
+  color: #7c3a1d;
 }
 
 /* Thumbnails */
@@ -233,8 +233,8 @@
 }
 
 .pdm-thumb--active {
-  border-color: #e07b39;
-  box-shadow: 0 2px 8px rgba(224, 123, 57, 0.25);
+  border-color: #7c3a1d;
+  box-shadow: 0 2px 8px rgba(124, 58, 29, 0.25);
 }
 
 /* Product Info */
@@ -250,7 +250,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: #e07b39;
+  color: #7c3a1d;
 }
 
 .pdm-title {
@@ -294,7 +294,7 @@
 .pdm-price {
   font-size: 26px;
   font-weight: 800;
-  color: #f59e53;
+  color: #7c3a1d;
 }
 
 .pdm-old-price {
@@ -304,8 +304,8 @@
 }
 
 .pdm-save-badge {
-  background: #feece2;
-  color: #e07b39;
+  background: #faf4ef;
+  color: #7c3a1d;
   font-size: 12px;
   font-weight: 700;
   padding: 4px 10px;
@@ -354,7 +354,7 @@
 }
 
 .pdm-color-btn--active {
-  box-shadow: 0 0 0 2px #e07b39;
+  box-shadow: 0 0 0 2px #7c3a1d;
   transform: scale(1.15);
 }
 
@@ -408,7 +408,7 @@
 .pdm-add-cart-btn {
   flex: 1;
   height: 48px;
-  background: #f59e53;
+  background: #7c3a1d;
   color: #ffffff;
   border: none;
   border-radius: 30px;
@@ -419,15 +419,15 @@
   justify-content: center;
   gap: 10px;
   cursor: pointer;
-  box-shadow: 0 6px 18px rgba(245, 158, 83, 0.35);
+  box-shadow: 0 6px 18px rgba(124, 58, 29, 0.35);
   transition: all 0.2s ease;
   font-family: inherit;
 }
 
 .pdm-add-cart-btn:hover {
-  background: #e07b39;
+  background: #5d2b15;
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(224, 123, 57, 0.45);
+  box-shadow: 0 8px 24px rgba(93, 43, 21, 0.45);
 }
 
 /* Wishlist Toggle Button in modal */
@@ -446,13 +446,13 @@
 }
 
 .pdm-wishlist-toggle:hover {
-  background: #fdeee5;
-  color: #e07b39;
+  background: #faf4ef;
+  color: #7c3a1d;
 }
 
 .pdm-wishlist-toggle--active {
-  background: #fdeee5;
-  color: #e07b39;
+  background: #faf4ef;
+  color: #7c3a1d;
 }
 
 /* Meta List */
@@ -508,8 +508,8 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  background: #fdeee5;
-  color: #e07b39;
+  background: #faf4ef;
+  color: #7c3a1d;
   border-radius: 50%;
   flex-shrink: 0;
 }

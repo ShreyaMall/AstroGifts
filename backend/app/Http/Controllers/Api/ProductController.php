@@ -16,9 +16,27 @@ class ProductController extends Controller
     {
         $query = Product::where('is_active', true);
 
-        // Filter by category slug
+        // Filter by category slug (support parent category & child subcategories)
         if ($request->filled('category')) {
-            $query->where('category_slug', $request->category);
+            $catSlug = $request->category;
+
+            // Find the category record to get its parent
+            $catRecord = \App\Models\Category::where('slug', $catSlug)->first();
+            $parentSlug = $catRecord?->parent_category ?? null;
+
+            // Include child subcategories of the requested category
+            $subSlugs = \App\Models\Category::where('parent_category', $catSlug)->pluck('slug')->toArray();
+
+            // Build slug list: requested slug + its children
+            $allSlugs = array_merge([$catSlug], $subSlugs);
+
+            // Also include parent slug so products saved under parent also appear on subcategory page
+            if ($parentSlug) {
+                $allSlugs[] = $parentSlug;
+            }
+
+            $allSlugs = array_unique($allSlugs);
+            $query->whereIn('category_slug', $allSlugs);
         }
 
         // Filter by brand

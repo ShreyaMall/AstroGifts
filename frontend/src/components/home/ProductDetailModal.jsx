@@ -90,7 +90,7 @@ export default function ProductDetailModal({ product, allProducts = [], onClose,
         {/* Modal Header */}
         <div className="pdm-modal-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderBottom: '1px solid #ebe8e2', background: '#faf9f7', borderTopLeftRadius: '20px', borderTopRightRadius: '20px' }}>
           <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1c1c1c', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e07b39" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3a1d" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             View Details
           </h3>
           <button className="pdm-close-btn" onClick={onClose} aria-label="Close modal" style={{ position: 'static', top: 'auto', right: 'auto' }}>
@@ -126,7 +126,7 @@ export default function ProductDetailModal({ product, allProducts = [], onClose,
                   onClick={() => toggleWishlist(product)}
                   aria-label="Wishlist"
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill={wishlisted ? "#e07b39" : "none"} stroke={wishlisted ? "#e07b39" : "currentColor"} strokeWidth="2">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill={wishlisted ? "#7c3a1d" : "none"} stroke={wishlisted ? "#7c3a1d" : "currentColor"} strokeWidth="2">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                   </svg>
                 </button>
@@ -258,7 +258,7 @@ export default function ProductDetailModal({ product, allProducts = [], onClose,
                   onClick={() => toggleWishlist(product)}
                   title={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill={wishlisted ? "#e07b39" : "none"} stroke={wishlisted ? "#e07b39" : "currentColor"} strokeWidth="2">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill={wishlisted ? "#7c3a1d" : "none"} stroke={wishlisted ? "#7c3a1d" : "currentColor"} strokeWidth="2">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                   </svg>
                 </button>

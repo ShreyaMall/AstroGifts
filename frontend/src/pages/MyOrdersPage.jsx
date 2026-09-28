@@ -47,7 +47,7 @@ const STATUS_STYLE = {
 
 const resolveItemImage = (item) => {
   const img = item?.image || item?.product_image;
-  if (!img) return '/chair1.jpg';
+  if (!img) return '/gift image.jpg';
   if (img.startsWith('http://') || img.startsWith('https://') || img.startsWith('data:')) {
     return img;
   }
@@ -112,6 +112,86 @@ export default function MyOrdersPage() {
       alert(err.message || 'Failed to submit return request.');
     } finally {
       setSubmittingReturn(false);
+    }
+  };
+
+  // Item-Level Cancel Modal State
+  const [cancelTarget, setCancelTarget] = useState(null); // { order, itemIndex, item }
+  const [cancelReason, setCancelReason] = useState('Ordered by mistake');
+  const [cancelNotes, setCancelNotes] = useState('');
+  const [submittingCancel, setSubmittingCancel] = useState(false);
+  const [cancelSuccessMsg, setCancelSuccessMsg] = useState('');
+
+  const handleOpenCancelModal = (order, itemIndex, item) => {
+    setCancelTarget({ order, itemIndex, item });
+    setCancelReason('Ordered by mistake');
+    setCancelNotes('');
+    setCancelSuccessMsg('');
+  };
+
+  const handleConfirmCancelItem = async (e) => {
+    e.preventDefault();
+    if (!cancelTarget) return;
+    const { order, itemIndex } = cancelTarget;
+    setSubmittingCancel(true);
+    try {
+      const res = await ordersApi.cancelItem(order.order_number || order.id, {
+        item_index: itemIndex,
+        reason: cancelReason + (cancelNotes ? `: ${cancelNotes}` : ''),
+      });
+      const updatedOrder = res?.data || res?.order;
+      if (updatedOrder) {
+        setOrders(prev => {
+          const next = prev.map(o => (o.order_number === order.order_number || o.id === order.id) ? updatedOrder : o);
+          try { localStorage.setItem('astrogifts_user_orders', JSON.stringify(next)); } catch (e) {}
+          return next;
+        });
+      } else {
+        setOrders(prev => {
+          const next = prev.map(o => {
+            if (o.order_number === order.order_number || o.id === order.id) {
+              const updatedItems = [...(o.items || [])];
+              if (updatedItems[itemIndex]) {
+                updatedItems[itemIndex] = { ...updatedItems[itemIndex], status: 'Cancelled' };
+              }
+              const activeItems = updatedItems.filter(it => (it.status || 'Pending') !== 'Cancelled');
+              return {
+                ...o,
+                items: updatedItems,
+                status: activeItems.length === 0 ? 'Cancelled' : 'Partially Cancelled',
+              };
+            }
+            return o;
+          });
+          try { localStorage.setItem('astrogifts_user_orders', JSON.stringify(next)); } catch (e) {}
+          return next;
+        });
+      }
+      setCancelSuccessMsg('Item has been cancelled successfully!');
+      setTimeout(() => {
+        setCancelTarget(null);
+        setCancelSuccessMsg('');
+      }, 1800);
+    } catch (err) {
+      alert(err.message || 'Failed to cancel item.');
+    } finally {
+      setSubmittingCancel(false);
+    }
+  };
+
+  const handleCancelFullOrder = async (order) => {
+    if (!window.confirm(`Are you sure you want to cancel Order #${order.order_number}?`)) return;
+    try {
+      const res = await ordersApi.cancelOrder(order.order_number || order.id, { reason: 'Cancelled by customer' });
+      const updatedOrder = res?.data || res?.order;
+      setOrders(prev => {
+        const next = prev.map(o => (o.order_number === order.order_number || o.id === order.id) ? (updatedOrder || { ...o, status: 'Cancelled' }) : o);
+        try { localStorage.setItem('astrogifts_user_orders', JSON.stringify(next)); } catch (e) {}
+        return next;
+      });
+      alert('Order cancelled successfully.');
+    } catch (err) {
+      alert(err.message || 'Failed to cancel order.');
     }
   };
 
@@ -353,8 +433,8 @@ export default function MyOrdersPage() {
             ) : orders.length === 0 ? (
               <div style={{ background: '#fff', padding: '50px 20px', borderRadius: '12px', textAlign: 'center', boxShadow: '0 1px 8px rgba(0,0,0,0.06)' }}>
                 <p style={{ fontSize: '16px', color: '#666', marginBottom: '20px' }}>You have not placed any orders yet.</p>
-                <Link to="/category/chairs" style={{ padding: '10px 24px', background: '#d96b27', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: '600' }}>
-                  Browse Furniture
+                <Link to="/category/gifts" style={{ padding: '10px 24px', background: '#7c3a1d', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: '600' }}>
+                  Browse Products
                 </Link>
               </div>
             ) : (
@@ -397,49 +477,93 @@ export default function MyOrdersPage() {
                       </div>
 
                       {/* Items */}
-                      {ord.items && ord.items.map((item, idx) => (
-                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '18px 22px', borderBottom: '1px solid #f7f7f7' }}>
-                          <img
-                            src={resolveItemImage(item)}
-                            alt={item.name || item.product_name}
-                            style={{ width: '72px', height: '72px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #eee', flexShrink: 0 }}
-                            onError={e => { e.target.src = '/chair1.jpg'; }}
-                          />
-                          <div style={{ flex: 1 }}>
-                            <div style={{ fontWeight: '600', fontSize: '15px', color: '#111', marginBottom: '6px' }}>
-                              {item.name || item.product_name}
-                            </div>
-                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '6px' }}>
-                              {item.size && (
+                      {ord.items && ord.items.map((item, idx) => {
+                        const isItemCancelled = (item.status === 'Cancelled') || (ord.status === 'Cancelled');
+                        const canCancelItem = !isItemCancelled && ['Pending', 'Processing', 'Partially Cancelled'].includes(ord.status || 'Processing');
+
+                        return (
+                          <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '18px 22px', borderBottom: '1px solid #f7f7f7', opacity: isItemCancelled ? 0.65 : 1, background: isItemCancelled ? '#fafafa' : '#fff' }}>
+                            <img
+                              src={resolveItemImage(item)}
+                              alt={item.name || item.product_name}
+                              style={{ width: '72px', height: '72px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #eee', flexShrink: 0, filter: isItemCancelled ? 'grayscale(80%)' : 'none' }}
+                              onError={e => { e.target.src = '/gift image.jpg'; }}
+                            />
+                            <div style={{ flex: 1 }}>
+                              <div style={{ fontWeight: '600', fontSize: '15px', color: '#111', marginBottom: '6px', textDecoration: isItemCancelled ? 'line-through' : 'none' }}>
+                                {item.name || item.product_name}
+                              </div>
+                              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '6px', alignItems: 'center' }}>
+                                {item.size && (
+                                  <span style={{ padding: '2px 10px', background: '#f3f4f6', borderRadius: '4px', fontSize: '12px', color: '#555' }}>
+                                    Size: {item.size}
+                                  </span>
+                                )}
+                                {(item.color || item.selected_color) && (
+                                  <span style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '2px 10px', background: '#f3f4f6', borderRadius: '4px', fontSize: '12px', color: '#555' }}>
+                                    <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: item.color || item.selected_color, border: '1px solid #ccc', display: 'inline-block', flexShrink: 0 }} />
+                                    Color: {getColorName(item.color || item.selected_color)}
+                                  </span>
+                                )}
                                 <span style={{ padding: '2px 10px', background: '#f3f4f6', borderRadius: '4px', fontSize: '12px', color: '#555' }}>
-                                  Size: {item.size}
+                                  Qty: {item.qty || item.quantity || 1}
                                 </span>
+                                {isItemCancelled && (
+                                  <span style={{ padding: '2px 10px', background: '#fee2e2', color: '#dc2626', borderRadius: '4px', fontSize: '12px', fontWeight: '700' }}>
+                                    Cancelled
+                                  </span>
+                                )}
+                              </div>
+                              {!isItemCancelled ? (
+                                <div style={{ fontSize: '12px', color: '#22c55e', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Quality checked product
+                                </div>
+                              ) : (
+                                <div style={{ fontSize: '12px', color: '#dc2626', fontWeight: '500' }}>
+                                  Item cancelled (Stock restored)
+                                </div>
                               )}
-                              {(item.color || item.selected_color) && (
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '2px 10px', background: '#f3f4f6', borderRadius: '4px', fontSize: '12px', color: '#555' }}>
-                                  <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: item.color || item.selected_color, border: '1px solid #ccc', display: 'inline-block', flexShrink: 0 }} />
-                                  Color: {getColorName(item.color || item.selected_color)}
-                                </span>
-                              )}
-                              <span style={{ padding: '2px 10px', background: '#f3f4f6', borderRadius: '4px', fontSize: '12px', color: '#555' }}>
-                                Qty: {item.qty || item.quantity || 1}
-                              </span>
                             </div>
-                            <div style={{ fontSize: '12px', color: '#22c55e', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Quality checked product
+                            <div style={{ textAlign: 'right', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+                              <div>
+                                <div style={{ fontSize: '11px', color: '#999', marginBottom: '4px' }}>Total Amount</div>
+                                <div style={{ fontWeight: '700', fontSize: '18px', color: isItemCancelled ? '#999' : '#111', textDecoration: isItemCancelled ? 'line-through' : 'none' }}>
+                                  ₹{Number((item.price || 0) * (item.qty || item.quantity || 1)).toLocaleString('en-IN')}
+                                </div>
+                                <div style={{ fontSize: '12px', color: '#888', marginTop: '2px' }}>
+                                  ₹{Number(item.price || 0).toLocaleString('en-IN')} × {item.qty || item.quantity || 1}
+                                </div>
+                              </div>
+
+                              {canCancelItem && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenCancelModal(ord, idx, item)}
+                                  style={{
+                                    padding: '5px 12px',
+                                    background: '#fef2f2',
+                                    color: '#dc2626',
+                                    border: '1px solid #fca5a5',
+                                    borderRadius: '6px',
+                                    fontSize: '12px',
+                                    fontWeight: '600',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                    transition: 'all 0.15s'
+                                  }}
+                                  onMouseEnter={e => { e.currentTarget.style.background = '#fee2e2'; }}
+                                  onMouseLeave={e => { e.currentTarget.style.background = '#fef2f2'; }}
+                                >
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                  Cancel Item
+                                </button>
+                              )}
                             </div>
                           </div>
-                          <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                            <div style={{ fontSize: '11px', color: '#999', marginBottom: '4px' }}>Total Amount</div>
-                            <div style={{ fontWeight: '700', fontSize: '18px', color: '#111' }}>
-                              ₹{Number((item.price || 0) * (item.qty || item.quantity || 1)).toLocaleString('en-IN')}
-                            </div>
-                            <div style={{ fontSize: '12px', color: '#888', marginTop: '2px' }}>
-                              ₹{Number(item.price || 0).toLocaleString('en-IN')} × {item.qty || item.quantity || 1}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
 
                       {/* Footer */}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 22px', background: '#fafafa', flexWrap: 'wrap', gap: '10px' }}>
@@ -608,7 +732,7 @@ export default function MyOrdersPage() {
                     display: 'flex', alignItems: 'center', padding: '16px', 
                     borderBottom: idx < selectedOrder.items.length - 1 ? '1px solid #eee' : 'none'
                   }}>
-                    <img src={resolveItemImage(item)} alt={item.name || item.product_name} style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover' }} onError={e=>e.target.src='/chair1.jpg'} />
+                    <img src={resolveItemImage(item)} alt={item.name || item.product_name} style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover' }} onError={e=>e.target.src='/gift image.jpg'} />
                     <div style={{ flex: 1, marginLeft: '16px' }}>
                       <div style={{ fontWeight: '600', color: '#222', fontSize: '14px' }}>{item.name || item.product_name}</div>
                       <div style={{ fontSize: '13px', color: '#666', marginTop: '4px' }}>
@@ -790,6 +914,126 @@ export default function MyOrdersPage() {
                     style={{ flex: 1.5, padding: '11px', background: '#ea580c', border: 'none', borderRadius: '8px', fontWeight: '600', color: '#fff', cursor: 'pointer' }}
                   >
                     {submittingReturn ? 'Submitting…' : `Submit ${returnForm.return_type} Request`}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Item Cancellation Modal (Amazon / Myntra Style) */}
+      {cancelTarget && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.65)', zIndex: 99999,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
+        }}>
+          <div style={{
+            background: '#fff', width: '100%', maxWidth: '480px',
+            borderRadius: '16px', overflow: 'hidden',
+            boxShadow: '0 12px 48px rgba(0,0,0,0.25)',
+            display: 'flex', flexDirection: 'column'
+          }}>
+            {/* Modal Header */}
+            <div style={{ padding: '18px 24px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fef2f2' }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#dc2626', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                  Cancel Item
+                </h3>
+                <div style={{ fontSize: '12.5px', color: '#7f1d1d', marginTop: '2px' }}>
+                  Order #{cancelTarget.order?.order_number}
+                </div>
+              </div>
+              <button
+                onClick={() => setCancelTarget(null)}
+                style={{ background: 'none', border: 'none', fontSize: '24px', color: '#999', cursor: 'pointer', padding: '0 4px' }}
+              >×</button>
+            </div>
+
+            {/* Modal Body */}
+            {cancelSuccessMsg ? (
+              <div style={{ padding: '40px 24px', textAlign: 'center' }}>
+                <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#fee2e2', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', color: '#dc2626' }}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <h4 style={{ margin: '0 0 6px', fontSize: '18px', color: '#dc2626' }}>Cancelled!</h4>
+                <p style={{ margin: 0, fontSize: '14px', color: '#4b5563' }}>{cancelSuccessMsg}</p>
+              </div>
+            ) : (
+              <form onSubmit={handleConfirmCancelItem} style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {/* Target Product Summary Card */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', background: '#f9fafb', padding: '12px', borderRadius: '10px', border: '1px solid #f3f4f6' }}>
+                  <img
+                    src={resolveItemImage(cancelTarget.item)}
+                    alt={cancelTarget.item?.name || cancelTarget.item?.product_name}
+                    style={{ width: '54px', height: '54px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e5e7eb' }}
+                    onError={e => { e.target.src = '/gift image.jpg'; }}
+                  />
+                  <div>
+                    <div style={{ fontWeight: '600', fontSize: '14px', color: '#111827' }}>
+                      {cancelTarget.item?.name || cancelTarget.item?.product_name}
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px' }}>
+                      Qty: {cancelTarget.item?.qty || cancelTarget.item?.quantity || 1} • Amount: ₹{Number((cancelTarget.item?.price || 0) * (cancelTarget.item?.qty || cancelTarget.item?.quantity || 1)).toLocaleString('en-IN')}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Reason Dropdown */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>
+                    Reason for Cancellation *
+                  </label>
+                  <select
+                    value={cancelReason}
+                    onChange={e => setCancelReason(e.target.value)}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #d1d5db', fontSize: '13.5px', outline: 'none' }}
+                  >
+                    <option value="Ordered by mistake">Ordered by mistake</option>
+                    <option value="Product price decreased">Product price decreased</option>
+                    <option value="Expected delivery time is too long">Expected delivery time is too long</option>
+                    <option value="Want to change shipping address">Want to change shipping address</option>
+                    <option value="Want to change size/color">Want to change size/color</option>
+                    <option value="Other reason">Other reason</option>
+                  </select>
+                </div>
+
+                {/* Comments */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>
+                    Additional Comments (optional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Will re-order with different address"
+                    value={cancelNotes}
+                    onChange={e => setCancelNotes(e.target.value)}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #d1d5db', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
+                  />
+                </div>
+
+                {/* Stock restore hint */}
+                <div style={{ fontSize: '12px', color: '#6b7280', background: '#f3f4f6', padding: '10px 12px', borderRadius: '6px' }}>
+                  💡 Item will be removed from active shipment. Refund/Price adjustment will be reflected automatically.
+                </div>
+
+                {/* Submit / Cancel buttons */}
+                <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setCancelTarget(null)}
+                    style={{ flex: 1, padding: '11px', background: '#f3f4f6', border: 'none', borderRadius: '8px', fontWeight: '600', color: '#4b5563', cursor: 'pointer' }}
+                  >
+                    Keep Item
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submittingCancel}
+                    style={{ flex: 1.5, padding: '11px', background: '#dc2626', border: 'none', borderRadius: '8px', fontWeight: '600', color: '#fff', cursor: 'pointer' }}
+                  >
+                    {submittingCancel ? 'Cancelling…' : 'Confirm Cancel Item'}
                   </button>
                 </div>
               </form>

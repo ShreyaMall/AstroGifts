@@ -470,7 +470,7 @@ function PageMenu() {
       {showAdd && (
         <div className="admin__inline-form">
           <input className="admin__form-input" placeholder="Menu Name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
-          <input className="admin__form-input" placeholder="Link URL (e.g. /chairs)" value={form.link} onChange={e => setForm(f => ({ ...f, link: e.target.value }))} />
+          <input className="admin__form-input" placeholder="Link URL (e.g. /gifts)" value={form.link} onChange={e => setForm(f => ({ ...f, link: e.target.value }))} />
           <input className="admin__form-input admin__form-input--sm" placeholder="Order #" type="number" value={form.order} onChange={e => setForm(f => ({ ...f, order: e.target.value }))} />
           <button className="admin__form-save" onClick={addItem}>Save</button>
           <button className="admin__form-cancel" onClick={() => setShowAdd(false)}>Cancel</button>
@@ -970,11 +970,15 @@ function PageCategories() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving]   = useState(false);
   const [showAdd, setShowAdd] = useState(false);
+  const [editingCat, setEditingCat] = useState(null);
+
   const initialFormState = {
     name: '', slug: '', parentCategory: 'None', description: '',
-    status: 'Active', showInMenu: 'Yes', image: ''
+    status: 'Active', showInMenu: 'Yes', image: '', subcategories: []
   };
   const [form, setForm]       = useState(initialFormState);
+  const [editForm, setEditForm] = useState(initialFormState);
+  const [newSubInput, setNewSubInput] = useState('');
 
   const fetchCategories = () => {
     setLoading(true);
@@ -992,6 +996,75 @@ function PageCategories() {
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  const openEditModal = (c) => {
+    setEditingCat(c);
+    setEditForm({
+      name: c.name || '',
+      slug: c.slug || '',
+      parentCategory: c.parent_category || c.parentCategory || 'None',
+      description: c.description || '',
+      status: (c.status === 'Active' || c.is_active !== false) ? 'Active' : 'Inactive',
+      showInMenu: c.show_in_menu !== false ? 'Yes' : 'No',
+      image: c.image || c.thumbnail || '',
+      subcategories: Array.isArray(c.subcategories) 
+        ? c.subcategories.map(s => typeof s === 'string' ? s : (s.name || ''))
+        : []
+    });
+    setNewSubInput('');
+  };
+
+  const handleAddSubcategory = () => {
+    if (!newSubInput.trim()) return;
+    const trimmed = newSubInput.trim();
+    if (!editForm.subcategories.includes(trimmed)) {
+      setEditForm(prev => ({ ...prev, subcategories: [...prev.subcategories, trimmed] }));
+    }
+    setNewSubInput('');
+  };
+
+  const handleRemoveSubcategory = (indexToRemove) => {
+    setEditForm(prev => ({
+      ...prev,
+      subcategories: prev.subcategories.filter((_, idx) => idx !== indexToRemove)
+    }));
+  };
+
+  const saveEditCat = async () => {
+    if (!editForm.name.trim()) {
+      alert("Please enter a category name");
+      return;
+    }
+    const targetId = editingCat._id || editingCat.id;
+    setSaving(true);
+    try {
+      const payload = {
+        name: editForm.name,
+        slug: editForm.slug.trim() || editForm.name.trim().toLowerCase().replace(/\s+/g, '-'),
+        parent_category: editForm.parentCategory,
+        description: editForm.description,
+        status: editForm.status,
+        is_active: editForm.status === 'Active',
+        image: editForm.image,
+        subcategories: editForm.subcategories.map(s => ({
+          name: s,
+          slug: s.toLowerCase().replace(/\s+/g, '-')
+        }))
+      };
+
+      const res = await adminApi.updateCategory(targetId, payload);
+      const updatedCatData = res?.data || { ...editingCat, ...payload, id: targetId };
+
+      setCats(prev => prev.map(item => ((item._id || item.id) === targetId ? { ...item, ...updatedCatData } : item)));
+      setEditingCat(null);
+      alert("Category & Subcategories updated successfully!");
+    } catch (err) {
+      console.error("Failed to update category", err);
+      alert("Failed to update category: " + (err.message || "Server error"));
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const deleteCat = async (id) => {
     if (!window.confirm("Are you sure you want to delete this category?")) return;
@@ -1063,6 +1136,7 @@ function PageCategories() {
         </button>
       </div>
 
+      {/* Add New Category Modal */}
       {showAdd && (
         <div className="admin__modal-overlay" onClick={() => setShowAdd(false)}>
           <div className="admin__detailed-form" onClick={e => e.stopPropagation()}>
@@ -1139,6 +1213,157 @@ function PageCategories() {
         </div>
       )}
 
+      {/* Edit Category & Subcategories Modal */}
+      {editingCat && (
+        <div className="admin__modal-overlay" onClick={() => setEditingCat(null)}>
+          <div className="admin__detailed-form" onClick={e => e.stopPropagation()} style={{ maxWidth: '680px' }}>
+            <div className="admin__detailed-form-header" style={{ background: '#fdf8f5', borderBottom: '1px solid #f1e5dd' }}>
+              <h3>✏️ Edit Category & Subcategories</h3>
+              <button className="admin__form-close" onClick={() => setEditingCat(null)}>×</button>
+            </div>
+            
+            <div className="admin__form-scroll-area" style={{ padding: '24px' }}>
+              {/* Basic Information */}
+              <div className="admin__form-section">
+                <h4 className="admin__section-title">Category Details</h4>
+                <div className="admin__form-grid admin__form-grid--2col">
+                  <div className="admin__input-group">
+                    <label>Category Name *</label>
+                    <input 
+                      className="admin__form-input" 
+                      value={editForm.name} 
+                      onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))} 
+                    />
+                  </div>
+                  <div className="admin__input-group">
+                    <label>Slug</label>
+                    <input 
+                      className="admin__form-input" 
+                      value={editForm.slug} 
+                      onChange={e => setEditForm(f => ({ ...f, slug: e.target.value }))} 
+                    />
+                  </div>
+                </div>
+
+                <div className="admin__form-grid admin__form-grid--2col" style={{ marginTop: '14px' }}>
+                  <div className="admin__input-group">
+                    <label>Parent Category</label>
+                    <select 
+                      className="admin__form-input" 
+                      value={editForm.parentCategory} 
+                      onChange={e => setEditForm(f => ({ ...f, parentCategory: e.target.value }))}
+                    >
+                      <option value="None">None (Root Category)</option>
+                      {cats.filter(c => (c._id || c.id) !== (editingCat._id || editingCat.id)).map(c => (
+                        <option key={c._id || c.id} value={c.name}>{c.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="admin__input-group">
+                    <label>Status</label>
+                    <select 
+                      className="admin__form-input" 
+                      value={editForm.status} 
+                      onChange={e => setEditForm(f => ({ ...f, status: e.target.value }))}
+                    >
+                      <option value="Active">Active</option>
+                      <option value="Inactive">Inactive</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="admin__input-group" style={{ marginTop: '14px' }}>
+                  <label>Description</label>
+                  <textarea 
+                    className="admin__form-input" 
+                    rows="3" 
+                    style={{ resize: 'vertical', minHeight: '80px', width: '100%', boxSizing: 'border-box' }} 
+                    placeholder="Category details..." 
+                    value={editForm.description} 
+                    onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))}
+                  />
+                </div>
+
+                <div className="admin__input-group" style={{ marginTop: '15px' }}>
+                  <label>Category Thumbnail Image</label>
+                  <ImageUploader 
+                    initialImage={editForm.image} 
+                    onUploadSuccess={(url) => setEditForm(f => ({ ...f, image: url }))} 
+                  />
+                </div>
+              </div>
+
+              {/* Subcategories Management */}
+              <div className="admin__form-section" style={{ marginTop: '20px', background: '#fcf8f5', padding: '16px', borderRadius: '10px', border: '1px solid #f5e6db' }}>
+                <h4 className="admin__section-title" style={{ color: '#7c3a1d', margin: '0 0 10px' }}>🌿 Manage Subcategories</h4>
+                <p style={{ fontSize: '12px', color: '#666', margin: '0 0 12px' }}>
+                  Add or remove subcategories under <strong>{editForm.name || 'this category'}</strong>:
+                </p>
+
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
+                  <input 
+                    className="admin__form-input" 
+                    placeholder="Enter new subcategory name..." 
+                    value={newSubInput} 
+                    onChange={e => setNewSubInput(e.target.value)} 
+                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddSubcategory(); } }}
+                    style={{ flex: 1 }}
+                  />
+                  <button 
+                    type="button"
+                    onClick={handleAddSubcategory}
+                    style={{ background: '#7c3a1d', color: '#fff', border: 'none', padding: '8px 18px', borderRadius: '8px', fontWeight: '600', fontSize: '13px', cursor: 'pointer' }}
+                  >
+                    + Add Subcategory
+                  </button>
+                </div>
+
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {editForm.subcategories.length > 0 ? (
+                    editForm.subcategories.map((sub, sIdx) => (
+                      <span 
+                        key={sIdx} 
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          background: '#fff',
+                          border: '1px solid #7c3a1d',
+                          padding: '5px 12px',
+                          borderRadius: '20px',
+                          fontSize: '13px',
+                          fontWeight: '500',
+                          color: '#2c1510'
+                        }}
+                      >
+                        {sub}
+                        <button 
+                          type="button"
+                          onClick={() => handleRemoveSubcategory(sIdx)}
+                          style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', fontWeight: 'bold', padding: 0, fontSize: '14px', lineHeight: 1 }}
+                          title="Remove subcategory"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))
+                  ) : (
+                    <div style={{ fontSize: '12px', color: '#888', fontStyle: 'italic' }}>No subcategories added yet.</div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="admin__form-footer">
+              <button className="admin__form-cancel-btn" onClick={() => setEditingCat(null)}>Cancel</button>
+              <button className="admin__form-save-btn" onClick={saveEditCat} disabled={saving} style={{ background: '#7c3a1d', color: '#fff' }}>
+                {saving ? 'Updating...' : 'Update Category & Subcategories'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="admin__table-wrap" style={{ background: '#fff', borderRadius: '8px', overflow: 'hidden' }}>
         {loading ? (
           <div style={{ padding: '30px', textAlign: 'center', color: '#666' }}>Loading categories...</div>
@@ -1168,7 +1393,14 @@ function PageCategories() {
                   return (
                     <tr key={catId || idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
                       <td style={{ padding: '16px', fontSize: '13px', fontWeight: '500', color: '#1e293b' }}><span className="admin__order-id">{idx + 1}</span></td>
-                      <td style={{ padding: '16px', fontSize: '13px', color: '#475569' }}><strong>{c.name}</strong></td>
+                      <td style={{ padding: '16px', fontSize: '13px', color: '#475569' }}>
+                        <strong>{c.name}</strong>
+                        {Array.isArray(c.subcategories) && c.subcategories.length > 0 && (
+                          <div style={{ fontSize: '11px', color: '#7c3a1d', marginTop: '2px', fontWeight: '500' }}>
+                            Subcategories ({c.subcategories.length}): {c.subcategories.map(s => typeof s === 'string' ? s : s.name).slice(0, 3).join(', ')}{c.subcategories.length > 3 ? '...' : ''}
+                          </div>
+                        )}
+                      </td>
                       <td style={{ padding: '16px', fontSize: '13px', color: '#64748b' }}><code className="admin__code">{c.slug}</code></td>
                       <td style={{ padding: '16px' }}>
                         <span style={{
@@ -1186,6 +1418,14 @@ function PageCategories() {
                       <td style={{ padding: '16px', fontSize: '13px', color: '#475569' }}><span className="admin__count-badge">{c.products_count ?? c.count ?? 0}</span></td>
                       <td style={{ padding: '16px' }}>
                         <div className="admin__actions-cell" style={{ display: 'flex', gap: '8px' }}>
+                          <button
+                            className="admin__action-btn admin__action-btn--edit"
+                            onClick={() => openEditModal(c)}
+                            title="Edit Category & Subcategories"
+                            style={{ background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe' }}
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                          </button>
                           <button
                             className="admin__action-btn admin__action-btn--toggle"
                             onClick={() => toggleCat(c)}
@@ -2314,8 +2554,78 @@ function PageAllProducts() {
     }
   }, [form.regularPrice, form.salePrice]);
 
+  const normalizeColorName = (c) => {
+    if (!c) return '';
+    const str = String(c).trim();
+    const hexMatch = str.match(/^#?([0-9a-fA-F]{6})$/);
+    if (hexMatch) {
+      const hex = `#${hexMatch[1].toLowerCase()}`;
+      const HEX_MAP = {
+        '#d4af37': 'Gold',
+        '#c0c0c0': 'Silver',
+        '#b87333': 'Brass',
+        '#b76e79': 'Rose Gold',
+        '#0066cc': 'Blue',
+        '#1a1a1a': 'Black',
+        '#ffffff': 'White',
+        '#d93838': 'Red',
+        '#27ae60': 'Green',
+        '#e87a90': 'Pink',
+        '#f4d03f': 'Yellow',
+        '#800080': 'Purple',
+        '#f07d26': 'Orange',
+        '#f5f5dc': 'Beige',
+        '#95a5a6': 'Grey',
+        '#1b2a4a': 'Navy Blue',
+        '#800020': 'Maroon'
+      };
+      return HEX_MAP[hex] || str;
+    }
+    return str;
+  };
+
   const handleEditClick = (p) => {
     const raw = p.raw || {};
+    const rawColors = Array.isArray(raw.colors) ? raw.colors : (p.colors || []);
+    const rawStock = raw.stock_by_color || p.stock_by_color || {};
+
+    let initialStockByColor = {};
+    
+    // Map all keys in rawStock to normalized names
+    Object.keys(rawStock).forEach(k => {
+      const normName = normalizeColorName(k);
+      const val = parseInt(rawStock[k], 10) || 0;
+      if (normName) {
+        initialStockByColor[normName] = (initialStockByColor[normName] || 0) + val;
+      }
+    });
+
+    // Gather candidate colors
+    let candidates = [...rawColors];
+    if (raw.color) candidates.push(raw.color);
+    Object.keys(initialStockByColor).forEach(k => {
+      if (initialStockByColor[k] > 0) candidates.push(k);
+    });
+
+    // Normalize candidates
+    let selectedColors = Array.from(new Set(candidates.map(normalizeColorName).filter(Boolean)));
+
+    // Exclude any unmapped raw hex strings or 0-qty leftover hex entries
+    selectedColors = selectedColors.filter(c => {
+      const isHex = /^#?[0-9a-fA-F]{6}$/.test(c);
+      const qty = initialStockByColor[c] || 0;
+      if (isHex) return false;
+      if (qty === 0 && !rawColors.includes(c)) return false;
+      return true;
+    });
+
+    // Ensure initialStockByColor has entries for all selectedColors
+    selectedColors.forEach(c => {
+      if (initialStockByColor[c] === undefined) {
+        initialStockByColor[c] = 0;
+      }
+    });
+
     setForm({
       ...initialFormState,
       name: p.name || '',
@@ -2324,9 +2634,9 @@ function PageAllProducts() {
       salePrice: raw.price ? String(raw.price) : (p.price ? String(p.price).replace(/[^0-9.]/g, '') : ''),
       stockQuantity: raw.stock !== undefined && raw.stock !== null ? raw.stock : (p.stock !== undefined && p.stock !== null ? p.stock : 50),
       material: raw.material || '',
-      color: raw.color || '',
-      colors: raw.colors || [],
-      stock_by_color: raw.stock_by_color || {},
+      color: raw.color ? normalizeColorName(raw.color) : '',
+      colors: selectedColors,
+      stock_by_color: initialStockByColor,
       size: raw.size || p.size || '',
       dimensions: raw.dimensions || '',
       weight: raw.weight || '',
@@ -2369,6 +2679,17 @@ function PageAllProducts() {
     const catObj = categories.find(c => c.name === form.category);
     const catSlug = catObj?.slug || form.category.toLowerCase().replace(/\s+/g, '-');
 
+    const totalCalculatedStock = (form.colors && form.colors.length > 0)
+      ? form.colors.reduce((sum, col) => sum + (parseInt(form.stock_by_color?.[col], 10) || 0), 0)
+      : (parseInt(form.stockQuantity, 10) || 0);
+
+    const cleanedStockByColor = {};
+    if (form.colors && form.colors.length > 0) {
+      form.colors.forEach(col => {
+        cleanedStockByColor[col] = parseInt(form.stock_by_color?.[col], 10) || 0;
+      });
+    }
+
     const payload = {
       name: form.name,
       category_slug: catSlug,
@@ -2376,8 +2697,8 @@ function PageAllProducts() {
       category_id: catObj?._id || catObj?.id || null,
       price: priceNum,
       old_price: form.regularPrice || null,
-      stock: form.stockQuantity || 50,
-      stock_quantity: form.stockQuantity || 50,
+      stock: totalCalculatedStock,
+      stock_quantity: totalCalculatedStock,
       status: form.status || 'Active',
       is_active: form.status === 'Active',
       image: form.image || (form.images && form.images.length > 0 ? form.images[0] : ''),
@@ -2386,7 +2707,7 @@ function PageAllProducts() {
       material: form.material,
       color: form.color,
       colors: form.colors || [],
-      stock_by_color: form.stock_by_color || {},
+      stock_by_color: cleanedStockByColor,
       size: form.size,
       dimensions: form.dimensions,
       weight: form.weight,
@@ -2604,17 +2925,54 @@ function PageAllProducts() {
                     <select className="admin__form-input" style={{ width: '100%', boxSizing: 'border-box' }} value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}>
                       {categories.length === 0 ? (
                         <>
-                          <option value="Gifts">Gifts</option>
-                          <option value="Astrology">Astrology</option>
-                          <option value="Toys">Toys</option>
-                          <option value="Flowers">Flowers</option>
-                          <option value="Decor">Decor</option>
+                          <optgroup label="── Gifts ──">
+                            <option value="Diwali Gifts">Diwali Gifts</option>
+                            <option value="Birthday Gifts">Birthday Gifts</option>
+                            <option value="Anniversary Gifts">Anniversary Gifts</option>
+                          </optgroup>
+                          <optgroup label="── Toys ──">
+                            <option value="Soft Toys">Soft Toys</option>
+                            <option value="Baby Toys">Baby Toys</option>
+                            <option value="Board Games">Board Games</option>
+                          </optgroup>
+                          <optgroup label="── Astrology ──">
+                            <option value="Rings">Rings</option>
+                            <option value="Pendants">Pendants</option>
+                            <option value="Bracelets">Bracelets</option>
+                            <option value="Gemstones & Crystals">Gemstones &amp; Crystals</option>
+                          </optgroup>
+                          <optgroup label="── Main Categories ──">
+                            <option value="Flowers">Flowers</option>
+                            <option value="Decor">Decor</option>
+                            <option value="Gifts">Gifts</option>
+                            <option value="Toys">Toys</option>
+                            <option value="Astrology">Astrology</option>
+                          </optgroup>
                         </>
-                      ) : (
-                        categories.map(c => (
-                          <option key={c._id || c.id} value={c.name}>{c.name}</option>
-                        ))
-                      )}
+                      ) : (() => {
+                        const parents = categories.filter(c => !c.parent_category || c.parent_category === '' || c.parent_category === null);
+                        const children = categories.filter(c => c.parent_category && c.parent_category !== '');
+                        return (
+                          <>
+                            {parents.map(parent => {
+                              const subs = children.filter(c => c.parent_category === parent.slug || c.parent_category === parent.name);
+                              if (subs.length > 0) {
+                                return (
+                                  <optgroup key={parent._id || parent.id} label={`── ${parent.name} ──`}>
+                                    {subs.map(sub => (
+                                      <option key={sub._id || sub.id} value={sub.name}>{sub.name}</option>
+                                    ))}
+                                  </optgroup>
+                                );
+                              }
+                              return <option key={parent._id || parent.id} value={parent.name}>{parent.name}</option>;
+                            })}
+                            {children.filter(c => !parents.some(p => p.slug === c.parent_category || p.name === c.parent_category)).map(c => (
+                              <option key={c._id || c.id} value={c.name}>{c.name}</option>
+                            ))}
+                          </>
+                        );
+                      })()}
                     </select>
                   </div>
                 </div>
@@ -2667,7 +3025,7 @@ function PageAllProducts() {
                       style={{ width: '100%', boxSizing: 'border-box', backgroundColor: form.colors?.length > 0 ? '#f3f4f6' : '#fff' }} 
                       placeholder="50" 
                       value={form.colors?.length > 0 
-                        ? (Object.values(form.stock_by_color || {}).reduce((sum, val) => sum + (parseInt(val, 10) || 0), 0)) 
+                        ? (form.colors.reduce((sum, col) => sum + (parseInt(form.stock_by_color?.[col], 10) || 0), 0)) 
                         : form.stockQuantity
                       } 
                       onChange={e => {
@@ -2696,9 +3054,14 @@ function PageAllProducts() {
                               key={c}
                               type="button"
                               onClick={() => {
+                                const isSelected = form.colors?.includes(c);
                                 const newColors = isSelected ? form.colors.filter(col => col !== c) : [...(form.colors || []), c];
                                 const newStockByColor = { ...form.stock_by_color };
-                                if (!isSelected) newStockByColor[c] = form.stock_by_color[c] || 0; // Initialize stock to 0
+                                if (!isSelected) {
+                                  newStockByColor[c] = form.stock_by_color[c] !== undefined ? form.stock_by_color[c] : 0;
+                                } else {
+                                  delete newStockByColor[c];
+                                }
                                 setForm(f => ({ ...f, colors: newColors, stock_by_color: newStockByColor }));
                               }}
                               style={{ 
@@ -2721,31 +3084,58 @@ function PageAllProducts() {
 
                       {form.colors?.length > 0 && (
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '8px' }}>
-                          {form.colors.map(col => (
-                            <div key={col} style={{ flex: '1 1 200px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', padding: '6px 10px', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
-                              <span 
-                                title={col} 
-                                style={{ fontSize: '13px', fontWeight: '600', marginRight: '8px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '120px' }}
-                              >
-                                {col}
-                              </span>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                <span style={{ fontSize: '12px', color: '#6b7280', fontWeight: '500' }}>Qty</span>
-                                <input 
-                                  type="number"
-                                  className="admin__form-input"
-                                  style={{ width: '60px', padding: '4px 8px', margin: 0, height: '30px', fontSize: '13px' }}
-                                  placeholder="0"
-                                  min="0"
-                                  value={form.stock_by_color?.[col] ?? ''}
-                                  onChange={e => {
-                                    const val = e.target.value === '' ? '' : parseInt(e.target.value, 10);
-                                    setForm(f => ({ ...f, stock_by_color: { ...f.stock_by_color, [col]: val } }));
-                                  }}
-                                />
+                          {form.colors.map(col => {
+                            const displayCol = normalizeColorName(col);
+                            return (
+                              <div key={col} style={{ flex: '1 1 200px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', padding: '6px 10px', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', maxWidth: '120px', overflow: 'hidden' }}>
+                                  <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: displayCol.toLowerCase(), border: '1px solid #ccc', display: 'inline-block', flexShrink: 0 }} />
+                                  <span 
+                                    title={displayCol} 
+                                    style={{ fontSize: '13px', fontWeight: '600', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                                  >
+                                    {displayCol}
+                                  </span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                  <span style={{ fontSize: '12px', color: '#6b7280', fontWeight: '500' }}>Qty</span>
+                                  <input 
+                                    type="number"
+                                    className="admin__form-input"
+                                    style={{ width: '55px', padding: '4px 6px', margin: 0, height: '30px', fontSize: '13px' }}
+                                    placeholder="0"
+                                    min="0"
+                                    value={form.stock_by_color?.[col] ?? form.stock_by_color?.[displayCol] ?? ''}
+                                    onChange={e => {
+                                      const val = e.target.value === '' ? '' : parseInt(e.target.value, 10);
+                                      setForm(f => ({ 
+                                        ...f, 
+                                        stock_by_color: { 
+                                          ...f.stock_by_color, 
+                                          [col]: val,
+                                          [displayCol]: val 
+                                        } 
+                                      }));
+                                    }}
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const newColors = form.colors.filter(c => c !== col && c !== displayCol);
+                                      const newStock = { ...form.stock_by_color };
+                                      delete newStock[col];
+                                      delete newStock[displayCol];
+                                      setForm(f => ({ ...f, colors: newColors, stock_by_color: newStock }));
+                                    }}
+                                    style={{ background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', width: '22px', height: '22px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}
+                                    title="Remove this color variation"
+                                  >
+                                    ✕
+                                  </button>
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       )}
                     </div>
@@ -3565,7 +3955,7 @@ function PageReviews() {
               </thead>
               <tbody>
                 {filteredReviews.map((r, idx) => {
-                  const itemImg = r.product_image || r.image || r.user_image || '/chair1.jpg';
+                  const itemImg = r.product_image || r.image || r.user_image || '/gift image.jpg';
                   const userName = r.user_name || r.name || 'Anonymous';
                   const prodName = r.product_name || '';
                   const userMsg = r.comment || r.message || '';
@@ -3599,7 +3989,7 @@ function PageReviews() {
                           }}
                           onError={e => {
                             e.target.onerror = null;
-                            e.target.src = '/chair1.jpg';
+                            e.target.src = '/gift image.jpg';
                           }}
                         />
                       </td>
@@ -4215,6 +4605,7 @@ export default function AdminDashboard({ onLogout }) {
   const navigate = useNavigate();
   const [activePage, setActivePage]       = useState(() => localStorage.getItem('admin_active_page') || 'dashboard');
   const [productOpen, setProductOpen]     = useState(() => localStorage.getItem('admin_product_open') === 'true');
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('admin_active_page', activePage);
@@ -4235,6 +4626,7 @@ export default function AdminDashboard({ onLogout }) {
 
   const goTo = (id) => {
     setActivePage(id);
+    setMobileNavOpen(false);
     if (['all-products','sku','price','description','categories','colors','sizes'].includes(id)) setProductOpen(true);
   };
 
@@ -4716,8 +5108,13 @@ function PageSettings() {
 
   return (
     <div className="admin">
-      {/* ── SIDEBAR ── */}
-      <aside className="admin__sidebar">
+      {/* ── MOBILE OVERLAY BACKDROP ── */}
+      {mobileNavOpen && (
+        <div className="admin__sidebar-overlay" onClick={() => setMobileNavOpen(false)} />
+      )}
+
+      {/* ── SIDEBAR / MOBILE DRAWER ── */}
+      <aside className={`admin__sidebar ${mobileNavOpen ? 'mobile-open' : ''}`}>
         <div className="admin__sidebar-brand">
           <div className="admin__sidebar-logo">
             <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
@@ -4727,6 +5124,14 @@ function PageSettings() {
             </svg>
             <span style={{ fontSize: '1.2rem', fontWeight: 700 }}>Admin</span>
           </div>
+
+          <button
+            className="admin__sidebar-close-btn"
+            onClick={() => setMobileNavOpen(false)}
+            aria-label="Close Menu"
+          >
+            ✕
+          </button>
         </div>
 
         <nav className="admin__nav">
@@ -4785,8 +5190,32 @@ function PageSettings() {
       <main className="admin__main">
         <header className="admin__topbar">
           <div className="admin__topbar-left">
-            <h1 className="admin__page-title">{PAGE_TITLES[activePage] || activePage}</h1>
-            <p className="admin__page-sub">Admin Panel</p>
+            <button
+              className="admin__mobile-menu-toggle"
+              onClick={() => setMobileNavOpen(prev => !prev)}
+              aria-label="Toggle navigation menu"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                {mobileNavOpen ? (
+                  <>
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </>
+                ) : (
+                  <>
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <line x1="3" y1="12" x2="21" y2="12" />
+                    <line x1="3" y1="18" x2="21" y2="18" />
+                  </>
+                )}
+              </svg>
+              <span>Menu</span>
+            </button>
+
+            <div>
+              <h1 className="admin__page-title">{PAGE_TITLES[activePage] || activePage}</h1>
+              <p className="admin__page-sub">Admin Panel</p>
+            </div>
           </div>
           <div className="admin__topbar-right">
             <div className="admin__topbar-date">

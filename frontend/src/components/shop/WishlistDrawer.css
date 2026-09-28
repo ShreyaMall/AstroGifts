@@ -84,7 +84,7 @@
 .wishlist-drawer__empty-icon {
   font-size: 3.5rem;
   margin-bottom: 12px;
-  color: #e07b39;
+  color: #7c3a1d;
   opacity: 0.7;
 }
 
@@ -95,7 +95,7 @@
 
 .wishlist-drawer__shop-btn {
   padding: 12px 24px;
-  background: #e07b39;
+  background: #7c3a1d;
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -105,7 +105,7 @@
 }
 
 .wishlist-drawer__shop-btn:hover {
-  background: #c86828;
+  background: #5d2b15;
 }
 
 /* List */
@@ -214,7 +214,7 @@
 .wishlist-drawer__add-all-btn {
   width: 100%;
   padding: 14px;
-  background: #e07b39;
+  background: #7c3a1d;
   color: #ffffff;
   border: none;
   border-radius: 8px;

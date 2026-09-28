@@ -4,9 +4,9 @@ import './HeroSlider.css';
 import { useCart } from '../../context/CartContext';
 import { slidersApi } from '../../services/api';
 
-import sliderBg1 from '../../assets/hero slider1.png';
-import sliderBg2 from '../../assets/hero slider 3.png';
-import sliderBg3 from '../../assets/hero slider 4.png';
+import giftsBanner from '../../assets/gifts.png';
+import toysBanner from '../../assets/hero slider 3.png';
+import astroBanner from '../../assets/hero slider1.png';
 
 /* =====================================================
    STATIC FALLBACK DATA (jab API nahi chal rahi)
@@ -14,7 +14,7 @@ import sliderBg3 from '../../assets/hero slider 4.png';
 const FALLBACK_SLIDES = [
   {
     id: 1,
-    bgImg: sliderBg1,
+    bgImg: giftsBanner,
     badge_text: 'Discover Premium Gifts',
     badge_category: 'gifts',
     title: 'Exclusive Gift Sets & Hampers',
@@ -26,7 +26,7 @@ const FALLBACK_SLIDES = [
   },
   {
     id: 2,
-    bgImg: sliderBg2,
+    bgImg: toysBanner,
     badge_text: 'Explore Fun Toys',
     badge_category: 'toys',
     title: 'Interactive Toys & Educational Games',
@@ -38,7 +38,7 @@ const FALLBACK_SLIDES = [
   },
   {
     id: 3,
-    bgImg: sliderBg3,
+    bgImg: astroBanner,
     badge_text: 'Sacred Astrology',
     badge_category: 'astrology',
     title: 'Natural Gemstones & Healing Crystals',
@@ -63,36 +63,55 @@ function getSlideTargetLink(slide) {
 }
 
 const ASSET_MAP = {
-  'hero slider1.png': sliderBg1,
-  '/hero slider1.png': sliderBg1,
-  'hero slider 3.png': sliderBg2,
-  '/hero slider 3.png': sliderBg2,
-  'hero slider 4.png': sliderBg3,
-  '/hero slider 4.png': sliderBg3,
-  'wd-furniture-slider-111.jpg.webp': sliderBg1,
-  '/wd-furniture-slider-111.jpg.webp': sliderBg1,
-  'wd-furniture-slider-112.jpg.webp': sliderBg2,
-  '/wd-furniture-slider-112.jpg.webp': sliderBg2,
-  'wd-furniture-slider-113.jpg.webp': sliderBg3,
-  '/wd-furniture-slider-113.jpg.webp': sliderBg3,
+  'gifts.png': giftsBanner,
+  '/gifts.png': giftsBanner,
+  'hero slider1.png': astroBanner,
+  '/hero slider1.png': astroBanner,
+  'hero slider 3.png': toysBanner,
+  '/hero slider 3.png': toysBanner,
+  'hero slider 4.png': astroBanner,
+  '/hero slider 4.png': astroBanner,
+  'wd-furniture-slider-111.jpg.webp': giftsBanner,
+  '/wd-furniture-slider-111.jpg.webp': giftsBanner,
+  'wd-furniture-slider-112.jpg.webp': toysBanner,
+  '/wd-furniture-slider-112.jpg.webp': toysBanner,
+  'wd-furniture-slider-113.jpg.webp': astroBanner,
+  '/wd-furniture-slider-113.jpg.webp': astroBanner,
 };
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://127.0.0.1:8000';
 
 /** Backend / frontend image URL resolve karta hai */
 function resolveImage(slide) {
+  const cat = (slide.badge_category || slide.category || slide.title || '').toLowerCase();
+  
   if (slide.bgImg) return slide.bgImg;
   const imgPath = slide.image || '';
-  if (!imgPath) return sliderBg1;
+
+  // Ensure Gifts slide ALWAYS gets gifts banner
+  if (cat.includes('gift')) {
+    if (!imgPath || imgPath.includes('slider1') || imgPath.includes('111') || imgPath.includes('hero')) {
+      return giftsBanner;
+    }
+  }
+  if (cat.includes('toy')) {
+    if (!imgPath || imgPath.includes('slider-112') || imgPath.includes('112')) {
+      return toysBanner;
+    }
+  }
+  if (cat.includes('astro')) {
+    if (!imgPath || imgPath.includes('slider1') || imgPath.includes('113')) {
+      return astroBanner;
+    }
+  }
+
+  if (!imgPath) return giftsBanner;
 
   // Local assets match
   const filename = imgPath.split('/').pop();
   if (ASSET_MAP[imgPath] || ASSET_MAP[filename]) {
     return ASSET_MAP[imgPath] || ASSET_MAP[filename];
   }
-  if (filename.includes('slider-111') || filename.includes('111')) return sliderBg1;
-  if (filename.includes('slider-112') || filename.includes('112')) return sliderBg2;
-  if (filename.includes('slider-113') || filename.includes('113')) return sliderBg3;
 
   // External URL
   if (imgPath.startsWith('http://') || imgPath.startsWith('https://')) {
@@ -210,7 +229,7 @@ export default function HeroSlider() {
           else if (idx === current)                      slideClass += ' hero__slide--active';
 
           const designerName = (slide.designer || slide.subtitle || '').replace(/^by\s+/i, '').trim();
-          const badgeCategory = slide.badge_category || (slide.link?.includes('chair') ? 'chairs' : slide.link?.includes('sofa') ? 'sofas' : slide.link?.includes('decor') ? 'decor' : 'furniture');
+          const badgeCategory = slide.badge_category || (slide.link?.includes('gift') ? 'gifts' : slide.link?.includes('toy') ? 'toys' : slide.link?.includes('astrology') ? 'astrology' : 'gifts');
           const targetLink = getSlideTargetLink(slide);
 
           return (
@@ -283,18 +302,18 @@ export default function HeroSlider() {
                   {/* Action Row */}
                   <div className="hero__actions">
                     <Link
-                      to="/category/wooden-furniture"
+                      to={targetLink}
                       className="hero__cta"
                       id={`slide-cta-${slide._id || slide.id}`}
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate('/category/wooden-furniture');
+                        navigate(targetLink);
                       }}
                     >
                       {slide.cta_text || 'Shop Now'}
                     </Link>
                     {slide.price && (
-                      <Link to="/category/wooden-furniture" style={{ textDecoration: 'none', color: 'inherit' }}>
+                      <Link to={targetLink} style={{ textDecoration: 'none', color: 'inherit' }}>
                         <span className="hero__price" style={{ cursor: 'pointer' }}>{formatSlidePrice(slide.price)}</span>
                       </Link>
                     )}

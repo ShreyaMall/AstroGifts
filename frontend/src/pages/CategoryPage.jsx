@@ -3,48 +3,47 @@ import Footer from '../components/layout/Footer';
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import './CategoryPage.css';
-import { productsApi } from '../services/api';
+import { productsApi, categoriesApi } from '../services/api';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import ProductCard from '../components/shop/ProductCard';
 
-import img_chairs_banner from '../assets/chairs_banner.png';
-import img_tables_banner from '../assets/table8.jpg';
-import img_sofas_banner from '/sofa.jpg';
-import img_armchairs_banner from '../assets/armchair.jpg';
-import img_beds_banner from '../assets/beds.png';
-import img_storage_banner from '../assets/storage10.jpg';
-import img_textiles_banner from '../assets/textile1.webp';
-import img_lighting_banner from '/light1.jpg';
-import img_toys_banner from '../assets/toy1.jpg';
-import img_decor_banner from '../assets/decor1.jpg';
+import img_gifts_banner from '../assets/gifts.png';
+import img_toys_banner from '../assets/toys_collection_banner.jpg';
+import img_astrology_banner from '../assets/astro.png';
+import img_flowers_banner from '../assets/flowers.png';
+import img_gift_box from '../assets/gift image.jpg';
+import img_astro_item from '../assets/astri image.jpg';
+import img_crystal from '../assets/Rose_Quartz.webp';
 
 /* ──────────────────────────────────────────────
    Hero banner config per category
    ────────────────────────────────────────────── */
 const HERO_CONFIG = {
   // Main categories
-  gifts:       { label: 'Gifts',               img: img_chairs_banner, bg: 'linear-gradient(135deg,#c0392b 0%,#e74c3c 50%,#f39c12 100%)' },
-  toys:        { label: 'Toys',                img: img_toys_banner,   bg: 'linear-gradient(135deg,#11998e 0%,#38ef7d 100%)' },
-  astrology:   { label: 'Astrology',           img: img_decor_banner,  bg: 'linear-gradient(135deg,#4a00e0 0%,#8e2de2 100%)' },
+  gifts:       { label: 'Gifts',               img: img_gifts_banner,     bg: 'linear-gradient(135deg,#7c3a1d 0%,#a04f29 50%,#2c1510 100%)' },
+  toys:        { label: 'Toys',                img: img_toys_banner,      bg: 'linear-gradient(135deg,#2e7d32 0%,#4caf50 100%)' },
+  astrology:   { label: 'Astrology',           img: img_astrology_banner, bg: 'linear-gradient(135deg,#4a148c 0%,#7b1fa2 100%)' },
+  flowers:     { label: 'Flowers',             img: img_flowers_banner,   bg: 'linear-gradient(135deg,#ad1457 0%,#f06292 100%)' },
+  decor:       { label: 'Decor',               img: img_gift_box,         bg: 'linear-gradient(135deg,#7c3a1d 0%,#b85d32 100%)' },
   // Gift subcategories
-  'diwali-gifts':      { label: 'Diwali Gifts',      img: img_lighting_banner, bg: 'linear-gradient(135deg,#f7971e 0%,#ffd200 100%)' },
-  'birthday-gifts':    { label: 'Birthday Gifts',    img: img_chairs_banner,   bg: 'linear-gradient(135deg,#e96c9b 0%,#f9c6d1 100%)' },
-  'anniversary-gifts': { label: 'Anniversary Gifts', img: img_sofas_banner,    bg: 'linear-gradient(135deg,#c0392b 0%,#ff758c 100%)' },
+  'diwali-gifts':      { label: 'Diwali Gifts',      img: img_gifts_banner,   bg: 'linear-gradient(135deg,#7c3a1d 0%,#d4af37 100%)' },
+  'birthday-gifts':    { label: 'Birthday Gifts',    img: img_gift_box,       bg: 'linear-gradient(135deg,#880e4f 0%,#ec407a 100%)' },
+  'anniversary-gifts': { label: 'Anniversary Gifts', img: img_gifts_banner,   bg: 'linear-gradient(135deg,#7c3a1d 0%,#c2185b 100%)' },
   // Toy subcategories
-  'soft-toys':   { label: 'Soft Toys',   img: img_toys_banner,    bg: 'linear-gradient(135deg,#f9d423 0%,#ff4e50 100%)' },
-  'baby-toys':   { label: 'Baby Toys',   img: img_chairs_banner,  bg: 'linear-gradient(135deg,#56ccf2 0%,#2f80ed 100%)' },
-  'board-games': { label: 'Board Games', img: img_storage_banner, bg: 'linear-gradient(135deg,#11998e 0%,#38ef7d 100%)' },
+  'soft-toys':   { label: 'Soft Toys',   img: img_toys_banner, bg: 'linear-gradient(135deg,#e65100 0%,#ff9800 100%)' },
+  'baby-toys':   { label: 'Baby Toys',   img: img_toys_banner, bg: 'linear-gradient(135deg,#0277bd 0%,#29b6f6 100%)' },
+  'board-games': { label: 'Board Games', img: img_toys_banner, bg: 'linear-gradient(135deg,#2e7d32 0%,#66bb6a 100%)' },
   // Astrology subcategories
-  'rings':              { label: 'Rings',                img: img_decor_banner,    bg: 'linear-gradient(135deg,#4a00e0 0%,#8e2de2 100%)' },
-  'pendants':           { label: 'Pendants',             img: img_textiles_banner, bg: 'linear-gradient(135deg,#6a3093 0%,#a044ff 100%)' },
-  'bracelets':          { label: 'Bracelets',            img: img_beds_banner,     bg: 'linear-gradient(135deg,#8e0e00 0%,#1f1c18 100%)' },
-  'gemstones-crystals': { label: 'Gemstones & Crystals', img: img_armchairs_banner, bg: 'linear-gradient(135deg,#005c97 0%,#363795 100%)' },
+  'rings':              { label: 'Rings',                img: img_astro_item,       bg: 'linear-gradient(135deg,#4a148c 0%,#8e2de2 100%)' },
+  'pendants':           { label: 'Pendants',             img: img_astrology_banner, bg: 'linear-gradient(135deg,#4a148c 0%,#ab47bc 100%)' },
+  'bracelets':          { label: 'Bracelets',            img: img_crystal,          bg: 'linear-gradient(135deg,#311b92 0%,#673ab7 100%)' },
+  'gemstones-crystals': { label: 'Gemstones & Crystals', img: img_crystal,          bg: 'linear-gradient(135deg,#1a237e 0%,#3f51b5 100%)' },
   // Legacy fallback
-  'wooden-furniture': { label: 'All Products', img: img_chairs_banner, bg: 'linear-gradient(135deg,#787055 0%,#c8b89a 100%)' },
+  'wooden-furniture': { label: 'All Products', img: img_gifts_banner, bg: 'linear-gradient(135deg,#7c3a1d 0%,#4a2511 100%)' },
 };
 
-const HEADER_CATEGORIES_TREE = [
+const DEFAULT_CATEGORIES_TREE = [
   {
     name: 'Gifts',
     slug: 'gifts',
@@ -72,6 +71,16 @@ const HEADER_CATEGORIES_TREE = [
       { name: 'Bracelets', slug: 'bracelets' },
       { name: 'Gemstones & Crystals', slug: 'gemstones-crystals' },
     ]
+  },
+  {
+    name: 'Flowers',
+    slug: 'flowers',
+    subcategories: []
+  },
+  {
+    name: 'Decor',
+    slug: 'decor',
+    subcategories: []
   }
 ];
 
@@ -82,32 +91,80 @@ export default function CategoryPage({ categorySlug }) {
   const { slug } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const activeSlug = (categorySlug || slug || 'gifts').toLowerCase();
+  const rawSlug = (categorySlug || slug || 'gifts').toLowerCase();
+  const activeSlug = rawSlug.replace(/_/g, '-');
 
   const hero     = HERO_CONFIG[activeSlug] || HERO_CONFIG.gifts;
   const [allProds, setAllProds] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [categoriesTree, setCategoriesTree] = useState(DEFAULT_CATEGORIES_TREE);
+  const [expandedCategories, setExpandedCategories] = useState(['Toys']);
+  const [selectedCategories, setSelectedCategories] = useState([]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setLoading(true);
 
-    const fetchParams = activeSlug === 'wooden-furniture'
-      ? { per_page: 1000 }
-      : { category: activeSlug, per_page: 1000 };
-    productsApi.getAll(fetchParams)
+    // 1. Fetch all products so multi-category & cross-category combinations work instantly
+    productsApi.getAll({ per_page: 1000 })
       .then(res => {
          if (res && res.data) {
              setAllProds(res.data);
          }
       })
       .catch(err => {
-         console.error("Failed to load category products", err);
+         console.error("Failed to load products for category page", err);
          setAllProds([]);
       })
       .finally(() => {
          setLoading(false);
       });
+
+    // 2. Fetch dynamic categories from backend API
+    categoriesApi.getAll().then(res => {
+      if (res && res.data && Array.isArray(res.data) && res.data.length > 0) {
+        setCategoriesTree(res.data);
+      }
+    }).catch(console.error);
+
+    // 3. Configure initial accordion expansion and selected category checkboxes based on URL slug
+    if (activeSlug === 'all' || activeSlug === 'shop' || activeSlug === 'wooden-furniture') {
+      setSelectedCategories([]);
+      setExpandedCategories(['Toys', 'Gifts']);
+    } else if (activeSlug === 'birthday-gifts' || activeSlug === 'diwali-gifts' || activeSlug === 'anniversary-gifts') {
+      setSelectedCategories([]);
+      setExpandedCategories(['Gifts']);
+    } else {
+      // Find whether activeSlug is a parent category or a subcategory
+      let foundParent = DEFAULT_CATEGORIES_TREE.find(cat => 
+        cat.slug.toLowerCase() === activeSlug || cat.name.toLowerCase() === activeSlug
+      );
+      let foundSub = null;
+
+      if (!foundParent) {
+        for (const cat of DEFAULT_CATEGORIES_TREE) {
+          const sub = cat.subcategories?.find(s => s.slug.toLowerCase() === activeSlug || s.name.toLowerCase() === activeSlug);
+          if (sub) {
+            foundParent = cat;
+            foundSub = sub;
+            break;
+          }
+        }
+      }
+
+      if (foundParent) {
+        setExpandedCategories([foundParent.name]);
+        if (foundSub) {
+          setSelectedCategories([foundSub.name]);
+        } else {
+          setSelectedCategories([foundParent.name]);
+        }
+      } else {
+        const cap = activeSlug.charAt(0).toUpperCase() + activeSlug.slice(1);
+        setExpandedCategories([cap]);
+        setSelectedCategories([cap]);
+      }
+    }
   }, [activeSlug]);
 
   /* Filter state */
@@ -118,7 +175,6 @@ export default function CategoryPage({ categorySlug }) {
   const [priceMin, setPriceMin]           = useState(null);
   const [tempPriceMax, setTempPriceMax]   = useState(null);
   const [tempPriceMin, setTempPriceMin]   = useState(null);
-  const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedBrands, setSelectedBrands]         = useState([]);
   const [selectedColors, setSelectedColors]         = useState([]);
   const [selectedMats, setSelectedMats]             = useState([]);
@@ -135,13 +191,39 @@ export default function CategoryPage({ categorySlug }) {
 
   const [showCatSearch, setShowCatSearch]     = useState(false);
   const [catQuery, setCatQuery]               = useState('');
-  const [showAllCats, setShowAllCats]         = useState(false);
-  const [expandedCategories, setExpandedCategories] = useState([]);
 
   const toggleExpandCategory = (catName) => {
     setExpandedCategories(prev => 
       prev.includes(catName) ? prev.filter(c => c !== catName) : [...prev, catName]
     );
+  };
+
+  const toggleParentCategory = (parentCat) => {
+    setCurrentPage(1);
+    const pName = parentCat.name;
+    const isChecked = selectedCategories.includes(pName) || selectedCategories.includes(parentCat.slug);
+
+    if (isChecked) {
+      // Remove parent and any of its subcategories
+      const subNames = (parentCat.subcategories || []).map(s => s.name);
+      setSelectedCategories(prev => prev.filter(c => c !== pName && c !== parentCat.slug && !subNames.includes(c)));
+    } else {
+      // Add parent and expand accordion
+      setSelectedCategories(prev => [...prev, pName]);
+      setExpandedCategories(prev => prev.includes(pName) ? prev : [...prev, pName]);
+    }
+  };
+
+  const toggleSubCategory = (sub, parentCat) => {
+    setCurrentPage(1);
+    const subName = sub.name;
+    const isChecked = selectedCategories.includes(subName) || selectedCategories.includes(sub.slug);
+
+    if (isChecked) {
+      setSelectedCategories(prev => prev.filter(c => c !== subName && c !== sub.slug));
+    } else {
+      setSelectedCategories(prev => [...prev, subName]);
+    }
   };
 
   const [showBrandSearch, setShowBrandSearch] = useState(false);
@@ -158,8 +240,26 @@ export default function CategoryPage({ categorySlug }) {
   };
 
   const [selectedGender, setSelectedGender]         = useState(null);
+  const [selectedRingSizes, setSelectedRingSizes] = useState([]);
+  const [selectedPlatings, setSelectedPlatings]   = useState([]);
 
   /* Myntra-style Default Options & Dynamic Fallbacks */
+  const DEFAULT_RING_SIZES = [
+    'Size 10',
+    'Size 12',
+    'Size 14',
+    'Size 16',
+    'Size 18',
+    'Size 20',
+    'Adjustable'
+  ];
+
+  const DEFAULT_PLATING_OPTIONS = [
+    { name: 'Gold Plated', color: '#d4af37' },
+    { name: 'Silver Plated', color: '#c0c0c0' },
+    { name: 'Brass / Panchdhatu', color: '#b87333', border: '#8b5a2b' },
+    { name: 'Rose Gold', color: '#b76e79' }
+  ];
   const DEFAULT_TOYS_CATEGORIES = [
     'Activity Toys and Games',
     'Soft Toys and Dolls',
@@ -184,6 +284,34 @@ export default function CategoryPage({ categorySlug }) {
   ];
 
   const DEFAULT_GIFT_CATEGORIES = [
+    'Diwali Gifts',
+    'Birthday Gifts',
+    'Anniversary Gifts',
+    'Luxury Gift Hampers',
+    'Custom Photo Frames',
+    'Flowers & Bouquets',
+    'Chocolate Hampers',
+    'Festive Gifts'
+  ];
+
+  const DEFAULT_DIWALI_CATEGORIES = [
+    'Diyas & Lamps',
+    'Candles & Candle Sets',
+    'Decorative Lights',
+    'Diwali Gift Hampers',
+    'Laxmi Ganesh Idols',
+    'Sweets & Dry Fruits',
+    'Toran & Door Decor',
+    'Puja Thali & Brass Sets'
+  ];
+
+  const DEFAULT_ANNIVERSARY_CATEGORIES = [
+    'Watches',
+    'Hamper Gifts',
+    'Perfumes'
+  ];
+
+  const DEFAULT_BIRTHDAY_CATEGORIES = [
     'Accessory Gift Set',
     'Home Gift Sets',
     'Rakhi Gift Set',
@@ -191,17 +319,14 @@ export default function CategoryPage({ categorySlug }) {
     'Baby Apparel Gift Set',
     'Makeup Gift Set',
     'Skin Care Gift Set',
-    'Fragrance Gift Set'
+    'Fragrance Gift Set',
   ];
   const DEFAULT_GIFT_BRANDS = [
-    'ARTBUG',
-    'JOKER & WITCH',
-    'INTERNATIONAL GIFT',
-    'MUTAQINOTI',
-    'LOUIS STITCH',
-    'WildHorn',
-    'The Tie Hub',
-    'Cazzano'
+    'AstroGifts',
+    'AstroToys',
+    'AstroSacred',
+    'AstroFlora',
+    'AstroDecor'
   ];
   const DEFAULT_GIFT_COLORS = [
     { name: 'White', color: '#ffffff', border: '#d0cdc7' },
@@ -235,20 +360,45 @@ export default function CategoryPage({ categorySlug }) {
     'Feng Shui & Healing'
   ];
 
-  const isToysCategory = activeSlug.includes('toy');
-  const isAstroCategory = activeSlug.includes('astro') || activeSlug.includes('ring') || activeSlug.includes('gem') || activeSlug.includes('pendant') || activeSlug.includes('crystal');
-  const isShopAllPage = activeSlug === 'all' || activeSlug === 'shop' || activeSlug === 'wooden-furniture';
+  const DEFAULT_FLOWERS_CATEGORIES = [
+    'Bouquets',
+    'Roses',
+    'Orchids',
+    'Flower Baskets',
+    'Exotic Flowers'
+  ];
+
+  const DEFAULT_DECOR_CATEGORIES = [
+    'Wall Frames',
+    'Decorative Lamps',
+    'Table Idols',
+    'Vases & Planters',
+    'Clocks'
+  ];
+
+  const isToysCategory        = activeSlug.includes('toy') || activeSlug.includes('game');
+  const isAstroCategory       = activeSlug.includes('astro') || activeSlug.includes('ring') || activeSlug.includes('gem') || activeSlug.includes('pendant') || activeSlug.includes('crystal') || activeSlug.includes('bracelet');
+  const isBirthdayCategory    = activeSlug === 'birthday-gifts';
+  const isDiwaliCategory      = activeSlug === 'diwali-gifts';
+  const isAnniversaryCategory = activeSlug === 'anniversary-gifts';
+  const isShopAllPage         = activeSlug === 'all' || activeSlug === 'shop' || activeSlug === 'wooden-furniture';
+  const isFlatCategoryPage    = !isShopAllPage;
 
   /* Derived filter options */
   const categoriesList = useMemo(() => {
     let defaultList = DEFAULT_GIFT_CATEGORIES;
-    if (isToysCategory) defaultList = DEFAULT_TOYS_CATEGORIES;
+    if (isBirthdayCategory) defaultList = DEFAULT_BIRTHDAY_CATEGORIES;
+    else if (isDiwaliCategory) defaultList = DEFAULT_DIWALI_CATEGORIES;
+    else if (isAnniversaryCategory) defaultList = DEFAULT_ANNIVERSARY_CATEGORIES;
+    else if (isToysCategory) defaultList = DEFAULT_TOYS_CATEGORIES;
     else if (isAstroCategory) defaultList = DEFAULT_ASTROLOGY_CATEGORIES;
-    const dynamicCats = [...new Set(allProds.map(p => p.category || p.category_name).filter(Boolean))];
-    const combined = Array.from(new Set([...defaultList, ...dynamicCats]));
-    if (!catQuery) return combined;
-    return combined.filter(c => c.toLowerCase().includes(catQuery.toLowerCase()));
-  }, [allProds, isToysCategory, isAstroCategory, catQuery]);
+    else if (activeSlug === 'flowers') defaultList = DEFAULT_FLOWERS_CATEGORIES;
+    else if (activeSlug === 'decor') defaultList = DEFAULT_DECOR_CATEGORIES;
+    else if (activeSlug === 'gifts') defaultList = DEFAULT_GIFT_CATEGORIES;
+
+    if (!catQuery) return defaultList;
+    return defaultList.filter(c => c.toLowerCase().includes(catQuery.toLowerCase()));
+  }, [isBirthdayCategory, isDiwaliCategory, isAnniversaryCategory, isToysCategory, isAstroCategory, activeSlug, catQuery]);
 
   const brandsList = useMemo(() => {
     const defaultList = isToysCategory ? DEFAULT_TOYS_BRANDS : DEFAULT_GIFT_BRANDS;
@@ -282,77 +432,146 @@ export default function CategoryPage({ categorySlug }) {
   const sliderMax = tempPriceMax ?? appliedPriceMax;
   const sliderMin = tempPriceMin ?? appliedPriceMin;
 
-  /* Counts */
-  const getCategoryCount = catName => {
-    const realCount = allProds.filter(p => (p.category && p.category.toLowerCase().includes(catName.toLowerCase())) || (p.category_name && p.category_name.toLowerCase().includes(catName.toLowerCase()))).length;
-    if (realCount > 0) return realCount;
-    const toysMap = {
-      'Activity Toys and Games': 3050,
-      'Soft Toys and Dolls': 2579,
-      'Learning and Development Toys': 1840,
-      'Art and Craft': 832,
-      'Toy Vehicles': 577,
-      'Action Figures and Toys': 294,
-      'Musical Toys': 230,
-      'Infant and Pre-School Toys': 180
-    };
-    if (toysMap[catName]) return toysMap[catName];
-    const giftMap = {
-      'Accessory Gift Set': 9220,
-      'Home Gift Sets': 5316,
-      'Rakhi Gift Set': 3160,
-      'Watch Gift Set': 2383,
-      'Baby Apparel Gift Set': 1714,
-      'Makeup Gift Set': 525,
-      'Skin Care Gift Set': 493,
-      'Fragrance Gift Set': 491
-    };
-    if (giftMap[catName]) return giftMap[catName];
-    return Math.floor((catName.length * 5) % 25) + 1;
+  /* Counts (Calculated dynamically from real products in database) */
+  const getCategoryCount = (catName) => {
+    const scLower = catName.toLowerCase().trim();
+    const scSlug = scLower.replace(/[^a-z0-9]+/g, '-');
+
+    const matched = allProds.filter(p => {
+      const pSlug = (p.category_slug || '').toLowerCase().trim();
+      const pName = (p.category_name || p.category || '').toLowerCase().trim();
+      const pTitle = (p.name || '').toLowerCase().trim();
+      const pDesc = (p.description || '').toLowerCase().trim();
+
+      // Page-level strict exclusion guards
+      if (activeSlug === 'anniversary-gifts') {
+        if (pSlug.includes('toy') || pName.includes('toy') || pTitle.includes('toy') || pTitle.includes('train') || pTitle.includes('puzzle') || pTitle.includes('doll') || pTitle.includes('game') ||
+            pSlug.includes('astro') || pSlug.includes('crystal') || pSlug.includes('gem') || pTitle.includes('crystal') || pTitle.includes('quartz') || pTitle.includes('amethyst') || pTitle.includes('rudraksha') || pTitle.includes('yantra') ||
+            pTitle.includes('birthday') || pTitle.includes('bday') || pTitle.includes('baby') || pTitle.includes('diwali') || pTitle.includes('diya')) {
+          return false;
+        }
+      } else if (activeSlug === 'birthday-gifts') {
+        if (pTitle.includes('diwali') || pTitle.includes('diya') || pTitle.includes('pooja') || pTitle.includes('puja') || 
+            pSlug.includes('crystal') || pSlug.includes('gem') || pTitle.includes('quartz') || pTitle.includes('amethyst') ||
+            pTitle.includes('anniversary') || pTitle.includes('couple frame')) {
+          return false;
+        }
+      } else if (activeSlug === 'diwali-gifts') {
+        if (pTitle.includes('birthday') || pTitle.includes('bday') || pTitle.includes('anniversary') || pTitle.includes('baby') ||
+            pSlug.includes('toy') || pTitle.includes('toy') || pTitle.includes('train') || pTitle.includes('puzzle')) {
+          return false;
+        }
+      } else if (isToysCategory) {
+        if (pSlug.includes('astro') || pSlug.includes('crystal') || pSlug.includes('gem') || pTitle.includes('crystal') || pTitle.includes('quartz') || pTitle.includes('amethyst') || pTitle.includes('diwali') || pTitle.includes('diya') || pTitle.includes('hamper')) {
+          return false;
+        }
+      } else if (isAstroCategory) {
+        if (pSlug.includes('toy') || pTitle.includes('toy') || pTitle.includes('train') || pTitle.includes('balloon') || pTitle.includes('hamper') || pTitle.includes('diwali')) {
+          return false;
+        }
+      }
+
+      if (pSlug === scSlug || pSlug === scLower || pName === scLower || pName === scSlug) return true;
+
+      if (scLower.includes('ring')) return pTitle.includes('ring') || pSlug.includes('ring') || pName.includes('ring');
+      if (scLower.includes('pendant')) return pTitle.includes('pendant') || pTitle.includes('locket') || pSlug.includes('pendant') || pName.includes('pendant');
+      if (scLower.includes('bracelet')) return pTitle.includes('bracelet') || pTitle.includes('kada') || pSlug.includes('bracelet') || pName.includes('bracelet');
+      if (scLower.includes('gemstone') || scLower.includes('crystal')) return pTitle.includes('gemstone') || pTitle.includes('crystal') || pTitle.includes('quartz') || pTitle.includes('amethyst') || pTitle.includes('ruby') || pTitle.includes('sapphire') || pSlug.includes('crystal') || pSlug.includes('gem');
+      if (scLower.includes('yantra') || scLower.includes('idol')) return pTitle.includes('yantra') || pTitle.includes('idol') || pTitle.includes('statue');
+      if (scLower.includes('rudraksha')) return pTitle.includes('rudraksha') || pSlug.includes('rudraksha');
+
+      if (scLower === 'watches' || scLower.includes('watch')) {
+        return pTitle.includes('watch') || pSlug.includes('watch');
+      }
+      if (scLower === 'hamper gifts' || scLower.includes('hamper')) {
+        return pTitle.includes('hamper') || pSlug.includes('hamper') || pName.includes('hamper') || pTitle.includes('gift box') || pDesc.includes('hamper');
+      }
+      if (scLower === 'perfumes' || scLower.includes('perfume') || scLower.includes('fragrance')) {
+        return pTitle.includes('perfume') || pTitle.includes('fragrance') || pTitle.includes('scent') || pSlug.includes('fragrance');
+      }
+      if (scLower.includes('candle')) return pTitle.includes('candle') || pSlug.includes('candle');
+      if (scLower.includes('diya') || scLower.includes('lamp')) return pTitle.includes('diya') || pTitle.includes('lamp');
+      if (scLower.includes('light')) return pTitle.includes('light') || pTitle.includes('lantern');
+      if (scLower.includes('photo frame') || scLower.includes('frame')) return pTitle.includes('frame');
+      if (scLower.includes('sweet') || scLower.includes('dry fruit')) return pTitle.includes('sweet') || pTitle.includes('dry fruit');
+      if (scLower.includes('skin')) return pTitle.includes('skin') || pTitle.includes('lotion');
+      if (scLower.includes('makeup')) return pTitle.includes('makeup') || pTitle.includes('lipstick');
+      if (scLower.includes('apparel')) return pTitle.includes('apparel') || pTitle.includes('cloth');
+
+      const parentItem = categoriesTree.find(c => c.name.toLowerCase() === scLower || c.slug.toLowerCase() === scSlug);
+      if (parentItem) {
+        if (pSlug === parentItem.slug.toLowerCase() || pName === parentItem.name.toLowerCase()) return true;
+        if (parentItem.subcategories && parentItem.subcategories.some(sub => {
+          const subSlug = (sub.slug || '').toLowerCase();
+          const subName = (sub.name || '').toLowerCase();
+          return pSlug === subSlug || pName === subName || pSlug === subSlug.replace(/[^a-z0-9]+/g, '-');
+        })) {
+          return true;
+        }
+      }
+      return false;
+    });
+
+    return matched.length;
   };
 
   const getBrandCount = bName => {
-    const realCount = allProds.filter(p => p.brand && p.brand.toLowerCase() === bName.toLowerCase()).length;
-    if (realCount > 0) return realCount;
-    const toysBrandMap = {
-      CountryLink: 625, 'Little Mind': 406, Sellplus: 282, 'Aditi Toys': 256, ADKD: 238, OPINA: 223, DukieKooky: 219, MUREN: 215
-    };
-    if (toysBrandMap[bName]) return toysBrandMap[bName];
-    const giftBrandMap = {
-      'ARTBUG': 2208,
-      'JOKER & WITCH': 1429,
-      'INTERNATIONAL GIFT': 798,
-      'MUTAQINOTI': 787,
-      'LOUIS STITCH': 714,
-      'WildHorn': 572,
-      'The Tie Hub': 556,
-      'Cazzano': 495
-    };
-    if (giftBrandMap[bName]) return giftBrandMap[bName];
-    return 1;
+    return allProds.filter(p => p.brand && p.brand.toLowerCase() === bName.toLowerCase()).length;
   };
 
   const getColorCount = cName => {
-    const realCount = allProds.filter(p => p.color && p.color.toLowerCase() === cName.toLowerCase()).length;
-    if (realCount > 0) return realCount;
-    const toysColorMap = { Blue: 1464, Multi: 1278, Green: 975, White: 964, Pink: 891, Yellow: 866, Red: 753 };
-    if (toysColorMap[cName]) return toysColorMap[cName];
-    const giftColorMap = {
-      White: 3799, Black: 3185, Blue: 2364, Red: 2326, Gold: 1805, Multi: 1690,
-      Brown: 1530, Pink: 1177, Silver: 926, Green: 866, 'Navy Blue': 655,
-      Maroon: 587, Grey: 571, 'Rose Gold': 545, Purple: 478, Yellow: 455,
-      Beige: 352, Orange: 222, Transparent: 217
-    };
-    if (giftColorMap[cName]) return giftColorMap[cName];
-    return 1;
+    return allProds.filter(p => p.color && p.color.toLowerCase() === cName.toLowerCase()).length;
+  };
+
+  const checkRingSizeMatch = (p, sizeName) => {
+    const sLower = sizeName.toLowerCase().replace(/size\s*/i, '').trim();
+    const pTitle = (p.name || '').toLowerCase();
+    const pDesc = (p.description || '').toLowerCase();
+    const pSize = String(p.ring_sizes || p.size || p.sizes || p.raw?.size || p.raw?.ring_sizes || '').toLowerCase();
+    const fullText = `${pTitle} ${pDesc} ${pSize}`;
+    return fullText.includes(sLower) || (sLower.includes('adjust') && (fullText.includes('adjust') || fullText.includes('free size') || fullText.includes('one size')));
+  };
+
+  const getRingSizeCount = sizeName => {
+    return allProds.filter(p => checkRingSizeMatch(p, sizeName)).length;
+  };
+
+  const checkPlatingMatch = (p, platName) => {
+    const plClean = platName.toLowerCase().trim();
+    const pTitle = (p.name || '').toLowerCase();
+    const pDesc = (p.description || '').toLowerCase();
+    const pPlating = String(p.plating || p.metal_finish || p.material || p.color || p.raw?.plating || p.raw?.metal_finish || '').toLowerCase();
+    const pColors = Array.isArray(p.colors) ? p.colors.join(' ').toLowerCase() : '';
+    const fullText = `${pTitle} ${pDesc} ${pPlating} ${pColors}`;
+
+    if (plClean.includes('silver')) {
+      return fullText.includes('silver') || fullText.includes('chandi') || fullText.includes('#c0c0c0');
+    }
+    if (plClean.includes('gold') && !plClean.includes('rose')) {
+      return fullText.includes('gold') || fullText.includes('golden') || fullText.includes('sona') || fullText.includes('#d4af37');
+    }
+    if (plClean.includes('rose')) {
+      return fullText.includes('rose gold') || fullText.includes('rosegold') || fullText.includes('rose-gold') || fullText.includes('#b76e79');
+    }
+    if (plClean.includes('brass') || plClean.includes('panchdhatu')) {
+      return fullText.includes('brass') || fullText.includes('panchdhatu') || fullText.includes('panch') || fullText.includes('copper') || fullText.includes('bronze') || fullText.includes('#b87333');
+    }
+
+    const baseWord = plClean.split(/[\s/]+/)[0];
+    return fullText.includes(baseWord);
+  };
+
+  const getPlatingCount = platName => {
+    return allProds.filter(p => checkPlatingMatch(p, platName)).length;
   };
 
   /* Filtered list */
   const filtered = useMemo(() => {
     let list = allProds.filter(p => {
       if (searchQuery) {
-        const matchName = p.name.toLowerCase().includes(searchQuery);
-        const matchCat = (p.category && p.category.toLowerCase().includes(searchQuery)) || (p.category_name && p.category_name.toLowerCase().includes(searchQuery));
+        const matchName = (p.name || '').toLowerCase().includes(searchQuery);
+        const matchCat = (p.category && p.category.toLowerCase().includes(searchQuery)) || 
+                         (p.category_name && p.category_name.toLowerCase().includes(searchQuery));
         if (!matchName && !matchCat) return false;
       }
       if (selectedGender) {
@@ -361,13 +580,204 @@ export default function CategoryPage({ categorySlug }) {
       }
       if (p.price < appliedPriceMin) return false;
       if (p.price > appliedPriceMax) return false;
-      if (selectedCategories.length > 0) {
-        const pCat = (p.category || p.category_name || '').toLowerCase();
-        const matches = selectedCategories.some(sc => pCat.includes(sc.toLowerCase()) || sc.toLowerCase().includes(pCat));
-        if (!matches) return false;
+
+      const pSlug = (p.category_slug || '').toLowerCase().trim();
+      const pName = (p.category_name || p.category || '').toLowerCase().trim();
+      const pTitle = (p.name || '').toLowerCase().trim();
+      const pDesc = (p.description || '').toLowerCase().trim();
+
+      // Page-level strict exclusion guards (applied to ALL filters on this page)
+      if (activeSlug === 'anniversary-gifts') {
+        // Exclude toys, crystals, birthday, diwali
+        if (pSlug.includes('toy') || pName.includes('toy') || pTitle.includes('toy') || pTitle.includes('train') || pTitle.includes('puzzle') || pTitle.includes('doll') || pTitle.includes('game') ||
+            pSlug.includes('astro') || pSlug.includes('crystal') || pSlug.includes('gem') || pTitle.includes('crystal') || pTitle.includes('quartz') || pTitle.includes('amethyst') || pTitle.includes('rudraksha') || pTitle.includes('yantra') ||
+            pTitle.includes('birthday') || pTitle.includes('bday') || pTitle.includes('baby') || pTitle.includes('diwali') || pTitle.includes('diya')) {
+          return false;
+        }
+      } else if (activeSlug === 'birthday-gifts') {
+        // Exclude diwali, pooja, crystals, pure couple anniversary items
+        if (pTitle.includes('diwali') || pTitle.includes('diya') || pTitle.includes('pooja') || pTitle.includes('puja') || 
+            pSlug.includes('crystal') || pSlug.includes('gem') || pTitle.includes('quartz') || pTitle.includes('amethyst') ||
+            pTitle.includes('anniversary') || pTitle.includes('couple frame')) {
+          return false;
+        }
+      } else if (activeSlug === 'diwali-gifts') {
+        // Exclude birthday, anniversary, toys
+        if (pTitle.includes('birthday') || pTitle.includes('bday') || pTitle.includes('anniversary') || pTitle.includes('baby') ||
+            pSlug.includes('toy') || pTitle.includes('toy') || pTitle.includes('train') || pTitle.includes('puzzle')) {
+          return false;
+        }
+      } else if (isToysCategory) {
+        // Exclude astrology crystals, diwali diyas, generic gift hampers
+        if (pSlug.includes('astro') || pSlug.includes('crystal') || pSlug.includes('gem') || pTitle.includes('crystal') || pTitle.includes('quartz') || pTitle.includes('amethyst') || pTitle.includes('diwali') || pTitle.includes('diya') || pTitle.includes('hamper')) {
+          return false;
+        }
+      } else if (isAstroCategory) {
+        // Exclude toys, balloons, gift hampers
+        if (pSlug.includes('toy') || pTitle.includes('toy') || pTitle.includes('train') || pTitle.includes('balloon') || pTitle.includes('hamper') || pTitle.includes('diwali')) {
+          return false;
+        }
       }
+
+      // Category filter: check against selectedCategories (union of all checked categories & subcategories)
+      if (selectedCategories.length > 0) {
+        const matchesCategory = selectedCategories.some(sc => {
+          const scLower = sc.toLowerCase().trim();
+          const scSlug = scLower.replace(/[^a-z0-9]+/g, '-');
+
+          // 1. Direct slug or name match
+          if (pSlug === scSlug || pSlug === scLower || pName === scLower || pName === scSlug) {
+            return true;
+          }
+
+          // 2. Specific non-generic keyword match (ignoring 'gift', 'gifts', 'set', 'sets', 'and')
+          const STOPWORDS = ['gift', 'gifts', 'set', 'sets', 'and', 'for', 'box', 'the', 'with', 'care', 'pack'];
+          const words = scLower.split(/[\s&,-]+/).filter(w => w.length > 2 && !STOPWORDS.includes(w));
+          
+          if (scLower.includes('ring')) return pTitle.includes('ring') || pSlug.includes('ring') || pName.includes('ring');
+          if (scLower.includes('pendant')) return pTitle.includes('pendant') || pTitle.includes('locket') || pSlug.includes('pendant') || pName.includes('pendant');
+          if (scLower.includes('bracelet')) return pTitle.includes('bracelet') || pTitle.includes('kada') || pSlug.includes('bracelet') || pName.includes('bracelet');
+          if (scLower.includes('gemstone') || scLower.includes('crystal')) return pTitle.includes('gemstone') || pTitle.includes('crystal') || pTitle.includes('quartz') || pTitle.includes('amethyst') || pTitle.includes('ruby') || pTitle.includes('sapphire') || pSlug.includes('crystal') || pSlug.includes('gem');
+          if (scLower.includes('yantra') || scLower.includes('idol')) return pTitle.includes('yantra') || pTitle.includes('idol') || pTitle.includes('statue');
+          if (scLower.includes('rudraksha')) return pTitle.includes('rudraksha') || pSlug.includes('rudraksha');
+
+          if (scLower === 'watches' || scLower.includes('watch')) {
+            return pTitle.includes('watch') || pSlug.includes('watch');
+          }
+          if (scLower === 'hamper gifts' || scLower.includes('hamper')) {
+            return pTitle.includes('hamper') || pSlug.includes('hamper') || pName.includes('hamper');
+          }
+          if (scLower === 'perfumes' || scLower.includes('perfume') || scLower.includes('fragrance')) {
+            return pTitle.includes('perfume') || pTitle.includes('fragrance') || pTitle.includes('scent') || pSlug.includes('fragrance');
+          }
+          if (scLower.includes('candle')) {
+            return pTitle.includes('candle') || pSlug.includes('candle');
+          }
+          if (scLower.includes('diya') || scLower.includes('lamp')) {
+            return pTitle.includes('diya') || pTitle.includes('lamp');
+          }
+          if (scLower.includes('light')) {
+            return pTitle.includes('light') || pTitle.includes('lantern');
+          }
+          if (scLower.includes('photo frame') || scLower.includes('frame')) {
+            return pTitle.includes('frame');
+          }
+          if (scLower.includes('sweet') || scLower.includes('dry fruit')) {
+            return pTitle.includes('sweet') || pTitle.includes('dry fruit') || pTitle.includes('nut') || pTitle.includes('almond') || pTitle.includes('cashew');
+          }
+          if (scLower.includes('skin')) {
+            return pTitle.includes('skin') || pTitle.includes('lotion') || pTitle.includes('cream');
+          }
+          if (scLower.includes('makeup')) {
+            return pTitle.includes('makeup') || pTitle.includes('lipstick') || pTitle.includes('cosmetic');
+          }
+          if (scLower.includes('apparel')) {
+            return pTitle.includes('apparel') || pTitle.includes('cloth') || pTitle.includes('wear') || pTitle.includes('dress');
+          }
+
+          if (words.length > 0 && words.some(w => pTitle.includes(w) || pDesc.includes(w))) {
+            return true;
+          }
+
+          // 3. Parent tree match
+          const parentItem = categoriesTree.find(
+            c => c.name.toLowerCase() === scLower || c.slug.toLowerCase() === scSlug
+          );
+          if (parentItem) {
+            if (pSlug === parentItem.slug.toLowerCase() || pName === parentItem.name.toLowerCase()) {
+              return true;
+            }
+            if (parentItem.subcategories && parentItem.subcategories.some(sub => {
+              const subSlug = (sub.slug || '').toLowerCase();
+              const subName = (sub.name || '').toLowerCase();
+              return pSlug === subSlug || pName === subName || pSlug === subSlug.replace(/[^a-z0-9]+/g, '-');
+            })) {
+              return true;
+            }
+          }
+
+          return false;
+        });
+
+        if (!matchesCategory) return false;
+      } else {
+        // Strict category isolation when browsing each category page
+        if (activeSlug === 'anniversary-gifts') {
+          const isAnniversary = pSlug === 'anniversary-gifts' || pSlug.includes('anniversary') || pName.includes('anniversary') ||
+                                pTitle.includes('anniversary') || pTitle.includes('watch') || pTitle.includes('hamper') || 
+                                pTitle.includes('perfume') || pTitle.includes('fragrance') || pDesc.includes('anniversary') ||
+                                pDesc.includes('watch') || pDesc.includes('hamper') || pDesc.includes('perfume');
+          if (!isAnniversary && allProds.length > 0) return false;
+        } else if (activeSlug === 'birthday-gifts') {
+          const isBirthday = pSlug === 'birthday-gifts' || pSlug.includes('birthday') || pName.includes('birthday') ||
+                             pTitle.includes('birthday') || pTitle.includes('balloon') || pTitle.includes('gift set') ||
+                             pTitle.includes('apparel') || pTitle.includes('makeup') || pTitle.includes('skin care') ||
+                             pTitle.includes('fragrance') || pTitle.includes('watch') || pTitle.includes('toy') ||
+                             pTitle.includes('hamper') || pDesc.includes('birthday');
+          if (!isBirthday && allProds.length > 0) return false;
+        } else if (activeSlug === 'diwali-gifts') {
+          const isDiwali = pSlug === 'diwali-gifts' || pSlug.includes('diwali') || pName.includes('diwali') ||
+                           pTitle.includes('diwali') || pTitle.includes('diya') || pTitle.includes('light') ||
+                           pTitle.includes('candle') || pTitle.includes('lamp') || pTitle.includes('laxmi') ||
+                           pTitle.includes('ganesh') || pTitle.includes('sweet') || pTitle.includes('dry fruit') ||
+                           pTitle.includes('toran') || pTitle.includes('puja') || pTitle.includes('brass') ||
+                           pDesc.includes('diwali');
+          if (!isDiwali && allProds.length > 0) return false;
+        } else if (activeSlug === 'soft-toys') {
+          const isSoftToy = pSlug.includes('soft') || pTitle.includes('soft') || pTitle.includes('teddy') || pTitle.includes('plush') || pTitle.includes('doll');
+          if (!isSoftToy && allProds.length > 0) return false;
+        } else if (activeSlug === 'baby-toys') {
+          const isBabyToy = pSlug.includes('baby') || pTitle.includes('baby') || pTitle.includes('rattle') || pTitle.includes('infant');
+          if (!isBabyToy && allProds.length > 0) return false;
+        } else if (activeSlug === 'board-games') {
+          const isBoardGame = pSlug.includes('board') || pTitle.includes('board') || pTitle.includes('game') || pTitle.includes('puzzle') || pTitle.includes('chess') || pTitle.includes('ludo');
+          if (!isBoardGame && allProds.length > 0) return false;
+        } else if (activeSlug === 'toys') {
+          if (pTitle.includes('diwali') || pTitle.includes('diya') || pTitle.includes('ring') || pTitle.includes('gemstone')) return false;
+          const isToy = pSlug.includes('toy') || pName.includes('toy') || pTitle.includes('toy') || pTitle.includes('game') || pTitle.includes('puzzle') || pTitle.includes('teddy') || pTitle.includes('doll') || pTitle.includes('kids');
+          if (!isToy && allProds.length > 0) return false;
+        } else if (activeSlug === 'rings') {
+          const isRing = pSlug.includes('ring') || pTitle.includes('ring');
+          if (!isRing && allProds.length > 0) return false;
+        } else if (activeSlug === 'pendants') {
+          const isPendant = pSlug.includes('pendant') || pTitle.includes('pendant') || pTitle.includes('locket');
+          if (!isPendant && allProds.length > 0) return false;
+        } else if (activeSlug === 'bracelets') {
+          const isBracelet = pSlug.includes('bracelet') || pTitle.includes('bracelet') || pTitle.includes('kada');
+          if (!isBracelet && allProds.length > 0) return false;
+        } else if (activeSlug === 'gemstones-crystals') {
+          const isGem = pSlug.includes('gem') || pSlug.includes('crystal') || pTitle.includes('gemstone') || pTitle.includes('crystal') || pTitle.includes('rudraksha') || pTitle.includes('stone') || pTitle.includes('quartz');
+          if (!isGem && allProds.length > 0) return false;
+        } else if (activeSlug === 'astrology') {
+          if (pTitle.includes('toy') || pTitle.includes('balloon') || pTitle.includes('baby')) return false;
+          const isAstro = pSlug.includes('astro') || pName.includes('astro') || pTitle.includes('ring') || pTitle.includes('pendant') || pTitle.includes('bracelet') || pTitle.includes('gemstone') || pTitle.includes('crystal') || pTitle.includes('rudraksha') || pTitle.includes('yantra') || pTitle.includes('zodiac');
+          if (!isAstro && allProds.length > 0) return false;
+        } else if (activeSlug === 'flowers') {
+          const isFlower = pSlug.includes('flower') || pTitle.includes('flower') || pTitle.includes('bouquet') || pTitle.includes('rose');
+          if (!isFlower && allProds.length > 0) return false;
+        } else if (activeSlug === 'decor') {
+          const isDecor = pSlug.includes('decor') || pTitle.includes('decor') || pTitle.includes('frame') || pTitle.includes('lamp') || pTitle.includes('idol') || pTitle.includes('clock');
+          if (!isDecor && allProds.length > 0) return false;
+        } else if (activeSlug === 'gifts') {
+          if (pTitle.includes('baby toy') || pTitle.includes('board game') || pTitle.includes('rattle')) return false;
+          const isGift = pSlug.includes('gift') || pName.includes('gift') || pTitle.includes('gift') || pTitle.includes('hamper') || pTitle.includes('set') || pTitle.includes('frame');
+          if (!isGift && allProds.length > 0) return false;
+        }
+      }
+
       if (selectedBrands.length > 0 && !selectedBrands.some(sb => (p.brand || '').toLowerCase() === sb.toLowerCase())) return false;
       if (selectedColors.length > 0 && !selectedColors.some(sc => (p.color || '').toLowerCase() === sc.toLowerCase())) return false;
+      
+      if (selectedRingSizes.length > 0) {
+        const matchesSize = selectedRingSizes.some(rs => checkRingSizeMatch(p, rs));
+        if (!matchesSize) return false;
+      }
+
+      if (selectedPlatings.length > 0) {
+        const matchesPlating = selectedPlatings.some(pl => checkPlatingMatch(p, pl));
+        if (!matchesPlating) return false;
+      }
+
       if (minDiscount !== null) {
         const disc = p.discount_percentage || (p.old_price && p.old_price > p.price ? Math.round(((p.old_price - p.price) / p.old_price) * 100) : 0);
         if (disc < minDiscount) return false;
@@ -380,7 +790,7 @@ export default function CategoryPage({ categorySlug }) {
     if (sortBy === 'price-desc') list = [...list].sort((a, b) => b.price - a.price);
     if (sortBy === 'rating')     list = [...list].sort((a, b) => (b.rating || 5) - (a.rating || 5));
     return list;
-  }, [allProds, appliedPriceMin, appliedPriceMax, selectedCategories, selectedBrands, selectedColors, minDiscount, onSale, inStock, sortBy, searchQuery]);
+  }, [allProds, appliedPriceMin, appliedPriceMax, selectedCategories, categoriesTree, selectedBrands, selectedColors, selectedRingSizes, selectedPlatings, minDiscount, onSale, inStock, sortBy, searchQuery]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
   const validCurrentPage = Math.min(currentPage, totalPages);
@@ -392,7 +802,7 @@ export default function CategoryPage({ categorySlug }) {
     setArr(arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val]);
   };
 
-  const isFilterActive = selectedGender !== null || selectedCategories.length > 0 || selectedBrands.length > 0 || selectedColors.length > 0 || minDiscount !== null || priceMin !== null || priceMax !== null || onSale || inStock;
+  const isFilterActive = selectedGender !== null || selectedCategories.length > 0 || selectedBrands.length > 0 || selectedColors.length > 0 || selectedRingSizes.length > 0 || selectedPlatings.length > 0 || minDiscount !== null || priceMin !== null || priceMax !== null || onSale || inStock;
 
   const clearFilters = () => {
     setSelectedGender(null);
@@ -404,6 +814,8 @@ export default function CategoryPage({ categorySlug }) {
     setSelectedBrands([]);
     setSelectedColors([]);
     setSelectedMats([]);
+    setSelectedRingSizes([]);
+    setSelectedPlatings([]);
     setMinDiscount(null);
     setOnSale(false);
     setInStock(false);
@@ -411,11 +823,9 @@ export default function CategoryPage({ categorySlug }) {
     setCurrentPage(1);
   };
 
-  const isAnniversaryCategory = activeSlug.includes('anniversary');
   const genderOptions = useMemo(() => {
-    if (isAnniversaryCategory) return ['Men', 'Women'];
-    return ['Men', 'Women', 'Boys', 'Girls'];
-  }, [isAnniversaryCategory]);
+    return ['For Couples', 'For Kids', 'For Family', 'For Friends', 'Festive Special'];
+  }, []);
 
   /* Hero style */
   const heroStyle = hero.img
@@ -493,7 +903,7 @@ export default function CategoryPage({ categorySlug }) {
               </ul>
             </div>
 
-            {/* 1. CATEGORIES */}
+            {/* 1. CATEGORIES ACCORDION TREE */}
             <div className="myntra-widget">
               <div className="myntra-widget__header">
                 <h4 className="myntra-widget__title">CATEGORIES</h4>
@@ -518,101 +928,188 @@ export default function CategoryPage({ categorySlug }) {
                 </div>
               )}
 
-              {isShopAllPage ? (
+              {isFlatCategoryPage ? (
+                <ul className="myntra-checklist">
+                  {categoriesList.map(catName => {
+                    const isChecked = selectedCategories.includes(catName);
+                    const count = getCategoryCount(catName);
+                    return (
+                      <li key={catName}>
+                        <label className="myntra-check-label">
+                          <input
+                            type="checkbox"
+                            className="myntra-check"
+                            checked={isChecked}
+                            onChange={() => toggle(selectedCategories, setSelectedCategories, catName)}
+                          />
+                          <span className="myntra-check-text">
+                            {catName}
+                            <span className="myntra-check-count">({count})</span>
+                          </span>
+                        </label>
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : (
                 <div className="myntra-category-tree">
-                  {HEADER_CATEGORIES_TREE.map(parentCat => {
-                    const isParentExpanded = expandedCategories.includes(parentCat.name);
+                  {categoriesTree.map(parentCat => {
+                    const isParentExpanded = expandedCategories.includes(parentCat.name) || expandedCategories.includes(parentCat.slug);
+                    const isParentChecked = selectedCategories.includes(parentCat.name) || selectedCategories.includes(parentCat.slug);
                     
+                    const subcats = parentCat.subcategories || [];
                     const visibleSubcategories = catQuery
-                      ? parentCat.subcategories.filter(s => s.name.toLowerCase().includes(catQuery.toLowerCase()))
-                      : parentCat.subcategories;
+                      ? subcats.filter(s => s.name.toLowerCase().includes(catQuery.toLowerCase()))
+                      : subcats;
 
-                    const parentMatchesQuery = !catQuery || parentCat.name.toLowerCase().includes(catQuery.toLowerCase()) || visibleSubcategories.length > 0;
+                    const parentMatchesQuery = !catQuery || 
+                      parentCat.name.toLowerCase().includes(catQuery.toLowerCase()) || 
+                      visibleSubcategories.length > 0;
+
                     if (!parentMatchesQuery) return null;
+
+                    const parentCount = getCategoryCount(parentCat.name);
 
                     return (
                       <div key={parentCat.name} className="myntra-cat-group">
-                        <div 
-                          className="myntra-cat-parent-row"
-                          onClick={() => toggleExpandCategory(parentCat.name)}
-                        >
-                          <div className="myntra-cat-parent-title">
-                            <span className="myntra-check-text font-bold">{parentCat.name}</span>
-                          </div>
-
-                          <button 
-                            type="button"
-                            className="myntra-cat-arrow-btn" 
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              toggleExpandCategory(parentCat.name);
-                            }}
-                            aria-label={`Toggle ${parentCat.name}`}
+                        <div className="myntra-cat-parent-row">
+                          <label 
+                            className="myntra-check-label myntra-cat-parent-title"
+                            style={{ cursor: 'pointer', flex: 1, margin: 0 }}
                           >
-                            <svg 
-                              className={`myntra-cat-arrow ${isParentExpanded ? 'is-expanded' : ''}`}
-                              width="12" 
-                              height="12" 
-                              viewBox="0 0 24 24" 
-                              fill="none" 
-                              stroke="currentColor" 
-                              strokeWidth="2.5"
+                            <input 
+                              type="checkbox" 
+                              className="myntra-check" 
+                              checked={isParentChecked} 
+                              onChange={() => toggleParentCategory(parentCat)} 
+                            />
+                            <span className="myntra-check-text font-bold">
+                              {parentCat.name}
+                              {parentCount > 0 && (
+                                <span className="myntra-check-count">({parentCount})</span>
+                              )}
+                            </span>
+                          </label>
+
+                          {subcats.length > 0 && (
+                            <button 
+                              type="button"
+                              className="myntra-cat-arrow-btn" 
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                toggleExpandCategory(parentCat.name);
+                              }}
+                              aria-label={`Toggle ${parentCat.name}`}
                             >
-                              <polyline points="6 9 12 15 18 9"></polyline>
-                            </svg>
-                          </button>
+                              <svg 
+                                className={`myntra-cat-arrow ${isParentExpanded ? 'is-expanded' : ''}`}
+                                width="12" 
+                                height="12" 
+                                viewBox="0 0 24 24" 
+                                fill="none" 
+                                stroke="currentColor" 
+                                strokeWidth="2.5"
+                              >
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                              </svg>
+                            </button>
+                          )}
                         </div>
 
                         {isParentExpanded && visibleSubcategories.length > 0 && (
                           <ul className="myntra-subcategories-list">
-                            {visibleSubcategories.map(sub => (
-                              <li key={sub.name}>
-                                <label className="myntra-check-label myntra-subcheck-label">
-                                  <input 
-                                    type="checkbox" 
-                                    className="myntra-check" 
-                                    checked={selectedCategories.includes(sub.name)} 
-                                    onChange={() => toggle(selectedCategories, setSelectedCategories, sub.name)} 
-                                  />
-                                  <span className="myntra-check-text">{sub.name}</span>
-                                </label>
-                              </li>
-                            ))}
+                            {visibleSubcategories.map(sub => {
+                              const isSubChecked = selectedCategories.includes(sub.name) || selectedCategories.includes(sub.slug);
+                              const subCount = getCategoryCount(sub.name);
+
+                              return (
+                                <li key={sub.name}>
+                                  <label className="myntra-check-label myntra-subcheck-label">
+                                    <input
+                                      type="checkbox"
+                                      className="myntra-check"
+                                      checked={isSubChecked}
+                                      onChange={() => toggleSubCategory(sub, parentCat)}
+                                    />
+                                    <span className="myntra-check-text">
+                                      {sub.name}
+                                      {subCount > 0 && (
+                                        <span className="myntra-check-count">({subCount})</span>
+                                      )}
+                                    </span>
+                                  </label>
+                                </li>
+                              );
+                            })}
                           </ul>
                         )}
                       </div>
                     );
                   })}
                 </div>
-              ) : (
-                <>
-                  <ul className="myntra-checklist">
-                    {(showAllCats || catQuery ? categoriesList : categoriesList.slice(0, 4)).map(c => (
-                      <li key={c}>
+              )}
+            </div>
+
+            {/* RING SIZE (Shown when viewing astrology or ring categories or with ring items) */}
+            {(isAstroCategory || activeSlug === 'all' || activeSlug === 'shop') && (
+              <div className="myntra-widget">
+                <h4 className="myntra-widget__title">RING SIZE</h4>
+                <ul className="myntra-checklist">
+                  {DEFAULT_RING_SIZES.map(size => {
+                    const cnt = getRingSizeCount(size);
+                    return (
+                      <li key={size}>
                         <label className="myntra-check-label">
                           <input 
                             type="checkbox" 
                             className="myntra-check" 
-                            checked={selectedCategories.includes(c)} 
-                            onChange={() => toggle(selectedCategories, setSelectedCategories, c)} 
+                            checked={selectedRingSizes.includes(size)} 
+                            onChange={() => toggle(selectedRingSizes, setSelectedRingSizes, size)} 
                           />
-                          <span className="myntra-check-text">{c}</span>
+                          <span className="myntra-check-text">
+                            {size}
+                            {cnt > 0 && <span className="myntra-check-count"> ({cnt})</span>}
+                          </span>
                         </label>
                       </li>
-                    ))}
-                  </ul>
-                  {categoriesList.length > 4 && !catQuery && (
-                    <div 
-                      className="myntra-more-link"
-                      onClick={() => setShowAllCats(!showAllCats)}
-                    >
-                      {showAllCats ? '- Show Less' : `+ ${categoriesList.length - 4} More`}
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
+
+            {/* PLATING / METAL FINISH */}
+            {(isAstroCategory || activeSlug === 'all' || activeSlug === 'shop') && (
+              <div className="myntra-widget">
+                <h4 className="myntra-widget__title">PLATING / METAL FINISH</h4>
+                <ul className="myntra-checklist">
+                  {DEFAULT_PLATING_OPTIONS.map(p => {
+                    const cnt = getPlatingCount(p.name);
+                    return (
+                      <li key={p.name}>
+                        <label className="myntra-check-label">
+                          <input 
+                            type="checkbox" 
+                            className="myntra-check" 
+                            checked={selectedPlatings.includes(p.name)} 
+                            onChange={() => toggle(selectedPlatings, setSelectedPlatings, p.name)} 
+                          />
+                          <span 
+                            className="myntra-swatch-circle" 
+                            style={{ background: p.color, border: p.border ? `1px solid ${p.border}` : '1px solid rgba(0,0,0,0.12)' }} 
+                          />
+                          <span className="myntra-check-text">
+                            {p.name}
+                            {cnt > 0 && <span className="myntra-check-count"> ({cnt})</span>}
+                          </span>
+                        </label>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
 
             {/* 2. BRAND */}
             <div className="myntra-widget">
