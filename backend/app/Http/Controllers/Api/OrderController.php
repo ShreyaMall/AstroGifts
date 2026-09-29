@@ -279,21 +279,26 @@ class OrderController extends Controller
         }
 
         // Send Email Notifications
-        try {
-            $adminEmail = env('ADMIN_EMAIL', env('MAIL_FROM_ADDRESS', 'pmall6584@gmail.com'));
-            dispatch(function () use ($adminEmail, $order) {
-                if (!empty($adminEmail)) {
-                    Mail::to($adminEmail)->send(new AdminNewOrderMail($order));
-                }
-                if (!empty($order->email)) {
-                    Mail::to($order->email)->send(new CustomerOrderConfirmationMail($order));
-                }
-            })->afterResponse();
-        } catch (\Throwable $e) {
-            Log::error('Order email notification failed: ' . $e->getMessage(), [
-                'order_id' => $order->id,
-                'order_number' => $order->order_number,
-            ]);
+        $adminEmail = env('ADMIN_EMAIL', env('MAIL_FROM_ADDRESS', 'pmall6584@gmail.com'));
+        
+        // 1. Send Customer Order Confirmation Email directly to customer email
+        if (!empty($order->email)) {
+            try {
+                Mail::to($order->email)->send(new CustomerOrderConfirmationMail($order));
+                Log::info("Customer order confirmation email sent to: {$order->email}");
+            } catch (\Throwable $e) {
+                Log::error("Failed to send customer order email to {$order->email}: " . $e->getMessage());
+            }
+        }
+
+        // 2. Send Admin New Order Notification Email
+        if (!empty($adminEmail) && $adminEmail !== $order->email) {
+            try {
+                Mail::to($adminEmail)->send(new AdminNewOrderMail($order));
+                Log::info("Admin order notification email sent to: {$adminEmail}");
+            } catch (\Throwable $e) {
+                Log::error("Failed to send admin order email to {$adminEmail}: " . $e->getMessage());
+            }
         }
 
         return response()->json([
