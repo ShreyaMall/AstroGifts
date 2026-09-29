@@ -20,7 +20,7 @@
 <body>
     <div class="wrapper">
         <div class="header">
-            <h1>Homewood Decor</h1>
+            <h1>AstroGifts</h1>
             <p style="margin: 2px 0 0; font-size: 12px; color: #94a3b8;">Admin Alert</p>
         </div>
 
@@ -85,7 +85,7 @@
         </div>
 
         <div class="footer">
-            &copy; {{ date('Y') }} Homewood Decor. Automated Notification.
+            &copy; {{ date('Y') }} AstroGifts. Automated Notification.
         </div>
     </div>
 </body>

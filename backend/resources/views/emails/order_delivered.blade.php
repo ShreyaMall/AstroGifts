@@ -22,7 +22,7 @@
 <body>
     <div class="wrapper">
         <div class="header">
-            <h1>Homewood Decor</h1>
+            <h1>AstroGifts</h1>
         </div>
 
         <div class="banner">
@@ -61,7 +61,7 @@
         </div>
 
         <div class="footer">
-            &copy; {{ date('Y') }} Homewood Decor. Thank you for making us a part of your home!
+            &copy; {{ date('Y') }} AstroGifts. Thank you for choosing us!
         </div>
     </div>
 </body>

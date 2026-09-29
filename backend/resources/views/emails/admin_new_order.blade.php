@@ -166,7 +166,7 @@
 <body>
     <div class="email-wrapper">
         <div class="header">
-            <h1>Homewood Decor</h1>
+            <h1>AstroGifts</h1>
             <p>Admin Notification System</p>
         </div>
 
@@ -319,7 +319,7 @@
         </div>
 
         <div class="footer">
-            &copy; {{ date('Y') }} Homewood Decor. Automated Store Admin Notification.
+            &copy; {{ date('Y') }} AstroGifts. Automated Store Admin Notification.
         </div>
     </div>
 </body>

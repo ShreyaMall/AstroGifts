@@ -29,7 +29,7 @@ class OrderDeliveredMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your Order #' . $this->order->order_number . ' Has Been Delivered! - Homewood Decor',
+            subject: 'Your Order #' . $this->order->order_number . ' Has Been Delivered! - AstroGifts',
         );
     }
 

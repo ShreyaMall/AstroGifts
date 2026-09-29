@@ -31,7 +31,7 @@ class RefundConfirmationMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Refund Processed for Order #' . $this->order->order_number . ' - Homewood Decor',
+            subject: 'Refund Processed for Order #' . $this->order->order_number . ' - AstroGifts',
         );
     }
 
