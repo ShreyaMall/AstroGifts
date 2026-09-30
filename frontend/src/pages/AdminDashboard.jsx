@@ -86,19 +86,27 @@ export const saveStoredColors = (colors) => {
 };
 
 const DEFAULT_SIZES = [
-  { id: '1', name: 'Small (S)',           code: 'S',     dimensions: 'Compact Gift Box (15x10x8 cm)', status: 'Active' },
-  { id: '2', name: 'Medium (M)',          code: 'M',     dimensions: 'Standard Deluxe (25x18x12 cm)', status: 'Active' },
-  { id: '3', name: 'Large (L)',           code: 'L',     dimensions: 'Premium Hamper (35x25x15 cm)', status: 'Active' },
-  { id: '4', name: 'Extra Large (XL)',    code: 'XL',    dimensions: 'Grand Royal Hamper Box',       status: 'Active' },
-  { id: '5', name: 'Single Pack',         code: '1PK',   dimensions: '1 Piece Standard Pack',         status: 'Active' },
-  { id: '6', name: 'Combo Pack (Set of 2)',code: '2PK',  dimensions: '2 Pieces Gift Set',            status: 'Active' },
-  { id: '7', name: 'Family Pack (Set of 4)',code: '4PK', dimensions: '4 Pieces Family Pack',         status: 'Active' },
+  { id: '1', name: 'Standard Pack / Box',       code: 'STD',  dimensions: 'Standard Box', status: 'Active' },
+  { id: '2', name: 'Small Box (S)',             code: 'S',    dimensions: 'Compact Gift Box (15x10x8 cm)', status: 'Active' },
+  { id: '3', name: 'Medium Box (M)',            code: 'M',    dimensions: 'Standard Deluxe (25x18x12 cm)', status: 'Active' },
+  { id: '4', name: 'Large Luxury Hamper (L)',    code: 'L',    dimensions: 'Premium Hamper (35x25x15 cm)', status: 'Active' },
+  { id: '5', name: 'Mega Celebration Box (XL)', code: 'XL',   dimensions: 'Grand Royal Hamper Box', status: 'Active' },
+  { id: '6', name: 'Free Size (Adjustable)',    code: 'FREE', dimensions: 'Adjustable Jewelry', status: 'Active' },
+  { id: '7', name: 'Ring Size 12',              code: 'R12',  dimensions: '16.5mm Inner Diameter', status: 'Active' },
+  { id: '8', name: 'Ring Size 14',              code: 'R14',  dimensions: '17.2mm Inner Diameter', status: 'Active' },
+  { id: '9', name: 'Ring Size 16',              code: 'R16',  dimensions: '17.8mm Inner Diameter', status: 'Active' },
+  { id: '10', name: 'Standard Bouquet (10 Stems)', code: 'B10', dimensions: '10 Fresh Stems', status: 'Active' },
+  { id: '11', name: 'Luxury Grand Bouquet (25 Stems)', code: 'B25', dimensions: '25 Fresh Stems', status: 'Active' },
 ];
 
 export const getStoredSizes = () => {
   try {
     const raw = localStorage.getItem('astrogifts_admin_sizes');
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      const hasFurniture = parsed.some(s => s.name?.includes('Sofa') || s.name?.includes('King Size') || s.name?.includes('Single Bed') || s.name?.includes('2-Seater'));
+      if (!hasFurniture) return parsed;
+    }
   } catch (e) {}
   return DEFAULT_SIZES;
 };

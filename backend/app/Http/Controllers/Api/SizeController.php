@@ -12,16 +12,17 @@ class SizeController extends Controller
      * Default sizes seed list
      */
     protected $defaultSizes = [
-        ['name' => 'Small (S)',       'code' => 'S',      'dimensions' => 'Compact / Standard',     'status' => 'Active', 'order' => 1],
-        ['name' => 'Medium (M)',      'code' => 'M',      'dimensions' => 'Standard Comfort',       'status' => 'Active', 'order' => 2],
-        ['name' => 'Large (L)',       'code' => 'L',      'dimensions' => 'Spacious / Executive',   'status' => 'Active', 'order' => 3],
-        ['name' => 'Extra Large',     'code' => 'XL',     'dimensions' => 'Oversized Lounge',       'status' => 'Active', 'order' => 4],
-        ['name' => 'King Size',       'code' => 'KING',   'dimensions' => '72" x 78" (183x198 cm)', 'status' => 'Active', 'order' => 5],
-        ['name' => 'Queen Size',      'code' => 'QUEEN',  'dimensions' => '60" x 78" (152x198 cm)', 'status' => 'Active', 'order' => 6],
-        ['name' => 'Single Bed',      'code' => 'SINGLE', 'dimensions' => '36" x 75" (91x190 cm)',  'status' => 'Active', 'order' => 7],
-        ['name' => '2-Seater Sofa',   'code' => '2S',     'dimensions' => 'W 145 x D 88 x H 85 cm', 'status' => 'Active', 'order' => 8],
-        ['name' => '3-Seater Sofa',   'code' => '3S',     'dimensions' => 'W 205 x D 92 x H 88 cm', 'status' => 'Active', 'order' => 9],
-        ['name' => 'L-Shape Modular', 'code' => 'L-SHP',  'dimensions' => 'W 260 x D 160 x H 85 cm','status' => 'Active', 'order' => 10],
+        ['name' => 'Standard Pack / Box',    'code' => 'STD',    'dimensions' => 'Standard Box',          'status' => 'Active', 'order' => 1],
+        ['name' => 'Small Box (S)',          'code' => 'S',      'dimensions' => 'Compact Gift Box',      'status' => 'Active', 'order' => 2],
+        ['name' => 'Medium Box (M)',         'code' => 'M',      'dimensions' => 'Regular Hamper Box',    'status' => 'Active', 'order' => 3],
+        ['name' => 'Large Luxury Hamper',    'code' => 'L',      'dimensions' => 'Premium Gift Hamper',   'status' => 'Active', 'order' => 4],
+        ['name' => 'Mega Celebration Box',   'code' => 'XL',     'dimensions' => 'Deluxe Gift Box',       'status' => 'Active', 'order' => 5],
+        ['name' => 'Free Size (Adjustable)', 'code' => 'FREE',   'dimensions' => 'Adjustable Jewelry',    'status' => 'Active', 'order' => 6],
+        ['name' => 'Ring Size 12',           'code' => 'R12',    'dimensions' => '16.5mm Inner Dia',      'status' => 'Active', 'order' => 7],
+        ['name' => 'Ring Size 14',           'code' => 'R14',    'dimensions' => '17.2mm Inner Dia',      'status' => 'Active', 'order' => 8],
+        ['name' => 'Ring Size 16',           'code' => 'R16',    'dimensions' => '17.8mm Inner Dia',      'status' => 'Active', 'order' => 9],
+        ['name' => 'Standard Bouquet',       'code' => 'B10',    'dimensions' => '10 Fresh Stems',        'status' => 'Active', 'order' => 10],
+        ['name' => 'Luxury Grand Bouquet',   'code' => 'B25',    'dimensions' => '25 Fresh Stems',        'status' => 'Active', 'order' => 11],
     ];
 
     /**
@@ -32,8 +33,10 @@ class SizeController extends Controller
         try {
             $sizes = Size::all();
 
-            // Auto-seed defaults if collection is empty
-            if ($sizes->isEmpty()) {
+            // Refresh default sizes if empty or containing old furniture sizes
+            $hasOldSizes = $sizes->pluck('name')->contains(fn($name) => str_contains($name, 'Sofa') || str_contains($name, 'King Size'));
+            if ($sizes->isEmpty() || $hasOldSizes) {
+                Size::query()->delete();
                 foreach ($this->defaultSizes as $d) {
                     Size::create($d);
                 }
