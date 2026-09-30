@@ -19,6 +19,8 @@ import WishlistPage from '../pages/WishlistPage';
 import CheckoutPage from '../pages/CheckoutPage';
 import ContactPage from '../pages/ContactPage';
 import SearchPage from '../pages/SearchPage';
+import AboutPage from '../pages/AboutPage';
+
 export default function AppRoutes() {
   return (
     <Routes>
@@ -35,6 +37,7 @@ export default function AppRoutes() {
 
       {/* Normal Routes */}
       <Route path="/" element={<HomePage />} />
+      <Route path="/about" element={<AboutPage />} />
       <Route path="/shop" element={<CategoryPage categorySlug="gifts" />} />
       <Route path="/wooden-furniture" element={<CategoryPage categorySlug="gifts" />} />
       <Route path="/category/:slug" element={<CategoryPage />} />
