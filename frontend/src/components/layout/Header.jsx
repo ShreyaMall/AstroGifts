@@ -18,21 +18,21 @@ import AstroGiftsSVG from '../common/AstroGiftsSVG';
 
 const ICONS_MAP = {
   // Main categories
-  'Gifts':       <GiftIcon />,
-  'Toys':        <ToysIcon />,
-  'Astrology':   <AstrologyIcon />,
+  'Gifts': <GiftIcon />,
+  'Toys': <ToysIcon />,
+  'Astrology': <AstrologyIcon />,
   // Gifts subcategories
-  'Diwali Gifts':      <DiwaliIcon />,
-  'Birthday Gifts':    <BirthdayIcon />,
+  'Diwali Gifts': <DiwaliIcon />,
+  'Birthday Gifts': <BirthdayIcon />,
   'Anniversary Gifts': <HeartIcon />,
   // Toys subcategories
-  'Soft Toys':   <SoftToyIcon />,
-  'Baby Toys':   <BabyIcon />,
+  'Soft Toys': <SoftToyIcon />,
+  'Baby Toys': <BabyIcon />,
   'Board Games': <BoardGameIcon />,
   // Astrology subcategories
-  'Rings':                <RingIcon />,
-  'Pendants':             <PendantIcon />,
-  'Bracelets':            <BraceletIcon />,
+  'Rings': <RingIcon />,
+  'Pendants': <PendantIcon />,
+  'Bracelets': <BraceletIcon />,
   'Gemstones & Crystals': <GemstoneIcon />,
 };
 
@@ -42,8 +42,8 @@ const DEFAULT_CATEGORIES = [
     name: 'Gifts',
     slug: 'gifts',
     subcategories: [
-      { id: 101, name: 'Diwali Gifts',     slug: 'diwali-gifts' },
-      { id: 102, name: 'Birthday Gifts',   slug: 'birthday-gifts' },
+      { id: 101, name: 'Diwali Gifts', slug: 'diwali-gifts' },
+      { id: 102, name: 'Birthday Gifts', slug: 'birthday-gifts' },
       { id: 103, name: 'Anniversary Gifts', slug: 'anniversary-gifts' },
     ]
   },
@@ -52,8 +52,8 @@ const DEFAULT_CATEGORIES = [
     name: 'Toys',
     slug: 'toys',
     subcategories: [
-      { id: 201, name: 'Soft Toys',   slug: 'soft-toys' },
-      { id: 202, name: 'Baby Toys',   slug: 'baby-toys' },
+      { id: 201, name: 'Soft Toys', slug: 'soft-toys' },
+      { id: 202, name: 'Baby Toys', slug: 'baby-toys' },
       { id: 203, name: 'Board Games', slug: 'board-games' },
     ]
   },
@@ -62,9 +62,9 @@ const DEFAULT_CATEGORIES = [
     name: 'Astrology',
     slug: 'astrology',
     subcategories: [
-      { id: 301, name: 'Rings',                slug: 'rings' },
-      { id: 302, name: 'Pendants',             slug: 'pendants' },
-      { id: 303, name: 'Bracelets',            slug: 'bracelets' },
+      { id: 301, name: 'Rings', slug: 'rings' },
+      { id: 302, name: 'Pendants', slug: 'pendants' },
+      { id: 303, name: 'Bracelets', slug: 'bracelets' },
       { id: 304, name: 'Gemstones & Crystals', slug: 'gemstones-crystals' },
     ]
   }
@@ -77,11 +77,11 @@ export default function Header({ onAccountClick }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [scrolled, setScrolled]           = useState(false);
-  const [hidden, setHidden]               = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
-  const [searchQuery, setSearchQuery]     = useState('');
-  const [menuOpen, setMenuOpen]           = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [menuOpen, setMenuOpen] = useState(false);
   const [mobileMenuTab, setMobileMenuTab] = useState('CATEGORIES');
   const [mobileExpandedCat, setMobileExpandedCat] = useState('gifts');
   const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
@@ -143,21 +143,21 @@ export default function Header({ onAccountClick }) {
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
-    
+
     const onScroll = () => {
       const currentScrollY = window.scrollY;
       setScrolled(currentScrollY > 30);
-      
+
       // Hide on scroll down, show on scroll up
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
         setHidden(true);
       } else {
         setHidden(false);
       }
-      
+
       lastScrollY = currentScrollY;
     };
-    
+
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
@@ -191,7 +191,7 @@ export default function Header({ onAccountClick }) {
         <div className="header__container">
 
           {/* Mobile Hamburger Menu (visible only on mobile) */}
-          <button 
+          <button
             className="header__mobile-toggle"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
@@ -210,7 +210,7 @@ export default function Header({ onAccountClick }) {
 
           {/* Search bar (hidden on mobile) */}
           <div className={`header__search${searchFocused ? ' header__search--focused' : ''} desktop-only`}>
-            <span className="header__search-prefix" onClick={handleSearchClick} style={{cursor: 'pointer'}}>
+            <span className="header__search-prefix" onClick={handleSearchClick} style={{ cursor: 'pointer' }}>
               <SearchIcon />
             </span>
             <input
@@ -225,8 +225,8 @@ export default function Header({ onAccountClick }) {
               onBlur={() => setSearchFocused(false)}
             />
             {searchQuery && (
-              <button 
-                className="header__search-clear" 
+              <button
+                className="header__search-clear"
                 onClick={() => setSearchQuery('')}
                 aria-label="Clear search"
               >
@@ -242,7 +242,7 @@ export default function Header({ onAccountClick }) {
           <div className="header__top-menu desktop-only">
             <Link to="/" className="header__top-link">Home</Link>
             <Link to="/blog" className="header__top-link">Blog</Link>
-            <Link to="#!" className="header__top-link">About Us</Link>
+            <Link to="/about" className="header__top-link">About Us</Link>
             <Link to="/contact-us" className="header__top-link">Contact Us</Link>
           </div>
 
@@ -313,34 +313,55 @@ export default function Header({ onAccountClick }) {
                         overflow: 'hidden'
                       }}
                     >
-                    {/* User profile brief */}
-                    <div style={{ padding: '14px 16px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-                      <div style={{ fontWeight: '600', fontSize: '13.5px', color: '#0f172a' }}>
-                        {user?.name || (authRole === 'admin' ? 'Administrator' : 'Customer')}
+                      {/* User profile brief */}
+                      <div style={{ padding: '14px 16px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                        <div style={{ fontWeight: '600', fontSize: '13.5px', color: '#0f172a' }}>
+                          {user?.name || (authRole === 'admin' ? 'Administrator' : 'Customer')}
+                        </div>
+                        <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px', wordBreak: 'break-all' }}>
+                          {user?.email || (authRole === 'admin' ? 'admin@astrogifts.com' : '')}
+                        </div>
+                        <span style={{
+                          display: 'inline-block',
+                          marginTop: '6px',
+                          fontSize: '10px',
+                          fontWeight: '700',
+                          textTransform: 'uppercase',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          background: authRole === 'admin' ? '#fef3c7' : '#e0f2fe',
+                          color: authRole === 'admin' ? '#b45309' : '#0369a1'
+                        }}>
+                          {authRole === 'admin' ? 'Admin Role' : 'Customer'}
+                        </span>
                       </div>
-                      <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px', wordBreak: 'break-all' }}>
-                        {user?.email || (authRole === 'admin' ? 'admin@astrogifts.com' : '')}
-                      </div>
-                      <span style={{
-                        display: 'inline-block',
-                        marginTop: '6px',
-                        fontSize: '10px',
-                        fontWeight: '700',
-                        textTransform: 'uppercase',
-                        padding: '2px 8px',
-                        borderRadius: '12px',
-                        background: authRole === 'admin' ? '#fef3c7' : '#e0f2fe',
-                        color: authRole === 'admin' ? '#b45309' : '#0369a1'
-                      }}>
-                        {authRole === 'admin' ? 'Admin Role' : 'Customer'}
-                      </span>
-                    </div>
 
-                    {/* Navigation links */}
-                    <div style={{ padding: '6px 0' }}>
-                      {authRole === 'admin' && (
+                      {/* Navigation links */}
+                      <div style={{ padding: '6px 0' }}>
+                        {authRole === 'admin' && (
+                          <Link
+                            to="/admin/dashboard"
+                            onClick={() => setAccountDropdownOpen(false)}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '10px',
+                              padding: '10px 16px',
+                              fontSize: '13px',
+                              color: '#334155',
+                              textDecoration: 'none',
+                              transition: 'background 0.15s'
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'}
+                            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                          >
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>
+                            Admin Dashboard
+                          </Link>
+                        )}
+
                         <Link
-                          to="/admin/dashboard"
+                          to="/my-orders"
                           onClick={() => setAccountDropdownOpen(false)}
                           style={{
                             display: 'flex',
@@ -355,81 +376,60 @@ export default function Header({ onAccountClick }) {
                           onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'}
                           onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                         >
-                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                          Admin Dashboard
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" /></svg>
+                          My Orders
                         </Link>
-                      )}
 
-                      <Link
-                        to="/my-orders"
-                        onClick={() => setAccountDropdownOpen(false)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '10px',
-                          padding: '10px 16px',
-                          fontSize: '13px',
-                          color: '#334155',
-                          textDecoration: 'none',
-                          transition: 'background 0.15s'
-                        }}
-                        onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'}
-                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                      >
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-                        My Orders
-                      </Link>
+                        <Link
+                          to="/profile"
+                          onClick={() => setAccountDropdownOpen(false)}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            padding: '10px 16px',
+                            fontSize: '13px',
+                            color: '#334155',
+                            textDecoration: 'none',
+                            transition: 'background 0.15s'
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'}
+                          onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                        >
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                          My Profile
+                        </Link>
+                      </div>
 
-                      <Link
-                        to="/profile"
-                        onClick={() => setAccountDropdownOpen(false)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '10px',
-                          padding: '10px 16px',
-                          fontSize: '13px',
-                          color: '#334155',
-                          textDecoration: 'none',
-                          transition: 'background 0.15s'
-                        }}
-                        onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'}
-                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                      >
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                        My Profile
-                      </Link>
-                    </div>
-
-                    {/* Divider & Logout */}
-                    <div style={{ borderTop: '1px solid #e2e8f0', padding: '6px 0' }}>
-                      <button
-                        onClick={async () => {
-                          setAccountDropdownOpen(false);
-                          await logout();
-                          navigate('/');
-                        }}
-                        style={{
-                          width: '100%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '10px',
-                          padding: '10px 16px',
-                          fontSize: '13px',
-                          color: '#dc2626',
-                          background: 'transparent',
-                          border: 'none',
-                          cursor: 'pointer',
-                          textAlign: 'left',
-                          fontWeight: '600'
-                        }}
-                        onMouseEnter={e => e.currentTarget.style.background = '#fef2f2'}
-                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                      >
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                        Logout
-                      </button>
-                    </div>
+                      {/* Divider & Logout */}
+                      <div style={{ borderTop: '1px solid #e2e8f0', padding: '6px 0' }}>
+                        <button
+                          onClick={async () => {
+                            setAccountDropdownOpen(false);
+                            await logout();
+                            navigate('/');
+                          }}
+                          style={{
+                            width: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            padding: '10px 16px',
+                            fontSize: '13px',
+                            color: '#dc2626',
+                            background: 'transparent',
+                            border: 'none',
+                            cursor: 'pointer',
+                            textAlign: 'left',
+                            fontWeight: '600'
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.background = '#fef2f2'}
+                          onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                        >
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+                          Logout
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -462,13 +462,13 @@ export default function Header({ onAccountClick }) {
 
       {/* ── CATEGORY NAV (Mobile Drawer & Desktop Nav) ── */}
       <nav className={`header__nav${menuOpen ? ' header__nav--open' : ''}`} aria-label="Product categories">
-        
+
         {/* Mobile-only Header for Drawer */}
         <div className="header__nav-mobile-header">
           <div className="header__nav-mobile-search">
-            <input 
-              type="text" 
-              placeholder="Search for products" 
+            <input
+              type="text"
+              placeholder="Search for products"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleSearchSubmit}
@@ -483,13 +483,13 @@ export default function Header({ onAccountClick }) {
             </button>
           </div>
           <div className="header__nav-mobile-tabs">
-            <button 
+            <button
               className={`header__nav-mobile-tab ${mobileMenuTab === 'CATEGORIES' ? 'active' : ''}`}
               onClick={() => setMobileMenuTab('CATEGORIES')}
             >
               CATEGORIES
             </button>
-            <button 
+            <button
               className={`header__nav-mobile-tab ${mobileMenuTab === 'MENU' ? 'active' : ''}`}
               onClick={() => setMobileMenuTab('MENU')}
             >
@@ -498,7 +498,7 @@ export default function Header({ onAccountClick }) {
           </div>
         </div>
 
-          <div className="header__nav-container">
+        <div className="header__nav-container">
           {/* Category list (Desktop always, Mobile if tab is CATEGORIES) */}
           <ul className={`header__nav-list ${mobileMenuTab === 'MENU' ? 'mobile-hidden' : ''}`}>
             {dynamicCategories.map(cat => {
@@ -533,7 +533,7 @@ export default function Header({ onAccountClick }) {
                         aria-label="Toggle category"
                       >
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
-                          <polyline points="6 9 12 15 18 9"/>
+                          <polyline points="6 9 12 15 18 9" />
                         </svg>
                       </button>
                     )}

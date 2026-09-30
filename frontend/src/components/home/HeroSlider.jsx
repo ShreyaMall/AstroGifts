@@ -83,31 +83,11 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http
 
 /** Backend / frontend image URL resolve karta hai */
 function resolveImage(slide) {
-  const cat = (slide.badge_category || slide.category || slide.title || '').toLowerCase();
-  
   if (slide.bgImg) return slide.bgImg;
   const imgPath = slide.image || '';
-
-  // Ensure Gifts slide ALWAYS gets gifts banner
-  if (cat.includes('gift')) {
-    if (!imgPath || imgPath.includes('slider1') || imgPath.includes('111') || imgPath.includes('hero')) {
-      return giftsBanner;
-    }
-  }
-  if (cat.includes('toy')) {
-    if (!imgPath || imgPath.includes('slider-112') || imgPath.includes('112')) {
-      return toysBanner;
-    }
-  }
-  if (cat.includes('astro')) {
-    if (!imgPath || imgPath.includes('slider1') || imgPath.includes('113')) {
-      return astroBanner;
-    }
-  }
-
   if (!imgPath) return giftsBanner;
 
-  // Local assets match
+  // Local assets match (e.g. 'hero slider1.png', 'gifts.png', 'hero slider 3.png')
   const filename = imgPath.split('/').pop();
   if (ASSET_MAP[imgPath] || ASSET_MAP[filename]) {
     return ASSET_MAP[imgPath] || ASSET_MAP[filename];
@@ -123,7 +103,7 @@ function resolveImage(slide) {
     return `${API_BASE}/${imgPath.replace(/^\//, '')}`;
   }
 
-  // Public asset
+  // Public asset or fallback
   return `/${imgPath.replace(/^\//, '')}`;
 }
 
