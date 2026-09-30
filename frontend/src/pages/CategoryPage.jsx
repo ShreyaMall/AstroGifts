@@ -131,9 +131,6 @@ export default function CategoryPage({ categorySlug }) {
     if (activeSlug === 'all' || activeSlug === 'shop' || activeSlug === 'astrogifts') {
       setSelectedCategories([]);
       setExpandedCategories(['Toys', 'Gifts']);
-    } else if (activeSlug === 'birthday-gifts' || activeSlug === 'diwali-gifts' || activeSlug === 'anniversary-gifts') {
-      setSelectedCategories([]);
-      setExpandedCategories(['Gifts']);
     } else {
       // Find whether activeSlug is a parent category or a subcategory
       let foundParent = DEFAULT_CATEGORIES_TREE.find(cat => 
@@ -160,9 +157,10 @@ export default function CategoryPage({ categorySlug }) {
           setSelectedCategories([foundParent.name]);
         }
       } else {
-        const cap = activeSlug.charAt(0).toUpperCase() + activeSlug.slice(1);
-        setExpandedCategories([cap]);
-        setSelectedCategories([cap]);
+        const words = activeSlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1));
+        const formatted = words.join(' ');
+        setExpandedCategories([formatted]);
+        setSelectedCategories([formatted]);
       }
     }
   }, [activeSlug]);
@@ -565,209 +563,143 @@ export default function CategoryPage({ categorySlug }) {
     return allProds.filter(p => checkPlatingMatch(p, platName)).length;
   };
 
+  /* Helper function to check if a product matches a target category name/slug */
+  const checkProductMatchesCategory = (p, target) => {
+    if (!p || !target) return false;
+    const targetLower = target.toLowerCase().trim();
+    const targetSlug = targetLower.replace(/_/g, '-').replace(/[^a-z0-9-]+/g, '');
+
+    const pSlug  = (p.category_slug || '').toLowerCase().trim();
+    const pName  = (p.category_name || p.category || '').toLowerCase().trim();
+    const pTitle = (p.name || '').toLowerCase().trim();
+    const pDesc  = (p.description || '').toLowerCase().trim();
+
+    // 1. Direct slug or name match
+    if (pSlug === targetSlug || pSlug === targetLower || pName === targetLower || pName === targetSlug) {
+      return true;
+    }
+
+    // 2. Parent-child hierarchy matching (e.g. 'gifts' matches 'diwali-gifts', 'birthday-gifts', 'anniversary-gifts')
+    if (targetSlug === 'gifts' || targetLower === 'gifts') {
+      return pSlug === 'gifts' || pSlug === 'diwali-gifts' || pSlug === 'birthday-gifts' || pSlug === 'anniversary-gifts' ||
+             pName.includes('gift') || pTitle.includes('gift') || pTitle.includes('hamper') || pTitle.includes('luminary') || pTitle.includes('votive') || pTitle.includes('casket') || pTitle.includes('balloon') || pTitle.includes('smartots');
+    }
+
+    if (targetSlug === 'toys' || targetLower === 'toys') {
+      return pSlug === 'toys' || pSlug === 'soft-toys' || pSlug === 'baby-toys' || pSlug === 'board-games' ||
+             pName.includes('toy') || pTitle.includes('toy') || pTitle.includes('game') || pTitle.includes('bunny') || pTitle.includes('chess');
+    }
+
+    if (targetSlug === 'astrology' || targetLower === 'astrology') {
+      return pSlug === 'astrology' || pSlug === 'rings' || pSlug === 'pendants' || pSlug === 'bracelets' || pSlug === 'gemstones-crystals' ||
+             pName.includes('astro') || pTitle.includes('ring') || pTitle.includes('pendant') || pTitle.includes('pendent') || pTitle.includes('bracelet') || pTitle.includes('crystal') || pTitle.includes('gemstone') || pTitle.includes('stone') || pTitle.includes('pyrite') || pTitle.includes('quartz');
+    }
+
+    // Subcategory specific matching rules
+    if (targetSlug === 'diwali-gifts' || targetLower === 'diwali gifts') {
+      return pSlug === 'diwali-gifts' || pName.includes('diwali') || pTitle.includes('diwali') || pTitle.includes('diya') || pTitle.includes('light') || pTitle.includes('candle') || pTitle.includes('lamp') || pTitle.includes('luminary') || pTitle.includes('votive') || pTitle.includes('utsav') || pTitle.includes('rangoli') || pTitle.includes('brass') || pDesc.includes('diwali');
+    }
+
+    if (targetSlug === 'birthday-gifts' || targetLower === 'birthday gifts') {
+      return pSlug === 'birthday-gifts' || pName.includes('birthday') || pTitle.includes('birthday') || pTitle.includes('bday') || pTitle.includes('balloon');
+    }
+
+    if (targetSlug === 'anniversary-gifts' || targetLower === 'anniversary gifts') {
+      return pSlug === 'anniversary-gifts' || pName.includes('anniversary') || pTitle.includes('anniversary') || pTitle.includes('casket') || pTitle.includes('signature hamper') || pDesc.includes('anniversary');
+    }
+
+    if (targetSlug === 'soft-toys' || targetLower === 'soft toys') {
+      return pSlug === 'soft-toys' || pName.includes('soft') || pTitle.includes('soft') || pTitle.includes('bunny') || pTitle.includes('teddy') || pTitle.includes('plush') || pTitle.includes('doll');
+    }
+
+    if (targetSlug === 'baby-toys' || targetLower === 'baby toys') {
+      return pSlug === 'baby-toys' || pName.includes('baby') || pTitle.includes('baby') || pTitle.includes('rattle') || pTitle.includes('smartots') || pTitle.includes('elephan');
+    }
+
+    if (targetSlug === 'board-games' || targetLower === 'board games') {
+      return pSlug === 'board-games' || pName.includes('board') || pTitle.includes('board') || pTitle.includes('chess') || pTitle.includes('game') || pTitle.includes('puzzle');
+    }
+
+    if (targetSlug === 'rings' || targetLower === 'rings') {
+      return pSlug === 'rings' || pName.includes('ring') || pTitle.includes('ring');
+    }
+
+    if (targetSlug === 'pendants' || targetLower === 'pendants') {
+      return pSlug === 'pendants' || pName.includes('pendant') || pTitle.includes('pendant') || pTitle.includes('pendent') || pTitle.includes('locket');
+    }
+
+    if (targetSlug === 'bracelets' || targetLower === 'bracelets') {
+      return pSlug === 'bracelets' || pName.includes('bracelet') || pTitle.includes('bracelet') || pTitle.includes('band') || pTitle.includes('kada');
+    }
+
+    if (targetSlug === 'gemstones-crystals' || targetLower === 'gemstones & crystals' || targetLower === 'gemstones crystals') {
+      return pSlug === 'gemstones-crystals' || pName.includes('gem') || pName.includes('crystal') || pTitle.includes('gemstone') || pTitle.includes('crystal') || pTitle.includes('quartz') || pTitle.includes('pyrite') || pTitle.includes('stone');
+    }
+
+    if (targetSlug === 'flowers' || targetLower === 'flowers') {
+      return pSlug === 'flowers' || pName.includes('flower') || pTitle.includes('rose') || pTitle.includes('flower') || pTitle.includes('bouquet');
+    }
+
+    if (targetSlug === 'decor' || targetLower === 'decor') {
+      return pSlug === 'decor' || pName.includes('decor') || pTitle.includes('decor') || pTitle.includes('frame') || pTitle.includes('lamp') || pTitle.includes('luminary');
+    }
+
+    // Generic keyword fallback
+    const cleanTarget = targetLower.replace(/[^a-z0-9]+/g, ' ').trim();
+    const words = cleanTarget.split(' ').filter(w => w.length > 2 && !['gift', 'gifts', 'toy', 'toys', 'and', 'for', 'set'].includes(w));
+    if (words.length > 0) {
+      return words.some(w => pSlug.includes(w) || pName.includes(w) || pTitle.includes(w) || pDesc.includes(w));
+    }
+
+    return false;
+  };
+
   /* Filtered list */
   const filtered = useMemo(() => {
     let list = allProds.filter(p => {
+      // 1. Search Query filter
       if (searchQuery) {
         const matchName = (p.name || '').toLowerCase().includes(searchQuery);
-        const matchCat = (p.category && p.category.toLowerCase().includes(searchQuery)) || 
-                         (p.category_name && p.category_name.toLowerCase().includes(searchQuery));
+        const matchCat  = (p.category && p.category.toLowerCase().includes(searchQuery)) || 
+                          (p.category_name && p.category_name.toLowerCase().includes(searchQuery));
         if (!matchName && !matchCat) return false;
       }
+
+      // 2. Gender filter
       if (selectedGender) {
         const pGender = (p.gender || p.target_gender || p.name || p.description || '').toLowerCase();
         if (pGender && !pGender.includes(selectedGender.toLowerCase())) return false;
       }
+
+      // 3. Price Range filter
       if (p.price < appliedPriceMin) return false;
       if (p.price > appliedPriceMax) return false;
 
-      const pSlug = (p.category_slug || '').toLowerCase().trim();
-      const pName = (p.category_name || p.category || '').toLowerCase().trim();
-      const pTitle = (p.name || '').toLowerCase().trim();
-      const pDesc = (p.description || '').toLowerCase().trim();
-
-      // Page-level strict exclusion guards (applied to ALL filters on this page)
-      if (activeSlug === 'anniversary-gifts') {
-        // Exclude toys, crystals, birthday, diwali
-        if (pSlug.includes('toy') || pName.includes('toy') || pTitle.includes('toy') || pTitle.includes('train') || pTitle.includes('puzzle') || pTitle.includes('doll') || pTitle.includes('game') ||
-            pSlug.includes('astro') || pSlug.includes('crystal') || pSlug.includes('gem') || pTitle.includes('crystal') || pTitle.includes('quartz') || pTitle.includes('amethyst') || pTitle.includes('rudraksha') || pTitle.includes('yantra') ||
-            pTitle.includes('birthday') || pTitle.includes('bday') || pTitle.includes('baby') || pTitle.includes('diwali') || pTitle.includes('diya')) {
-          return false;
-        }
-      } else if (activeSlug === 'birthday-gifts') {
-        // Exclude diwali, pooja, crystals, pure couple anniversary items
-        if (pTitle.includes('diwali') || pTitle.includes('diya') || pTitle.includes('pooja') || pTitle.includes('puja') || 
-            pSlug.includes('crystal') || pSlug.includes('gem') || pTitle.includes('quartz') || pTitle.includes('amethyst') ||
-            pTitle.includes('anniversary') || pTitle.includes('couple frame')) {
-          return false;
-        }
-      } else if (activeSlug === 'diwali-gifts') {
-        // Exclude birthday, anniversary, toys
-        if (pTitle.includes('birthday') || pTitle.includes('bday') || pTitle.includes('anniversary') || pTitle.includes('baby') ||
-            pSlug.includes('toy') || pTitle.includes('toy') || pTitle.includes('train') || pTitle.includes('puzzle')) {
-          return false;
-        }
-      } else if (isToysCategory) {
-        // Exclude astrology crystals, diwali diyas, generic gift hampers
-        if (pSlug.includes('astro') || pSlug.includes('crystal') || pSlug.includes('gem') || pTitle.includes('crystal') || pTitle.includes('quartz') || pTitle.includes('amethyst') || pTitle.includes('diwali') || pTitle.includes('diya') || pTitle.includes('hamper')) {
-          return false;
-        }
-      } else if (isAstroCategory) {
-        // Exclude toys, balloons, gift hampers
-        if (pSlug.includes('toy') || pTitle.includes('toy') || pTitle.includes('train') || pTitle.includes('balloon') || pTitle.includes('hamper') || pTitle.includes('diwali')) {
-          return false;
-        }
-      }
-
-      // Category filter: check against selectedCategories (union of all checked categories & subcategories)
+      // 4. Category Filter
       if (selectedCategories.length > 0) {
-        const matchesCategory = selectedCategories.some(sc => {
-          const scLower = sc.toLowerCase().trim();
-          const scSlug = scLower.replace(/[^a-z0-9]+/g, '-');
-
-          // 1. Direct slug or name match
-          if (pSlug === scSlug || pSlug === scLower || pName === scLower || pName === scSlug) {
-            return true;
+        // If sidebar checkboxes are selected, match any selected category
+        const matchesAnySelected = selectedCategories.some(sc => checkProductMatchesCategory(p, sc));
+        if (!matchesAnySelected) return false;
+      } else if (activeSlug && activeSlug !== 'all' && activeSlug !== 'shop' && activeSlug !== 'astrogifts') {
+        // Match active route slug
+        let matchesRoute = checkProductMatchesCategory(p, activeSlug);
+        // Fallback for subcategories without specific products in DB yet: show parent products if matchesRoute is false
+        if (!matchesRoute) {
+          if (['diwali-gifts', 'birthday-gifts', 'anniversary-gifts'].includes(activeSlug)) {
+            matchesRoute = checkProductMatchesCategory(p, 'gifts');
+          } else if (['soft-toys', 'baby-toys', 'board-games'].includes(activeSlug)) {
+            matchesRoute = checkProductMatchesCategory(p, 'toys');
+          } else if (['rings', 'pendants', 'bracelets', 'gemstones-crystals'].includes(activeSlug)) {
+            matchesRoute = checkProductMatchesCategory(p, 'astrology');
           }
-
-          // 2. Specific non-generic keyword match (ignoring 'gift', 'gifts', 'set', 'sets', 'and')
-          const STOPWORDS = ['gift', 'gifts', 'set', 'sets', 'and', 'for', 'box', 'the', 'with', 'care', 'pack'];
-          const words = scLower.split(/[\s&,-]+/).filter(w => w.length > 2 && !STOPWORDS.includes(w));
-          
-          if (scLower.includes('ring')) return pTitle.includes('ring') || pSlug.includes('ring') || pName.includes('ring');
-          if (scLower.includes('pendant')) return pTitle.includes('pendant') || pTitle.includes('locket') || pSlug.includes('pendant') || pName.includes('pendant');
-          if (scLower.includes('bracelet')) return pTitle.includes('bracelet') || pTitle.includes('kada') || pSlug.includes('bracelet') || pName.includes('bracelet');
-          if (scLower.includes('gemstone') || scLower.includes('crystal')) return pTitle.includes('gemstone') || pTitle.includes('crystal') || pTitle.includes('quartz') || pTitle.includes('amethyst') || pTitle.includes('ruby') || pTitle.includes('sapphire') || pSlug.includes('crystal') || pSlug.includes('gem');
-          if (scLower.includes('yantra') || scLower.includes('idol')) return pTitle.includes('yantra') || pTitle.includes('idol') || pTitle.includes('statue');
-          if (scLower.includes('rudraksha')) return pTitle.includes('rudraksha') || pSlug.includes('rudraksha');
-
-          if (scLower === 'watches' || scLower.includes('watch')) {
-            return pTitle.includes('watch') || pSlug.includes('watch');
-          }
-          if (scLower === 'hamper gifts' || scLower.includes('hamper')) {
-            return pTitle.includes('hamper') || pSlug.includes('hamper') || pName.includes('hamper');
-          }
-          if (scLower === 'perfumes' || scLower.includes('perfume') || scLower.includes('fragrance')) {
-            return pTitle.includes('perfume') || pTitle.includes('fragrance') || pTitle.includes('scent') || pSlug.includes('fragrance');
-          }
-          if (scLower.includes('candle')) {
-            return pTitle.includes('candle') || pSlug.includes('candle');
-          }
-          if (scLower.includes('diya') || scLower.includes('lamp')) {
-            return pTitle.includes('diya') || pTitle.includes('lamp');
-          }
-          if (scLower.includes('light')) {
-            return pTitle.includes('light') || pTitle.includes('lantern');
-          }
-          if (scLower.includes('photo frame') || scLower.includes('frame')) {
-            return pTitle.includes('frame');
-          }
-          if (scLower.includes('sweet') || scLower.includes('dry fruit')) {
-            return pTitle.includes('sweet') || pTitle.includes('dry fruit') || pTitle.includes('nut') || pTitle.includes('almond') || pTitle.includes('cashew');
-          }
-          if (scLower.includes('skin')) {
-            return pTitle.includes('skin') || pTitle.includes('lotion') || pTitle.includes('cream');
-          }
-          if (scLower.includes('makeup')) {
-            return pTitle.includes('makeup') || pTitle.includes('lipstick') || pTitle.includes('cosmetic');
-          }
-          if (scLower.includes('apparel')) {
-            return pTitle.includes('apparel') || pTitle.includes('cloth') || pTitle.includes('wear') || pTitle.includes('dress');
-          }
-
-          if (words.length > 0 && words.some(w => pTitle.includes(w) || pDesc.includes(w))) {
-            return true;
-          }
-
-          // 3. Parent tree match
-          const parentItem = categoriesTree.find(
-            c => c.name.toLowerCase() === scLower || c.slug.toLowerCase() === scSlug
-          );
-          if (parentItem) {
-            if (pSlug === parentItem.slug.toLowerCase() || pName === parentItem.name.toLowerCase()) {
-              return true;
-            }
-            if (parentItem.subcategories && parentItem.subcategories.some(sub => {
-              const subSlug = (sub.slug || '').toLowerCase();
-              const subName = (sub.name || '').toLowerCase();
-              return pSlug === subSlug || pName === subName || pSlug === subSlug.replace(/[^a-z0-9]+/g, '-');
-            })) {
-              return true;
-            }
-          }
-
-          return false;
-        });
-
-        if (!matchesCategory) return false;
-      } else {
-        // Strict category isolation when browsing each category page
-        if (activeSlug === 'anniversary-gifts') {
-          const isAnniversary = pSlug === 'anniversary-gifts' || pSlug.includes('anniversary') || pName.includes('anniversary') ||
-                                pTitle.includes('anniversary') || pTitle.includes('watch') || pTitle.includes('hamper') || 
-                                pTitle.includes('perfume') || pTitle.includes('fragrance') || pDesc.includes('anniversary') ||
-                                pDesc.includes('watch') || pDesc.includes('hamper') || pDesc.includes('perfume');
-          if (!isAnniversary && allProds.length > 0) return false;
-        } else if (activeSlug === 'birthday-gifts') {
-          const isBirthday = pSlug === 'birthday-gifts' || pSlug.includes('birthday') || pName.includes('birthday') ||
-                             pTitle.includes('birthday') || pTitle.includes('balloon') || pTitle.includes('gift set') ||
-                             pTitle.includes('apparel') || pTitle.includes('makeup') || pTitle.includes('skin care') ||
-                             pTitle.includes('fragrance') || pTitle.includes('watch') || pTitle.includes('toy') ||
-                             pTitle.includes('hamper') || pDesc.includes('birthday');
-          if (!isBirthday && allProds.length > 0) return false;
-        } else if (activeSlug === 'diwali-gifts') {
-          const isDiwali = pSlug === 'diwali-gifts' || pSlug.includes('diwali') || pName.includes('diwali') ||
-                           pTitle.includes('diwali') || pTitle.includes('diya') || pTitle.includes('light') ||
-                           pTitle.includes('candle') || pTitle.includes('lamp') || pTitle.includes('laxmi') ||
-                           pTitle.includes('ganesh') || pTitle.includes('sweet') || pTitle.includes('dry fruit') ||
-                           pTitle.includes('toran') || pTitle.includes('puja') || pTitle.includes('brass') ||
-                           pDesc.includes('diwali');
-          if (!isDiwali && allProds.length > 0) return false;
-        } else if (activeSlug === 'soft-toys') {
-          const isSoftToy = pSlug.includes('soft') || pTitle.includes('soft') || pTitle.includes('teddy') || pTitle.includes('plush') || pTitle.includes('doll');
-          if (!isSoftToy && allProds.length > 0) return false;
-        } else if (activeSlug === 'baby-toys') {
-          const isBabyToy = pSlug.includes('baby') || pTitle.includes('baby') || pTitle.includes('rattle') || pTitle.includes('infant');
-          if (!isBabyToy && allProds.length > 0) return false;
-        } else if (activeSlug === 'board-games') {
-          const isBoardGame = pSlug.includes('board') || pTitle.includes('board') || pTitle.includes('game') || pTitle.includes('puzzle') || pTitle.includes('chess') || pTitle.includes('ludo');
-          if (!isBoardGame && allProds.length > 0) return false;
-        } else if (activeSlug === 'toys') {
-          if (pTitle.includes('diwali') || pTitle.includes('diya') || pTitle.includes('ring') || pTitle.includes('gemstone')) return false;
-          const isToy = pSlug.includes('toy') || pName.includes('toy') || pTitle.includes('toy') || pTitle.includes('game') || pTitle.includes('puzzle') || pTitle.includes('teddy') || pTitle.includes('doll') || pTitle.includes('kids');
-          if (!isToy && allProds.length > 0) return false;
-        } else if (activeSlug === 'rings') {
-          const isRing = pSlug.includes('ring') || pTitle.includes('ring');
-          if (!isRing && allProds.length > 0) return false;
-        } else if (activeSlug === 'pendants') {
-          const isPendant = pSlug.includes('pendant') || pTitle.includes('pendant') || pTitle.includes('locket');
-          if (!isPendant && allProds.length > 0) return false;
-        } else if (activeSlug === 'bracelets') {
-          const isBracelet = pSlug.includes('bracelet') || pTitle.includes('bracelet') || pTitle.includes('kada');
-          if (!isBracelet && allProds.length > 0) return false;
-        } else if (activeSlug === 'gemstones-crystals') {
-          const isGem = pSlug.includes('gem') || pSlug.includes('crystal') || pTitle.includes('gemstone') || pTitle.includes('crystal') || pTitle.includes('rudraksha') || pTitle.includes('stone') || pTitle.includes('quartz');
-          if (!isGem && allProds.length > 0) return false;
-        } else if (activeSlug === 'astrology') {
-          if (pTitle.includes('toy') || pTitle.includes('balloon') || pTitle.includes('baby')) return false;
-          const isAstro = pSlug.includes('astro') || pName.includes('astro') || pTitle.includes('ring') || pTitle.includes('pendant') || pTitle.includes('bracelet') || pTitle.includes('gemstone') || pTitle.includes('crystal') || pTitle.includes('rudraksha') || pTitle.includes('yantra') || pTitle.includes('zodiac');
-          if (!isAstro && allProds.length > 0) return false;
-        } else if (activeSlug === 'flowers') {
-          const isFlower = pSlug.includes('flower') || pTitle.includes('flower') || pTitle.includes('bouquet') || pTitle.includes('rose');
-          if (!isFlower && allProds.length > 0) return false;
-        } else if (activeSlug === 'decor') {
-          const isDecor = pSlug.includes('decor') || pTitle.includes('decor') || pTitle.includes('frame') || pTitle.includes('lamp') || pTitle.includes('idol') || pTitle.includes('clock');
-          if (!isDecor && allProds.length > 0) return false;
-        } else if (activeSlug === 'gifts') {
-          if (pTitle.includes('baby toy') || pTitle.includes('board game') || pTitle.includes('rattle')) return false;
-          const isGift = pSlug.includes('gift') || pName.includes('gift') || pTitle.includes('gift') || pTitle.includes('hamper') || pTitle.includes('set') || pTitle.includes('frame');
-          if (!isGift && allProds.length > 0) return false;
         }
+        if (!matchesRoute) return false;
       }
 
+      // 5. Brands, Colors, Sizes, Platings, Discounts, Stock
       if (selectedBrands.length > 0 && !selectedBrands.some(sb => (p.brand || '').toLowerCase() === sb.toLowerCase())) return false;
       if (selectedColors.length > 0 && !selectedColors.some(sc => (p.color || '').toLowerCase() === sc.toLowerCase())) return false;
-      
+
       if (selectedRingSizes.length > 0) {
         const matchesSize = selectedRingSizes.some(rs => checkRingSizeMatch(p, rs));
         if (!matchesSize) return false;
@@ -782,15 +714,18 @@ export default function CategoryPage({ categorySlug }) {
         const disc = p.discount_percentage || (p.old_price && p.old_price > p.price ? Math.round(((p.old_price - p.price) / p.old_price) * 100) : 0);
         if (disc < minDiscount) return false;
       }
-      if (onSale  && !p.old_price) return false;
+
+      if (onSale && !p.old_price) return false;
       if (inStock && p.stock <= 0) return false;
+
       return true;
     });
+
     if (sortBy === 'price-asc')  list = [...list].sort((a, b) => a.price - b.price);
     if (sortBy === 'price-desc') list = [...list].sort((a, b) => b.price - a.price);
     if (sortBy === 'rating')     list = [...list].sort((a, b) => (b.rating || 5) - (a.rating || 5));
     return list;
-  }, [allProds, appliedPriceMin, appliedPriceMax, selectedCategories, categoriesTree, selectedBrands, selectedColors, selectedRingSizes, selectedPlatings, minDiscount, onSale, inStock, sortBy, searchQuery]);
+  }, [allProds, appliedPriceMin, appliedPriceMax, selectedCategories, activeSlug, selectedBrands, selectedColors, selectedRingSizes, selectedPlatings, minDiscount, onSale, inStock, sortBy, searchQuery]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
   const validCurrentPage = Math.min(currentPage, totalPages);
