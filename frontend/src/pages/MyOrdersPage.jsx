@@ -398,27 +398,28 @@ export default function MyOrdersPage() {
             const num = loc.order_number || loc.id;
             const fresh = apiMap.get(num);
             if (fresh) {
-              const freshItems = (fresh.items && fresh.items.length) ? fresh.items : (loc.items || []);
-              const mergedItems = freshItems.map(item => {
-                const locItem = (loc.items || []).find(li => (li.name || li.product_name) === (item.name || item.product_name));
-                const img = item.product_image || item.image || locItem?.image || locItem?.product_image;
-                return {
-                  ...locItem,
-                  ...item,
-                  name: item.product_name || item.name || locItem?.name,
-                  image: img,
-                  product_image: img,
-                  qty: item.quantity || item.qty || locItem?.qty || locItem?.quantity || 1,
-                  price: item.price ?? locItem?.price ?? 0,
-                };
-              });
+              const normItems = (fresh.items && fresh.items.length > 0)
+                ? fresh.items.map(item => {
+                    const locItem = (loc.items || []).find(li => (li.name || li.product_name) === (item.name || item.product_name));
+                    const img = item.product_image || item.image || locItem?.image || locItem?.product_image;
+                    return {
+                      ...locItem,
+                      ...item,
+                      name: item.product_name || item.name || locItem?.name,
+                      image: img,
+                      product_image: img,
+                      qty: item.quantity || item.qty || locItem?.qty || locItem?.quantity || 1,
+                      price: item.price ?? locItem?.price ?? 0,
+                    };
+                  })
+                : (loc.items || []);
 
               return {
                 ...loc,
                 ...fresh,
                 created_at: fresh.created_at || loc.created_at,
                 status: fresh.status || loc.status,
-                items: mergedItems,
+                items: normItems,
               };
             }
             return loc;
