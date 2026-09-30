@@ -4,9 +4,9 @@ import './HeroSlider.css';
 import { useCart } from '../../context/CartContext';
 import { slidersApi } from '../../services/api';
 
-import giftsBanner from '../../assets/gifts.png';
-import toysBanner from '../../assets/hero slider 3.png';
-import astroBanner from '../../assets/hero slider1.png';
+import giftsBanner from '../../assets/gifts.jpg';
+import toysBanner from '../../assets/hero_slider3.jpg';
+import astroBanner from '../../assets/hero_slider1.jpg';
 
 /* =====================================================
    STATIC FALLBACK DATA (jab API nahi chal rahi)
@@ -64,13 +64,17 @@ function getSlideTargetLink(slide) {
 
 const ASSET_MAP = {
   'gifts.png': giftsBanner,
-  '/gifts.png': giftsBanner,
+  'gifts.jpg': giftsBanner,
+  '/gifts.jpg': giftsBanner,
   'hero slider1.png': astroBanner,
-  '/hero slider1.png': astroBanner,
+  'hero_slider1.jpg': astroBanner,
+  '/hero_slider1.jpg': astroBanner,
   'hero slider 3.png': toysBanner,
-  '/hero slider 3.png': toysBanner,
+  'hero_slider3.jpg': toysBanner,
+  '/hero_slider3.jpg': toysBanner,
   'hero slider 4.png': astroBanner,
-  '/hero slider 4.png': astroBanner,
+  'hero_slider4.jpg': astroBanner,
+  '/hero_slider4.jpg': astroBanner,
   'wd-furniture-slider-111.jpg.webp': giftsBanner,
   '/wd-furniture-slider-111.jpg.webp': giftsBanner,
   'wd-furniture-slider-112.jpg.webp': toysBanner,

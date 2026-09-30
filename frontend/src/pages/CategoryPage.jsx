@@ -8,10 +8,10 @@ import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import ProductCard from '../components/shop/ProductCard';
 
-import img_gifts_banner from '../assets/gifts.png';
+import img_gifts_banner from '../assets/gifts.jpg';
 import img_toys_banner from '../assets/toys_collection_banner.jpg';
-import img_astrology_banner from '../assets/astro.png';
-import img_flowers_banner from '../assets/flowers.png';
+import img_astrology_banner from '../assets/astro.jpg';
+import img_flowers_banner from '../assets/flowers.jpg';
 import img_gift_box from '../assets/gift image.jpg';
 import img_astro_item from '../assets/astri image.jpg';
 import img_crystal from '../assets/Rose_Quartz.webp';

@@ -5,8 +5,8 @@ import Footer from '../components/layout/Footer';
 import { reviewsApi } from '../services/api';
 import './AboutPage.css';
 
-import giftsImage from '../assets/gifts.png';
-import astroImage from '../assets/astro.png';
+import giftsImage from '../assets/gifts.jpg';
+import astroImage from '../assets/astro.jpg';
 import toysImage from '../assets/toys_collection_banner.jpg';
 
 export default function AboutPage() {

@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom';
 import './OurCategories.css';
 import { categoriesApi } from '../../services/api';
 
-import giftsImg from '../../assets/gifts.png';
+import giftsImg from '../../assets/gifts.jpg';
 import toysImg from '../../assets/toys_collection_banner.jpg';
-import astroImg from '../../assets/astro.png';
-import flowersImg from '../../assets/flowers.png';
+import astroImg from '../../assets/astro.jpg';
+import flowersImg from '../../assets/flowers.jpg';
 import decorImg from '../../assets/decor1.jpg';
 import crystalImg from '../../assets/Rose_Quartz.webp';
 

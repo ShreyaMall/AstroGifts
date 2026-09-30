@@ -1,9 +1,9 @@
 import React, { useRef, useEffect } from 'react';
 import './ProductCollections.css';
 
-import giftsImg from '../../assets/gifts.png';
+import giftsImg from '../../assets/gifts.jpg';
 import giftItemImg from '../../assets/gift image.jpg';
-import astroImg from '../../assets/astro.png';
+import astroImg from '../../assets/astro.jpg';
 import astriImg from '../../assets/astri image.jpg';
 import astroVideoFile from '../../assets/same_as_it_video_cahiye_but_wo.mp4';
 import thodaVideoFile from '../../assets/thoda_change_kar_do_cup_ko_rem.mp4';
