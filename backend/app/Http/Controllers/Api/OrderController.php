@@ -210,12 +210,18 @@ class OrderController extends Controller
 
             $embeddedItems[] = [
                 'productId' => (string)($item['product_id'] ?? $item['id'] ?? ''),
+                'product_id' => (string)($item['product_id'] ?? $item['id'] ?? ''),
                 'title' => $item['name'],
+                'name' => $item['name'],
+                'product_name' => $item['name'],
                 'image' => $item['image'] ?? null,
+                'product_image' => $item['image'] ?? null,
                 'price' => (float)$item['price'],
                 'quantity' => (int)$item['quantity'],
+                'qty' => (int)$item['quantity'],
                 'size' => $item['size'] ?? null,
-                'color' => $item['selected_color'] ?? null,
+                'color' => $item['selected_color'] ?? $item['color'] ?? null,
+                'selected_color' => $item['selected_color'] ?? $item['color'] ?? null,
                 'status' => 'Pending',
             ];
 

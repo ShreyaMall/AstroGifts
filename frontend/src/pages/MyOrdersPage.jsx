@@ -413,14 +413,15 @@ export default function MyOrdersPage() {
             if (fresh) {
               const normItems = (fresh.items && fresh.items.length > 0)
                 ? fresh.items.map((item, idx) => {
-                    const locItem = loc.items?.[idx] || (loc.items || []).find(li => (li.name && item.name && li.name === item.name) || (li.product_name && item.product_name && li.product_name === item.product_name));
-                    const itemName = item.product_name || item.name || item.title || locItem?.name || locItem?.product_name || 'Product';
-                    const img = item.product_image || item.image || locItem?.image || locItem?.product_image;
+                    const locItem = loc.items?.[idx];
+                    const itemName = item.name || item.product_name || item.title || locItem?.name || locItem?.product_name || 'Product';
+                    const img = item.image || item.product_image || locItem?.image || locItem?.product_image;
                     return {
                       ...locItem,
                       ...item,
                       name: itemName,
                       product_name: itemName,
+                      title: itemName,
                       image: img,
                       product_image: img,
                       qty: item.quantity || item.qty || locItem?.qty || locItem?.quantity || 1,
@@ -486,14 +487,15 @@ export default function MyOrdersPage() {
                 hasUpdate = true;
                 const freshItems = (freshData.items && freshData.items.length) ? freshData.items : (loc.items || []);
                 const mergedItems = freshItems.map((item, idx) => {
-                  const locItem = loc.items?.[idx] || (loc.items || []).find(li => (li.name && item.name && li.name === item.name) || (li.product_name && item.product_name && li.product_name === item.product_name));
-                  const itemName = item.product_name || item.name || item.title || locItem?.name || locItem?.product_name || 'Product';
-                  const img = item.product_image || item.image || locItem?.image || locItem?.product_image;
+                  const locItem = loc.items?.[idx];
+                  const itemName = item.name || item.product_name || item.title || locItem?.name || locItem?.product_name || 'Product';
+                  const img = item.image || item.product_image || locItem?.image || locItem?.product_image;
                   return {
                     ...locItem,
                     ...item,
                     name: itemName,
                     product_name: itemName,
+                    title: itemName,
                     image: img,
                     product_image: img,
                     qty: item.quantity || item.qty || locItem?.qty || locItem?.quantity || 1,
@@ -538,14 +540,15 @@ export default function MyOrdersPage() {
                 hasUpdate = true;
                 const freshItems = (freshData.items && freshData.items.length) ? freshData.items : (loc.items || []);
                 const mergedItems = freshItems.map((item, idx) => {
-                  const locItem = loc.items?.[idx] || (loc.items || []).find(li => (li.name && item.name && li.name === item.name) || (li.product_name && item.product_name && li.product_name === item.product_name));
-                  const itemName = item.product_name || item.name || item.title || locItem?.name || locItem?.product_name || 'Product';
-                  const img = item.product_image || item.image || locItem?.image || locItem?.product_image;
+                  const locItem = loc.items?.[idx];
+                  const itemName = item.name || item.product_name || item.title || locItem?.name || locItem?.product_name || 'Product';
+                  const img = item.image || item.product_image || locItem?.image || locItem?.product_image;
                   return {
                     ...locItem,
                     ...item,
                     name: itemName,
                     product_name: itemName,
+                    title: itemName,
                     image: img,
                     product_image: img,
                     qty: item.quantity || item.qty || locItem?.qty || locItem?.quantity || 1,
