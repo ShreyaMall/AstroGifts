@@ -1169,17 +1169,6 @@ function PageCategories() {
                     </select>
                   </div>
                 </div>
-                <div className="admin__input-group" style={{ marginBottom: '10px' }}>
-                  <label>Description</label>
-                  <textarea className="admin__form-input" rows="6" style={{ resize: 'vertical', minHeight: '120px', width: '100%', boxSizing: 'border-box' }} placeholder="Category details..." value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}></textarea>
-                </div>
-                <div className="admin__input-group" style={{ marginTop: '15px' }}>
-                  <label>Category Thumbnail Image</label>
-                  <ImageUploader 
-                    initialImage={form.image} 
-                    onUploadSuccess={(url) => setForm(f => ({ ...f, image: url }))} 
-                  />
-                </div>
               </div>
 
               {/* Status & Visibility */}
