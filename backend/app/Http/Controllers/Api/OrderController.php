@@ -109,21 +109,26 @@ class OrderController extends Controller
         // Calculate subtotal from items and verify against database
         $subtotal = 0;
         foreach ($validated['items'] as &$item) {
-            $product = \App\Models\Product::find($item['product_id']);
-            
-            if (!$product) {
-                return response()->json(['status' => 'error', 'message' => "Product not found: {$item['name']}"], 404);
+            $product = null;
+            $pId = $item['product_id'] ?? $item['id'] ?? null;
+            if (!empty($pId)) {
+                $product = Product::find($pId) ?? Product::where('_id', $pId)->first();
             }
-            
-            if ($product->stock_status === 'out_of_stock') {
-                return response()->json(['status' => 'error', 'message' => "Product is out of stock: {$product->name}"], 400);
+            if (!$product && !empty($item['name'])) {
+                $product = Product::where('name', $item['name'])->first();
             }
-            
-            // Force the backend price
-            $realPrice = $product->price;
-            $item['price'] = $realPrice;
-            
-            $subtotal += ($realPrice * $item['quantity']);
+
+            if ($product) {
+                if (isset($product->stock_status) && $product->stock_status === 'out_of_stock') {
+                    return response()->json(['status' => 'error', 'message' => "Product is out of stock: {$product->name}"], 400);
+                }
+                $realPrice = (float)$product->price;
+                $item['price'] = $realPrice;
+            } else {
+                $realPrice = (float)($item['price'] ?? 0);
+            }
+
+            $subtotal += ($realPrice * (int)($item['quantity'] ?? 1));
         }
 
         // Coupon discount calculation

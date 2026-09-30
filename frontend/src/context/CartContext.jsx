@@ -33,19 +33,23 @@ export const CartProvider = ({ children }) => {
       ? rawPrice
       : parseFloat(String(rawPrice || '0').replace(/[^0-9.]/g, '')) || 0;
 
-    const baseId = product.id || String(product.name).toLowerCase().replace(/\s+/g, '-');
-    const colorSuffix = product.color ? `-${product.color.toLowerCase().replace(/\s+/g, '-')}` : '';
+    const productName = product.name || product.title || 'Product';
+    const baseId = product.id || product._id || String(productName).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const colorSuffix = product.color ? `-${String(product.color).toLowerCase().replace(/[^a-z0-9]+/g, '-')}` : '';
+    const sizeSuffix = product.size ? `-${String(product.size).toLowerCase().replace(/[^a-z0-9]+/g, '-')}` : '';
 
     return {
-      id: `${baseId}${colorSuffix}`,
+      id: `${baseId}${colorSuffix}${sizeSuffix}`,
       product_id: product.id || product._id || null,
-      slug: product.slug || String(product.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-      name: product.name || product.title || 'Product',
+      slug: product.slug || String(productName).toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      name: productName,
+      title: productName,
       price: numericPrice,
-      image: product.img || product.image || product.bgImg || '',
+      image: product.img || product.image || product.product_image || product.bgImg || '',
       category: product.category || '',
       stock: product.stock !== undefined ? product.stock : null,
       color: product.color || null,
+      size: product.size || null,
     };
   };
 
@@ -53,9 +57,9 @@ export const CartProvider = ({ children }) => {
     const item = normalizeProduct(product);
 
     setCartItems(prev => {
-      // Calculate total quantity of this product_id already in cart
+      // Calculate total quantity of this specific product already in cart
       const currentTotalQty = prev
-        .filter(i => i.product_id === item.product_id)
+        .filter(i => (item.product_id && i.product_id) ? i.product_id === item.product_id : i.id === item.id)
         .reduce((sum, i) => sum + i.quantity, 0);
 
       if (item.stock !== null && item.stock !== undefined) {
@@ -77,7 +81,6 @@ export const CartProvider = ({ children }) => {
           ...updated[existingIndex],
           quantity: updated[existingIndex].quantity + qty
         };
-        // Trigger notification after state update (using a slight delay or outside setState usually, but here we just allow it)
         setTimeout(() => {
           setNotification({ id: Date.now(), product: item, quantity: qty });
         }, 0);
@@ -102,7 +105,7 @@ export const CartProvider = ({ children }) => {
 
       if (delta > 0 && itemToUpdate.stock !== null && itemToUpdate.stock !== undefined) {
         const currentTotalQty = prev
-          .filter(i => i.product_id === itemToUpdate.product_id)
+          .filter(i => (itemToUpdate.product_id && i.product_id) ? i.product_id === itemToUpdate.product_id : i.id === itemToUpdate.id)
           .reduce((sum, i) => sum + i.quantity, 0);
 
         if (currentTotalQty >= itemToUpdate.stock) {
