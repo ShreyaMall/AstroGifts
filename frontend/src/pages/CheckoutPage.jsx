@@ -182,10 +182,18 @@ export default function CheckoutPage() {
         status: 'Processing',
         total,
         items: cartItems.map(item => ({
-          name: item.name,
+          id: item.product_id || item.id,
+          product_id: item.product_id || item.id,
+          name: item.name || item.title || 'Product',
+          product_name: item.name || item.title || 'Product',
           qty: item.quantity || 1,
+          quantity: item.quantity || 1,
           price: item.price,
+          color: item.color || item.selectedColor || null,
+          selected_color: item.color || item.selectedColor || null,
+          size: item.size || null,
           image: typeof item.image === 'string' ? item.image : null,
+          product_image: typeof item.image === 'string' ? item.image : null,
         }))
       };
       const existing = JSON.parse(localStorage.getItem('astrogifts_user_orders') || '[]');
