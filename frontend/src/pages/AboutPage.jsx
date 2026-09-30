@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
+import { reviewsApi } from '../services/api';
 import './AboutPage.css';
 
 import giftsImage from '../assets/gifts.png';
@@ -9,8 +10,25 @@ import astroImage from '../assets/astro.png';
 import toysImage from '../assets/toys_collection_banner.jpg';
 
 export default function AboutPage() {
+  const [statsData, setStatsData] = useState({
+    customers: '50,000+',
+    quality: '100%',
+    rating: '4.9 ★'
+  });
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Dynamic rating & metrics from API
+    reviewsApi.getAll()
+      .then(res => {
+        if (res && res.data && res.data.length > 0) {
+          const totalRating = res.data.reduce((acc, curr) => acc + Number(curr.rating || 5), 0);
+          const avg = (totalRating / res.data.length).toFixed(1);
+          setStatsData(prev => ({ ...prev, rating: `${avg} ★` }));
+        }
+      })
+      .catch(() => {});
   }, []);
 
   return (
@@ -54,15 +72,15 @@ export default function AboutPage() {
 
             <div className="about-stats-row">
               <div className="about-stat">
-                <span className="about-stat__num">50,000+</span>
+                <span className="about-stat__num">{statsData.customers}</span>
                 <span className="about-stat__lbl">Happy Customers</span>
               </div>
               <div className="about-stat">
-                <span className="about-stat__num">100%</span>
+                <span className="about-stat__num">{statsData.quality}</span>
                 <span className="about-stat__lbl">Authentic & Certified</span>
               </div>
               <div className="about-stat">
-                <span className="about-stat__num">4.9 ★</span>
+                <span className="about-stat__num">{statsData.rating}</span>
                 <span className="about-stat__lbl">Customer Rating</span>
               </div>
             </div>
