@@ -409,24 +409,41 @@ function PageDashboard({ setActivePage }) {
 
             <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '8px', marginBottom: '20px' }}>
               <h4 style={{ fontSize: '14px', color: '#64748b', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Items</h4>
-              {selectedOrder.raw?.items?.map((item, i) => (
-                <div key={i} style={{ display: 'flex', gap: '12px', padding: '12px 0', borderBottom: i !== selectedOrder.raw.items.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
-                  {(item.image || item.product_image || item.image_url) && (
-                    <img src={item.image || item.product_image || item.image_url} alt={item.product_name} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e2e8f0' }} />
-                  )}
-                  <div style={{ flex: 1 }}>
-                    <p style={{ margin: 0, fontSize: '14px', fontWeight: '500' }}>{item.product_name}</p>
-                    <div style={{ marginTop: '4px' }}>
-                      {item.size && <span style={{ fontSize: '12px', color: '#64748b', marginRight: '10px' }}>Size: {item.size}</span>}
-                      {item.color && <span style={{ fontSize: '12px', color: '#64748b' }}>Color: {item.color}</span>}
+              {selectedOrder.raw?.items?.map((item, i) => {
+                const isItemCancelled = item.status === 'Cancelled' || item.pivot?.status === 'Cancelled' || item.is_cancelled || selectedOrder.status === 'Cancelled';
+                return (
+                  <div key={i} style={{ display: 'flex', gap: '12px', padding: '12px 0', borderBottom: i !== selectedOrder.raw.items.length - 1 ? '1px solid #e2e8f0' : 'none', opacity: isItemCancelled ? 0.75 : 1 }}>
+                    {(item.image || item.product_image || item.image_url) && (
+                      <img src={item.image || item.product_image || item.image_url} alt={item.product_name || item.name} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e2e8f0', filter: isItemCancelled ? 'grayscale(80%)' : 'none' }} />
+                    )}
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        <p style={{ margin: 0, fontSize: '14px', fontWeight: '600', textDecoration: isItemCancelled ? 'line-through' : 'none', color: isItemCancelled ? '#94a3b8' : '#1e293b' }}>
+                          {item.product_name || item.name}
+                        </p>
+                        {isItemCancelled && (
+                          <span style={{ fontSize: '11px', background: '#fee2e2', color: '#dc2626', fontWeight: '700', padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase' }}>
+                            Cancelled
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ marginTop: '4px', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                        {item.size && <span style={{ fontSize: '12px', color: '#64748b' }}>Size: {item.size}</span>}
+                        {item.color && <span style={{ fontSize: '12px', color: '#64748b' }}>Color: {item.color}</span>}
+                      </div>
+                      {isItemCancelled && (
+                        <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#dc2626', fontWeight: '500' }}>
+                          Item cancelled (Stock restored) {item.cancel_reason ? `- ${item.cancel_reason}` : ''}
+                        </p>
+                      )}
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <p style={{ margin: 0, fontSize: '14px' }}>x{item.quantity || item.qty || 1}</p>
+                      <p style={{ margin: '4px 0 0 0', fontSize: '14px', fontWeight: '600', textDecoration: isItemCancelled ? 'line-through' : 'none', color: isItemCancelled ? '#94a3b8' : '#0f172a' }}>₹{item.price}</p>
                     </div>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <p style={{ margin: 0, fontSize: '14px' }}>x{item.quantity || 1}</p>
-                    <p style={{ margin: '4px 0 0 0', fontSize: '14px', fontWeight: '600' }}>₹{item.price}</p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
               {(!selectedOrder.raw?.items || selectedOrder.raw.items.length === 0) && (
                 <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>{selectedOrder.product}</p>
               )}
@@ -4689,24 +4706,41 @@ function PageOrders() {
 
             <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '8px', marginBottom: '20px' }}>
               <h4 style={{ fontSize: '14px', color: '#64748b', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Items</h4>
-              {selectedOrder.raw?.items?.map((item, i) => (
-                <div key={i} style={{ display: 'flex', gap: '12px', padding: '12px 0', borderBottom: i !== selectedOrder.raw.items.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
-                  {(item.image || item.product_image || item.image_url) && (
-                    <img src={item.image || item.product_image || item.image_url} alt={item.product_name} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e2e8f0' }} />
-                  )}
-                  <div style={{ flex: 1 }}>
-                    <p style={{ margin: 0, fontSize: '14px', fontWeight: '500' }}>{item.product_name}</p>
-                    <div style={{ marginTop: '4px' }}>
-                      {item.size && <span style={{ fontSize: '12px', color: '#64748b', marginRight: '10px' }}>Size: {item.size}</span>}
-                      {item.color && <span style={{ fontSize: '12px', color: '#64748b' }}>Color: {item.color}</span>}
+              {selectedOrder.raw?.items?.map((item, i) => {
+                const isItemCancelled = item.status === 'Cancelled' || item.pivot?.status === 'Cancelled' || item.is_cancelled || selectedOrder.status === 'Cancelled';
+                return (
+                  <div key={i} style={{ display: 'flex', gap: '12px', padding: '12px 0', borderBottom: i !== selectedOrder.raw.items.length - 1 ? '1px solid #e2e8f0' : 'none', opacity: isItemCancelled ? 0.75 : 1 }}>
+                    {(item.image || item.product_image || item.image_url) && (
+                      <img src={item.image || item.product_image || item.image_url} alt={item.product_name || item.name} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e2e8f0', filter: isItemCancelled ? 'grayscale(80%)' : 'none' }} />
+                    )}
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        <p style={{ margin: 0, fontSize: '14px', fontWeight: '600', textDecoration: isItemCancelled ? 'line-through' : 'none', color: isItemCancelled ? '#94a3b8' : '#1e293b' }}>
+                          {item.product_name || item.name}
+                        </p>
+                        {isItemCancelled && (
+                          <span style={{ fontSize: '11px', background: '#fee2e2', color: '#dc2626', fontWeight: '700', padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase' }}>
+                            Cancelled
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ marginTop: '4px', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                        {item.size && <span style={{ fontSize: '12px', color: '#64748b' }}>Size: {item.size}</span>}
+                        {item.color && <span style={{ fontSize: '12px', color: '#64748b' }}>Color: {item.color}</span>}
+                      </div>
+                      {isItemCancelled && (
+                        <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#dc2626', fontWeight: '500' }}>
+                          Item cancelled (Stock restored) {item.cancel_reason ? `- ${item.cancel_reason}` : ''}
+                        </p>
+                      )}
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <p style={{ margin: 0, fontSize: '14px' }}>x{item.quantity || item.qty || 1}</p>
+                      <p style={{ margin: '4px 0 0 0', fontSize: '14px', fontWeight: '600', textDecoration: isItemCancelled ? 'line-through' : 'none', color: isItemCancelled ? '#94a3b8' : '#0f172a' }}>₹{item.price}</p>
                     </div>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <p style={{ margin: 0, fontSize: '14px' }}>x{item.quantity || 1}</p>
-                    <p style={{ margin: '4px 0 0 0', fontSize: '14px', fontWeight: '600' }}>₹{item.price}</p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
               {(!selectedOrder.raw?.items || selectedOrder.raw.items.length === 0) && (
                 <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>{selectedOrder.product}</p>
               )}
