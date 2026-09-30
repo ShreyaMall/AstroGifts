@@ -55,6 +55,17 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = (product, qty = 1) => {
     const item = normalizeProduct(product);
+    console.log('🛒 [Cart] Item added to cart:', {
+      cart_id: item.id,
+      product_id: item.product_id,
+      name: item.name,
+      price: item.price,
+      quantity: qty,
+      color: item.color,
+      size: item.size,
+      image: item.image,
+      full_object: item
+    });
 
     setCartItems(prev => {
       // Calculate total quantity of this specific product already in cart

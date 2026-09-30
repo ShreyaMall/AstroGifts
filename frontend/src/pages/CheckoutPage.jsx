@@ -171,6 +171,8 @@ export default function CheckoutPage() {
       total: finalTotal
     };
 
+    console.log('📦 [Checkout] Order Payload Sent to Backend API:', payload);
+
     const saveOrderLocally = (orderId, total) => {
       const newOrder = {
         order_number: orderId,
