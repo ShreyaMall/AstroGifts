@@ -3352,6 +3352,7 @@ const getAdminOrderStatusStyle = (status) => {
     case 'Exchange Approved':  return { bg: '#e0e7ff', color: '#4338ca', border: '#a5b4fc', shadow: 'rgba(67, 56, 202, 0.4)' };
     case 'Refunded':           return { bg: '#ccfbf1', color: '#0f766e', border: '#5eead4', shadow: 'rgba(15, 118, 110, 0.4)' };
     case 'Cancelled':          return { bg: '#fee2e2', color: '#991b1b', border: '#fca5a5', shadow: 'rgba(153, 27, 27, 0.4)' };
+    case 'Partially Cancelled':return { bg: '#fee2e2', color: '#dc2626', border: '#fca5a5', shadow: 'rgba(220, 38, 38, 0.4)' };
     default:                   return { bg: '#f1f5f9', color: '#475569', border: '#cbd5e1', shadow: 'rgba(71, 85, 105, 0.4)' };
   }
 };
@@ -3409,7 +3410,8 @@ function OrdersTable({ data, onStatusChange, onViewOrder }) {
                         borderRadius: '6px',
                         padding: '6px 28px 6px 12px',
                         fontSize: '13px',
-                        color: '#475569',
+                        color: (o.status === 'Cancelled' || o.status === 'Partially Cancelled') ? '#dc2626' : '#475569',
+                        fontWeight: (o.status === 'Cancelled' || o.status === 'Partially Cancelled') ? '700' : '500',
                         width: '100%',
                         cursor: 'pointer',
                         outline: 'none',
@@ -3425,6 +3427,7 @@ function OrdersTable({ data, onStatusChange, onViewOrder }) {
                       <option value="Return Rejected">Return Rejected</option>
                       <option value="Refunded">Refunded</option>
                       <option value="Cancelled">Cancelled</option>
+                      <option value="Partially Cancelled">Partially Cancelled</option>
                     </select>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
                       <polyline points="6 9 12 15 18 9"/>
