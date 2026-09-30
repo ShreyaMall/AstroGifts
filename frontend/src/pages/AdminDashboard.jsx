@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import './AdminDashboard.css';
 import { adminApi, contactApi, faqApi, productsApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { AdminPageLoader } from '../components/layout/PageLoader';
 
 
 /* ══════════════════════════════════════════════════
@@ -902,7 +903,7 @@ function PageSliders() {
       )}
 
       {loading ? (
-        <div style={{ padding: '40px', textAlign: 'center', color: '#888' }}>Loading slides…</div>
+        <AdminPageLoader text="Loading homepage sliders…" />
       ) : slides.length === 0 ? (
         <div style={{ padding: '40px', textAlign: 'center', color: '#aaa' }}>
           No slides yet. Click "+ Add Slide" to create one.
@@ -1366,7 +1367,7 @@ function PageCategories() {
 
       <div className="admin__table-wrap" style={{ background: '#fff', borderRadius: '8px', overflow: 'hidden' }}>
         {loading ? (
-          <div style={{ padding: '30px', textAlign: 'center', color: '#666' }}>Loading categories...</div>
+          <AdminPageLoader text="Loading category hierarchy…" />
         ) : (
           <table className="admin__table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
@@ -1658,7 +1659,7 @@ function PageDescription() {
       )}
 
       {loading ? (
-        <div style={{ padding: '30px', textAlign: 'center', color: '#666' }}>Loading products...</div>
+        <AdminPageLoader text="Loading product descriptions…" />
       ) : (
         <div className="admin__desc-list">
           {descs.map(d => (
@@ -3318,7 +3319,7 @@ function PageAllProducts() {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan="7" style={{ textAlign: 'center', padding: '2rem' }}>Loading products...</td></tr>
+              <tr><td colSpan="7" style={{ padding: 0 }}><AdminPageLoader text="Loading product inventory…" /></td></tr>
             ) : paginatedProducts.length === 0 ? (
               <tr><td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>
                 {dateFilter ? `No products found on ${dateFilter}.` : 'No products found. Click "+ Add Product" to add one.'}
@@ -3932,9 +3933,7 @@ function PageReviews() {
         boxShadow: '0 1px 4px rgba(0,0,0,0.04)'
       }}>
         {loading ? (
-          <div style={{ padding: '50px', textAlign: 'center', color: '#888', fontSize: '14px' }}>
-            Loading reviews...
-          </div>
+          <AdminPageLoader text="Loading customer reviews…" />
         ) : filteredReviews.length === 0 ? (
           <div style={{ padding: '50px', textAlign: 'center', color: '#888', fontSize: '14px' }}>
             {search ? 'No reviews matching your search.' : 'No customer reviews found. Click "+ Add Review" to create one.'}
@@ -4624,10 +4623,16 @@ export default function AdminDashboard({ onLogout }) {
     }
   };
 
+  const [tabLoading, setTabLoading] = useState(false);
+
   const goTo = (id) => {
-    setActivePage(id);
-    setMobileNavOpen(false);
-    if (['all-products','sku','price','description','categories','colors','sizes'].includes(id)) setProductOpen(true);
+    if (id !== activePage) {
+      setTabLoading(true);
+      setActivePage(id);
+      setMobileNavOpen(false);
+      if (['all-products','sku','price','description','categories','colors','sizes'].includes(id)) setProductOpen(true);
+      setTimeout(() => setTabLoading(false), 300);
+    }
   };
 
 function PageOrders() {
@@ -4755,7 +4760,11 @@ function PageOrders() {
           />
         </div>
       </div>
-      <OrdersTable data={displayedOrders} onStatusChange={handleStatusUpdate} onViewOrder={handleViewOrder} />
+      {loading ? (
+        <AdminPageLoader text="Loading customer orders…" />
+      ) : (
+        <OrdersTable data={displayedOrders} onStatusChange={handleStatusUpdate} onViewOrder={handleViewOrder} />
+      )}
 
       {/* Order Details Modal */}
       {selectedOrder && (
@@ -4857,7 +4866,7 @@ function PageUsers() {
       </div>
       <div className="admin__table-wrap">
         {loading ? (
-          <div style={{ padding: '2rem', textAlign: 'center' }}>Loading users...</div>
+          <AdminPageLoader text="Loading registered users…" />
         ) : (
         <table className="admin__table">
           <thead>
@@ -5083,6 +5092,9 @@ function PageSettings() {
 }
 
   const renderPage = () => {
+    if (tabLoading) {
+      return <AdminPageLoader text={`Loading ${PAGE_TITLES[activePage] || activePage}…`} />;
+    }
     switch (activePage) {
       case 'dashboard':   return <PageDashboard setActivePage={setActivePage} />;
       case 'menu':        return <PageMenu />;

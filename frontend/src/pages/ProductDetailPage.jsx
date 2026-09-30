@@ -11,7 +11,7 @@ import { useAuth } from '../context/AuthContext';
 import { productsApi, addressesApi, reviewsApi } from '../services/api';
 import fallbackGift1 from '../assets/gift image.jpg';
 import fallbackGift2 from '../assets/decor1.jpg';
-import fallbackGift3 from '../assets/textile1.webp';
+import fallbackGift3 from '../assets/toy1.jpg';
 
 const getFormattedImageUrl = (rawUrl) => {
   if (!rawUrl || typeof rawUrl !== 'string' || !rawUrl.trim()) {

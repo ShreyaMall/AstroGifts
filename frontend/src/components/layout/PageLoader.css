@@ -132,3 +132,14 @@
   0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
   40% { transform: scale(1); opacity: 1; }
 }
+
+/* Admin Panel Embedded Loader */
+.wm-admin-panel-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  width: 100%;
+  min-height: 380px;
+  background: transparent;
+}
