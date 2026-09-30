@@ -100,7 +100,11 @@ function OrderTrackStepper({ order }) {
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '16px' }}>📦</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c3a1d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+            <line x1="12" y1="22.08" x2="12" y2="12"/>
+          </svg>
           <span style={{ fontSize: '14px', fontWeight: '700', color: '#1e293b' }}>Track Item</span>
         </div>
         <span style={{
@@ -118,12 +122,21 @@ function OrderTrackStepper({ order }) {
       </div>
 
       {isCancelled ? (
-        <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', color: '#991b1b', padding: '12px 16px', borderRadius: '8px', fontSize: '13px', lineHeight: 1.5 }}>
-          ⚠️ This order has been cancelled. If payment was processed, the amount will be refunded within 2-4 business days.
+        <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', color: '#991b1b', padding: '12px 16px', borderRadius: '8px', fontSize: '13px', lineHeight: 1.5, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <span>This order has been cancelled. If payment was processed, the amount will be refunded within 2-4 business days.</span>
         </div>
       ) : isReturn ? (
-        <div style={{ background: '#fff7ed', border: '1px solid #ffedd5', color: '#c2410c', padding: '12px 16px', borderRadius: '8px', fontSize: '13px', lineHeight: 1.5 }}>
-          🔄 Return/Exchange in progress for this order. Status: <strong>{order.status}</strong>
+        <div style={{ background: '#fff7ed', border: '1px solid #ffedd5', color: '#c2410c', padding: '12px 16px', borderRadius: '8px', fontSize: '13px', lineHeight: 1.5, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ea580c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+            <polyline points="23 4 23 10 17 10"/>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+          </svg>
+          <span>Return/Exchange in progress for this order. Status: <strong>{order.status}</strong></span>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0px' }}>
