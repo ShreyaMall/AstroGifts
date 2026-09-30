@@ -227,22 +227,22 @@ export default function LatestArticles() {
         <div className="la-footer-seo">
           <div className="la-seo__block">
             <h3 className="la-seo__headline">
-              Online store with a wide selection of furniture and decor
+              Online store with a wide selection of luxury gifts, toys & astrology decor
             </h3>
             <p className="la-seo__desc">
-              Furniture is an invariable attribute of any room. It is they who give it the right atmosphere, making the space cozy and comfortable, creating favorable conditions for productive work or helping to relax after a hard day. More and more often, customers want to place an order in an online store, when you can sit down at the computer in your free time, arrange the furniture in the photo and calmly buy the furniture you like. The online store has a large catalog of both home and office furniture.
+              Gifts and spiritual decor add warmth, harmony, and joy to every home and occasion. AstroGifts offers a handpicked collection of personalized gift hampers, eco-friendly wooden toys, birthstones, and healing crystal jewelry to make every celebration special.
             </p>
           </div>
 
           <div className="la-seo__block">
             <h3 className="la-seo__headline">
-              Furniture production is a modern form of art
+              Thoughtful gifting & celestial craftsmanship for your loved ones
             </h3>
             <p className="la-seo__desc">
-              Furniture manufacturers, as well as manufacturers of other home goods, are full of amazing offers: we often come across both standard mass-produced products and unique creations – furniture from professional craftsmen, which will be appreciated by true connoisseurs of beauty. We have selected for you the best models from modern craftsmen who managed to ingeniously combine elegance, quality and practicality in each product unit. Our assortment includes products from proven companies. Who for
+              Our master artisans and crystal experts curate unique gift sets, spiritual brass idols, and safe toys crafted to bring prosperity, positive energy, and happiness to your family.
               {readMoreExpanded && (
                 <span>
-                  {' '}many years of their activity have proven their reliability, high quality and excellent design characteristics of their products.
+                  {' '}Over the years, AstroGifts has become India's trusted destination for certified gemstones, festive gift boxes, and meaningful surprises.
                 </span>
               )}
             </p>

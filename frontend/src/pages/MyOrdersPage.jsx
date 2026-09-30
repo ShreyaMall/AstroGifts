@@ -16,8 +16,8 @@ const DEMO_ORDERS = [
     status: 'Delivered',
     total: 2890,
     items: [
-      { name: 'Solid Oak Dining Chair', qty: 2, price: 540, size: 'M', image: 'https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=100&h=100&fit=crop' },
-      { name: 'Nordic Wooden Bed', qty: 1, price: 1810, size: 'King', image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=100&h=100&fit=crop' }
+      { name: 'Luxury Birthday Gift Hamper', qty: 2, price: 540, size: 'Deluxe', image: '/article_gifting.png' },
+      { name: 'Rose Quartz Healing Crystal Set', qty: 1, price: 1810, size: 'Premium', image: '/article_astrology.png' }
     ]
   },
   {

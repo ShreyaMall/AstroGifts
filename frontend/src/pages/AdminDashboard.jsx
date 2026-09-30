@@ -714,7 +714,7 @@ function PageSliders() {
   const initialForm = {
     title: '', subtitle: '', designer: '', price: '',
     badge_text: 'Discover more products', badge_category: '',
-    cta_text: 'Shop Now', link: '/category/wooden-furniture',
+    cta_text: 'Shop Now', link: '/category/gifts',
     status: 'Active', image: ''
   };
   const [form, setForm] = useState(initialForm);
@@ -767,7 +767,7 @@ function PageSliders() {
       badge_text: slide.badge_text || 'Discover more products',
       badge_category: slide.badge_category || '',
       cta_text: slide.cta_text || 'Shop Now',
-      link: slide.link || '/category/wooden-furniture',
+      link: slide.link || '/category/gifts',
       status: slide.status || 'Active',
       image: slide.image || '',
     });
@@ -3690,7 +3690,7 @@ function PageReviews() {
     rating: 5,
     comment: '',
     status: 'Active',
-    product_name: 'Premium Furniture'
+    product_name: 'AstroGifts Gift Item'
   });
 
   const fetchReviews = async () => {
@@ -3730,7 +3730,7 @@ function PageReviews() {
       rating: 5,
       comment: '',
       status: 'Approved',
-      product_name: 'Premium Furniture'
+      product_name: 'AstroGifts Gift Item'
     });
     setShowModal(true);
   };
@@ -3743,7 +3743,7 @@ function PageReviews() {
       rating: review.rating || 5,
       comment: review.comment || review.message || '',
       status: getReviewStatusBadge(review.status).value,
-      product_name: review.product_name || 'Premium Furniture'
+      product_name: review.product_name || 'AstroGifts Gift Item'
     });
     setShowModal(true);
   };
@@ -4657,7 +4657,7 @@ function PageOrders() {
             email: o.email || '',
             phone: o.phone || '',
             payment: o.payment_method || '',
-            product: o.items && o.items.length > 0 ? (o.items[0].product_name + (o.items.length > 1 ? ` +${o.items.length - 1} more` : '')) : 'Furniture Item',
+            product: o.items && o.items.length > 0 ? (o.items[0].product_name + (o.items.length > 1 ? ` +${o.items.length - 1} more` : '')) : 'AstroGifts Item',
             amount: '₹' + Number(o.total || 0).toLocaleString(),
             status: o.status ? o.status.replace(/\b\w/g, l => l.toUpperCase()) : 'Pending',
             return_type: o.return_type || '',

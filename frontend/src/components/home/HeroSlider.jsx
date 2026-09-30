@@ -53,7 +53,7 @@ const FALLBACK_SLIDES = [
 function getSlideTargetLink(slide) {
   if (slide?.link) {
     if (slide.link.startsWith('/category/')) return slide.link;
-    if (slide.link === '/shop' || slide.link === '/wooden-furniture') return '/category/gifts';
+    if (slide.link === '/shop' || slide.link === '/wooden-furniture' || slide.link === '/astrogifts') return '/category/gifts';
     const clean = slide.link.replace(/^\//, '').toLowerCase();
     if (['gifts', 'toys', 'astrology', 'diwali-gifts', 'birthday-gifts', 'anniversary-gifts', 'soft-toys', 'baby-toys', 'board-games', 'rings', 'pendants', 'bracelets', 'gemstones-crystals'].includes(clean)) {
       return `/category/${clean}`;

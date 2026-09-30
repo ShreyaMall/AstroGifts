@@ -40,7 +40,7 @@ const HERO_CONFIG = {
   'bracelets':          { label: 'Bracelets',            img: img_crystal,          bg: 'linear-gradient(135deg,#311b92 0%,#673ab7 100%)' },
   'gemstones-crystals': { label: 'Gemstones & Crystals', img: img_crystal,          bg: 'linear-gradient(135deg,#1a237e 0%,#3f51b5 100%)' },
   // Legacy fallback
-  'wooden-furniture': { label: 'All Products', img: img_gifts_banner, bg: 'linear-gradient(135deg,#7c3a1d 0%,#4a2511 100%)' },
+  'astrogifts': { label: 'All Products', img: img_gifts_banner, bg: 'linear-gradient(135deg,#7c3a1d 0%,#4a2511 100%)' },
 };
 
 const DEFAULT_CATEGORIES_TREE = [
@@ -128,7 +128,7 @@ export default function CategoryPage({ categorySlug }) {
     }).catch(console.error);
 
     // 3. Configure initial accordion expansion and selected category checkboxes based on URL slug
-    if (activeSlug === 'all' || activeSlug === 'shop' || activeSlug === 'wooden-furniture') {
+    if (activeSlug === 'all' || activeSlug === 'shop' || activeSlug === 'astrogifts') {
       setSelectedCategories([]);
       setExpandedCategories(['Toys', 'Gifts']);
     } else if (activeSlug === 'birthday-gifts' || activeSlug === 'diwali-gifts' || activeSlug === 'anniversary-gifts') {
@@ -381,7 +381,7 @@ export default function CategoryPage({ categorySlug }) {
   const isBirthdayCategory    = activeSlug === 'birthday-gifts';
   const isDiwaliCategory      = activeSlug === 'diwali-gifts';
   const isAnniversaryCategory = activeSlug === 'anniversary-gifts';
-  const isShopAllPage         = activeSlug === 'all' || activeSlug === 'shop' || activeSlug === 'wooden-furniture';
+  const isShopAllPage         = activeSlug === 'all' || activeSlug === 'shop' || activeSlug === 'astrogifts';
   const isFlatCategoryPage    = !isShopAllPage;
 
   /* Derived filter options */

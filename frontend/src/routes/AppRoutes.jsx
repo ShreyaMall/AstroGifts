@@ -39,7 +39,7 @@ export default function AppRoutes() {
       <Route path="/" element={<HomePage />} />
       <Route path="/about" element={<AboutPage />} />
       <Route path="/shop" element={<CategoryPage categorySlug="gifts" />} />
-      <Route path="/wooden-furniture" element={<CategoryPage categorySlug="gifts" />} />
+      <Route path="/astrogifts" element={<CategoryPage categorySlug="gifts" />} />
       <Route path="/category/:slug" element={<CategoryPage />} />
       <Route path="/search" element={<SearchPage />} />
 
