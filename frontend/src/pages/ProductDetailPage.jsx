@@ -2,6 +2,7 @@ import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { getHexColor } from '../utils/colorUtils';
 import './ProductDetailPage.css';
 
 
@@ -383,43 +384,7 @@ export default function ProductDetailPage() {
     navigate('/checkout');
   };
 
-  // Helper for color swatches
-  const getHexColor = (colorName) => {
-    if (!colorName) return '#ddd';
-    const normalized = colorName.toLowerCase().trim();
-    const map = {
-      'bone white': '#f9f6f0',
-      'white': '#ffffff',
-      'black': '#222222',
-      'grey': '#808080',
-      'gray': '#808080',
-      'dark grey': '#444444',
-      'light grey': '#d3d3d3',
-      'brown': '#654321',
-      'dark brown': '#3e2723',
-      'beige': '#f5f5dc',
-      'navy': '#1b2a4a',
-      'navy blue': '#1b2a4a',
-      'blue': '#0066cc',
-      'red': '#d93838',
-      'green': '#27ae60',
-      'teal': '#0d9488',
-      'yellow': '#f4d03f',
-      'orange': '#f07d26',
-      'pink': '#e87a90',
-      'purple': '#800080',
-      'gold': '#d4af37',
-      'rose gold': '#b76e79',
-      'silver': '#c0c0c0',
-      'maroon': '#800020',
-      'multi': '#e74c3c'
-    };
-    if (map[normalized]) return map[normalized];
-    for (const key in map) {
-      if (normalized.includes(key)) return map[key];
-    }
-    return normalized.replace(/\s+/g, '');
-  };
+
 
   const parseDimensions = (dimStr) => {
     if (!dimStr) return { w: 'N/A', h: 'N/A', d: 'N/A' };

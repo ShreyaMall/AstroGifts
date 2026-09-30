@@ -4,13 +4,13 @@ export const getHexColor = (colorVal) => {
   if (str.startsWith('#') || str.startsWith('rgb') || str.startsWith('linear-gradient') || str.startsWith('conic-gradient')) return str;
   const normalized = str.toLowerCase();
   const hexMap = {
-    'multicolor': 'linear-gradient(135deg, #ff4b4b, #facc15, #4ade80, #3b82f6, #ec4899)',
-    'multi color': 'linear-gradient(135deg, #ff4b4b, #facc15, #4ade80, #3b82f6, #ec4899)',
-    'multicoloured': 'linear-gradient(135deg, #ff4b4b, #facc15, #4ade80, #3b82f6, #ec4899)',
-    'multi': 'linear-gradient(135deg, #ff4b4b, #facc15, #4ade80, #3b82f6, #ec4899)',
-    'mixcolor': 'linear-gradient(135deg, #ff4b4b, #facc15, #4ade80, #3b82f6, #ec4899)',
-    'mix color': 'linear-gradient(135deg, #ff4b4b, #facc15, #4ade80, #3b82f6, #ec4899)',
-    'rainbow': 'linear-gradient(135deg, #ff4b4b, #facc15, #4ade80, #3b82f6, #ec4899)',
+    'multicolor': 'conic-gradient(#8ce055 0 90deg, #ea5455 90deg 180deg, #f5c045 180deg 270deg, #a754f5 270deg 360deg)',
+    'multi color': 'conic-gradient(#8ce055 0 90deg, #ea5455 90deg 180deg, #f5c045 180deg 270deg, #a754f5 270deg 360deg)',
+    'multicoloured': 'conic-gradient(#8ce055 0 90deg, #ea5455 90deg 180deg, #f5c045 180deg 270deg, #a754f5 270deg 360deg)',
+    'multi': 'conic-gradient(#8ce055 0 90deg, #ea5455 90deg 180deg, #f5c045 180deg 270deg, #a754f5 270deg 360deg)',
+    'mixcolor': 'conic-gradient(#8ce055 0 90deg, #ea5455 90deg 180deg, #f5c045 180deg 270deg, #a754f5 270deg 360deg)',
+    'mix color': 'conic-gradient(#8ce055 0 90deg, #ea5455 90deg 180deg, #f5c045 180deg 270deg, #a754f5 270deg 360deg)',
+    'rainbow': 'conic-gradient(#8ce055 0 90deg, #ea5455 90deg 180deg, #f5c045 180deg 270deg, #a754f5 270deg 360deg)',
     'bone white': '#f9f6f0',
     'white': '#ffffff',
     'black': '#1c1c1c',

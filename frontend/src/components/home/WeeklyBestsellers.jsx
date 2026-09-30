@@ -4,7 +4,7 @@ import './WeeklyBestsellers.css';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { productsApi, categoriesApi } from '../../services/api';
-import ProductDetailModal from './ProductDetailModal';
+import { getHexColor } from '../../utils/colorUtils';
 import giftItemImg from '../../assets/gift image.jpg';
 
 const getFormattedImageUrl = (rawUrl) => {
@@ -40,29 +40,7 @@ function Stars({ rating }) {
   );
 }
 
-const getHexColor = (colorName) => {
-  if (!colorName) return '#ccc';
-  const c = colorName.toLowerCase().trim();
-  const MAP = {
-    red: '#d93838',
-    blue: '#0066cc',
-    green: '#27ae60',
-    yellow: '#f4d03f',
-    pink: '#e87a90',
-    black: '#1a1a1a',
-    white: '#ffffff',
-    gold: '#d4af37',
-    silver: '#c0c0c0',
-    brown: '#6e3b1c',
-    purple: '#800080',
-    orange: '#f07d26',
-    grey: '#95a5a6',
-    gray: '#95a5a6',
-    'rose gold': '#b76e79',
-    'navy blue': '#1b2a4a'
-  };
-  return MAP[c] || c;
-};
+
 
 function ProductCard({ product, onQuickView }) {
   const { addToCart } = useCart();
@@ -229,7 +207,7 @@ function ProductCard({ product, onQuickView }) {
               <span
                 key={idx}
                 className={`wb-card__dot ${selectedColor === color ? 'wb-card__dot--active' : ''}`}
-                style={{ backgroundColor: getHexColor(color) }}
+                style={{ background: getHexColor(color) }}
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();

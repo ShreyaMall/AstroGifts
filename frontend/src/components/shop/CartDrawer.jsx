@@ -92,7 +92,7 @@ export default function CartDrawer() {
                             width: '12px',
                             height: '12px',
                             borderRadius: '50%',
-                            backgroundColor: getHexColor(item.color),
+                            background: getHexColor(item.color),
                             display: 'inline-block',
                             border: '1px solid #ccc',
                             flexShrink: 0
