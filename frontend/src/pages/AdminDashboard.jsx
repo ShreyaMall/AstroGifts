@@ -231,7 +231,7 @@ function PageDashboard({ setActivePage }) {
         payment: o.payment_method || 'COD',
         product: o.items && o.items.length > 0 ? ((o.items[0].product_name || o.items[0].name || 'Astro Gift Item') + (o.items.length > 1 ? ` +${o.items.length - 1} more` : '')) : 'Astro Gift Box',
         amount: '₹' + Number(o.total || o.amount || 0).toLocaleString('en-IN'),
-        status: o.status || 'Processing',
+        status: (o.status === 'Partially Cancelled' || o.status === 'partially cancelled') ? 'Cancelled' : (o.status || 'Processing'),
         created_at: o.created_at || null,
         date: o.created_at ? new Date(o.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : (o.date || new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })),
       }));
@@ -3417,7 +3417,7 @@ function OrdersTable({ data, onStatusChange, onViewOrder }) {
                 <td style={{ padding: '16px' }}>
                   <div style={{ position: 'relative', display: 'inline-block', width: '150px' }}>
                     <select
-                      value={o.status}
+                      value={o.status === 'Partially Cancelled' ? 'Cancelled' : o.status}
                       onChange={e => onStatusChange && onStatusChange(o.id, o.numericId, e.target.value)}
                       style={{
                         appearance: 'none',
@@ -3444,7 +3444,6 @@ function OrdersTable({ data, onStatusChange, onViewOrder }) {
                       <option value="Return Rejected">Return Rejected</option>
                       <option value="Refunded">Refunded</option>
                       <option value="Cancelled">Cancelled</option>
-                      <option value="Partially Cancelled">Partially Cancelled</option>
                     </select>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
                       <polyline points="6 9 12 15 18 9"/>
@@ -4565,7 +4564,7 @@ function PageOrders() {
             payment: o.payment_method || '',
             product: o.items && o.items.length > 0 ? (o.items[0].product_name + (o.items.length > 1 ? ` +${o.items.length - 1} more` : '')) : 'AstroGifts Item',
             amount: '₹' + Number(o.total || 0).toLocaleString(),
-            status: o.status ? o.status.replace(/\b\w/g, l => l.toUpperCase()) : 'Pending',
+            status: (o.status === 'Partially Cancelled' || o.status === 'partially cancelled') ? 'Cancelled' : (o.status ? o.status.replace(/\b\w/g, l => l.toUpperCase()) : 'Pending'),
             return_type: o.return_type || '',
             return_reason: o.return_reason || '',
             return_notes: o.return_notes || '',
