@@ -186,9 +186,10 @@ export default function AboutPage() {
       {/* ── CTA BANNER ── */}
       <section className="about-cta">
         <div className="about-container about-cta__inner">
+          <div className="about-cta__badge">🎁 START SHOPPING WITH ASTROGIFTS</div>
           <h2 className="about-cta__title">Ready to Find the Perfect Gift?</h2>
           <p className="about-cta__desc">
-            Explore thousands of curated hampers, wooden toys, birthstones, and home accents today.
+            Explore thousands of curated hampers, safe toys, certified gemstones, and home accents today.
           </p>
           <div className="about-cta__buttons">
             <Link to="/category/gifts" className="about-btn about-btn--primary">Shop Collections</Link>

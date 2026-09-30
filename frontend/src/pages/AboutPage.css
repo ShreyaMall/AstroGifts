@@ -296,27 +296,49 @@
 
 /* ── CTA BANNER ── */
 .about-cta {
-  background: linear-gradient(135deg, #7c3a1d 0%, #a64c24 100%);
-  color: #ffffff;
-  padding: 70px 20px;
+  background: linear-gradient(135deg, #fdf8f3 0%, #f6eadc 50%, #ebd7c2 100%);
+  color: #2c1810;
+  padding: 80px 20px;
   text-align: center;
+  border-top: 1px solid #e8ded4;
+  border-bottom: 1px solid #e8ded4;
+  position: relative;
+  overflow: hidden;
 }
 
 .about-cta__inner {
-  max-width: 700px;
+  max-width: 750px;
   margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+.about-cta__badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #d96b27;
+  background: #ffffff;
+  padding: 6px 16px;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(124, 58, 29, 0.08);
+  margin-bottom: 18px;
+  text-transform: uppercase;
 }
 
 .about-cta__title {
-  font-size: 2.2rem;
+  font-size: 2.4rem;
   font-weight: 800;
-  margin-bottom: 12px;
+  color: #1a1a1a;
+  margin-bottom: 14px;
+  line-height: 1.25;
 }
 
 .about-cta__desc {
   font-size: 1.05rem;
-  opacity: 0.9;
-  margin-bottom: 30px;
+  color: #555555;
+  margin-bottom: 32px;
   line-height: 1.6;
 }
 
@@ -327,33 +349,41 @@
 }
 
 .about-btn {
-  padding: 14px 32px;
+  padding: 14px 34px;
   border-radius: 30px;
   font-size: 0.95rem;
   font-weight: 700;
   text-decoration: none;
   transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .about-btn--primary {
-  background: #ffffff;
-  color: #7c3a1d;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  background: #7c3a1d;
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(124, 58, 29, 0.25);
 }
 
 .about-btn--primary:hover {
-  background: #fdf6f0;
+  background: #d96b27;
   transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(217, 107, 39, 0.35);
 }
 
 .about-btn--secondary {
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: #ffffff;
+  color: #7c3a1d;
+  border: 1.5px solid #7c3a1d;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .about-btn--secondary:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: #fdf6f0;
+  color: #d96b27;
+  border-color: #d96b27;
+  transform: translateY(-2px);
 }
 
 /* ── RESPONSIVE STYLES ── */
