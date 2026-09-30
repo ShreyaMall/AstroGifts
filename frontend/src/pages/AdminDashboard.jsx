@@ -48,19 +48,20 @@ const DEFAULT_COLORS = [
   { id: '3',  name: 'Blue',        hex: '#0066cc', status: 'Active' },
   { id: '4',  name: 'Red',         hex: '#d93838', status: 'Active' },
   { id: '5',  name: 'Gold',        hex: '#d4af37', status: 'Active' },
-  { id: '6',  name: 'Multi',       hex: '#e74c3c', status: 'Active' },
-  { id: '7',  name: 'Brown',       hex: '#6e3b1c', status: 'Active' },
-  { id: '8',  name: 'Pink',        hex: '#e87a90', status: 'Active' },
-  { id: '9',  name: 'Silver',      hex: '#c0c0c0', status: 'Active' },
-  { id: '10', name: 'Green',       hex: '#27ae60', status: 'Active' },
-  { id: '11', name: 'Navy Blue',   hex: '#1b2a4a', status: 'Active' },
-  { id: '12', name: 'Maroon',      hex: '#800020', status: 'Active' },
-  { id: '13', name: 'Grey',        hex: '#95a5a6', status: 'Active' },
-  { id: '14', name: 'Rose Gold',   hex: '#b76e79', status: 'Active' },
-  { id: '15', name: 'Purple',     hex: '#800080', status: 'Active' },
-  { id: '16', name: 'Yellow',     hex: '#f4d03f', status: 'Active' },
-  { id: '17', name: 'Beige',      hex: '#f5f5dc', status: 'Active' },
-  { id: '18', name: 'Orange',     hex: '#f07d26', status: 'Active' },
+  { id: '6',  name: 'Multicolor',  hex: 'linear-gradient(135deg, #ff4b4b, #facc15, #4ade80, #3b82f6, #ec4899)', status: 'Active' },
+  { id: '7',  name: 'Mix Color',   hex: 'linear-gradient(135deg, #ff4b4b, #facc15, #4ade80, #3b82f6, #ec4899)', status: 'Active' },
+  { id: '8',  name: 'Brown',       hex: '#6e3b1c', status: 'Active' },
+  { id: '9',  name: 'Pink',        hex: '#e87a90', status: 'Active' },
+  { id: '10', name: 'Silver',      hex: '#c0c0c0', status: 'Active' },
+  { id: '11', name: 'Green',       hex: '#27ae60', status: 'Active' },
+  { id: '12', name: 'Navy Blue',   hex: '#1b2a4a', status: 'Active' },
+  { id: '13', name: 'Maroon',      hex: '#800020', status: 'Active' },
+  { id: '14', name: 'Grey',        hex: '#95a5a6', status: 'Active' },
+  { id: '15', name: 'Rose Gold',   hex: '#b76e79', status: 'Active' },
+  { id: '16', name: 'Purple',      hex: '#800080', status: 'Active' },
+  { id: '17', name: 'Yellow',      hex: '#f4d03f', status: 'Active' },
+  { id: '18', name: 'Beige',       hex: '#f5f5dc', status: 'Active' },
+  { id: '19', name: 'Orange',      hex: '#f07d26', status: 'Active' },
 ];
 
 export const getStoredColors = () => {
@@ -68,8 +69,8 @@ export const getStoredColors = () => {
     const raw = localStorage.getItem('astrogifts_admin_colors');
     if (raw) {
       const parsed = JSON.parse(raw);
-      // Migrate if old color names exist
-      if (Array.isArray(parsed) && parsed.some(c => c.name === 'Celestial Blue')) {
+      // Migrate if old color names exist or missing Multicolor
+      if (Array.isArray(parsed) && (parsed.some(c => c.name === 'Celestial Blue' || c.name === 'Multi') || !parsed.some(c => c.name === 'Multicolor'))) {
         localStorage.setItem('astrogifts_admin_colors', JSON.stringify(DEFAULT_COLORS));
         return DEFAULT_COLORS;
       }

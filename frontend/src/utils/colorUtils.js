@@ -1,9 +1,16 @@
 export const getHexColor = (colorVal) => {
   if (!colorVal) return '#cccccc';
   const str = String(colorVal).trim();
-  if (str.startsWith('#') || str.startsWith('rgb')) return str;
+  if (str.startsWith('#') || str.startsWith('rgb') || str.startsWith('linear-gradient') || str.startsWith('conic-gradient')) return str;
   const normalized = str.toLowerCase();
   const hexMap = {
+    'multicolor': 'linear-gradient(135deg, #ff4b4b, #facc15, #4ade80, #3b82f6, #ec4899)',
+    'multi color': 'linear-gradient(135deg, #ff4b4b, #facc15, #4ade80, #3b82f6, #ec4899)',
+    'multicoloured': 'linear-gradient(135deg, #ff4b4b, #facc15, #4ade80, #3b82f6, #ec4899)',
+    'multi': 'linear-gradient(135deg, #ff4b4b, #facc15, #4ade80, #3b82f6, #ec4899)',
+    'mixcolor': 'linear-gradient(135deg, #ff4b4b, #facc15, #4ade80, #3b82f6, #ec4899)',
+    'mix color': 'linear-gradient(135deg, #ff4b4b, #facc15, #4ade80, #3b82f6, #ec4899)',
+    'rainbow': 'linear-gradient(135deg, #ff4b4b, #facc15, #4ade80, #3b82f6, #ec4899)',
     'bone white': '#f9f6f0',
     'white': '#ffffff',
     'black': '#1c1c1c',
