@@ -203,6 +203,8 @@ class DatabaseSeeder extends Seeder
         }
 
         // ── 5. Posts / Articles ──
+        Post::query()->delete();
+
         $posts = [
             [
                 'title' => 'Choosing Safe & Educational Toys for Kids',
@@ -235,13 +237,13 @@ class DatabaseSeeder extends Seeder
                 'image' => '/article_gifting.png',
             ],
             [
-                'title' => 'Wood Types: Oak vs Walnut vs Pine',
-                'slug' => 'fresh-flower-arrangement-and-decor-tips',
-                'category' => 'Materials',
-                'excerpt' => 'Understand grain patterns, hardness, and aging characteristics to pick the right solid wood.',
-                'content' => 'Complete guide on selecting handcrafted wooden blocks, oak vs walnut finishes, and long-lasting furniture.',
+                'title' => 'Spiritual Home Decor & Fresh Flower Bouquets',
+                'slug' => 'spiritual-home-decor-and-fresh-flower-bouquets',
+                'category' => 'Home & Decor',
+                'excerpt' => 'Elevate your living space with handcrafted brass idols, aromatic candles, and fresh floral decor.',
+                'content' => 'Complete guide on arranging fresh flowers, placing feng shui home decor, and creating a peaceful ambiance.',
                 'status' => 'Published',
-                'date_label' => 'Jul 18, 2026',
+                'date_label' => 'Sep 10, 2026',
                 'image' => '/article_wood.png',
             ],
         ];
