@@ -45,6 +45,163 @@ const STATUS_STYLE = {
   Refunded:              { background: '#10b981', color: '#fff' },
 };
 
+function OrderTrackStepper({ order }) {
+  const status = (order.status || 'Order Placed').toLowerCase();
+
+  const formattedDate = order.created_at
+    ? new Date(order.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+    : '30 Sept';
+
+  let activeStep = 0;
+  if (status.includes('deliver')) {
+    activeStep = 3;
+  } else if (status.includes('ship') || status.includes('dispatch') || status.includes('transit') || status.includes('out for delivery')) {
+    activeStep = 2;
+  } else if (status.includes('process') || status.includes('confirm') || status.includes('pack')) {
+    activeStep = 1;
+  } else {
+    activeStep = 0;
+  }
+
+  const isCancelled = status.includes('cancel');
+  const isReturn = status.includes('return') || status.includes('refund');
+
+  const steps = [
+    {
+      title: 'Order Placed',
+      subtext: 'We have received your order',
+      date: formattedDate,
+    },
+    {
+      title: 'Processing & Quality Check',
+      subtext: 'Item packed and quality verified',
+      date: activeStep >= 1 ? 'Completed' : 'Pending',
+    },
+    {
+      title: 'Arriving / Shipped',
+      subtext: 'On the way with courier partner',
+      date: activeStep >= 2 ? 'In Transit' : 'Pending',
+    },
+    {
+      title: 'Delivered',
+      subtext: 'Package delivered to address',
+      date: activeStep >= 3 ? 'Delivered' : 'Expected',
+    },
+  ];
+
+  return (
+    <div style={{
+      background: '#f8fafc',
+      borderRadius: '12px',
+      border: '1px solid #e2e8f0',
+      padding: '16px 20px',
+      margin: '14px 22px',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '16px' }}>📦</span>
+          <span style={{ fontSize: '14px', fontWeight: '700', color: '#1e293b' }}>Track Item</span>
+        </div>
+        <span style={{
+          fontSize: '10px',
+          fontWeight: '800',
+          letterSpacing: '0.8px',
+          background: isCancelled ? '#ef4444' : isReturn ? '#ea580c' : activeStep === 3 ? '#16a34a' : '#475569',
+          color: '#ffffff',
+          padding: '3px 9px',
+          borderRadius: '4px',
+          textTransform: 'uppercase'
+        }}>
+          {isCancelled ? 'CANCELLED' : isReturn ? 'RETURN/REFUND' : activeStep === 3 ? 'DELIVERED' : 'LIVE'}
+        </span>
+      </div>
+
+      {isCancelled ? (
+        <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', color: '#991b1b', padding: '12px 16px', borderRadius: '8px', fontSize: '13px', lineHeight: 1.5 }}>
+          ⚠️ This order has been cancelled. If payment was processed, the amount will be refunded within 2-4 business days.
+        </div>
+      ) : isReturn ? (
+        <div style={{ background: '#fff7ed', border: '1px solid #ffedd5', color: '#c2410c', padding: '12px 16px', borderRadius: '8px', fontSize: '13px', lineHeight: 1.5 }}>
+          🔄 Return/Exchange in progress for this order. Status: <strong>{order.status}</strong>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0px' }}>
+          {steps.map((step, idx) => {
+            const isCompleted = idx < activeStep;
+            const isCurrent = idx === activeStep;
+            const isPending = idx > activeStep;
+
+            return (
+              <div key={idx} style={{ display: 'flex', gap: '14px', position: 'relative', minHeight: '48px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '18px' }}>
+                  <div style={{
+                    width: '16px',
+                    height: '16px',
+                    borderRadius: '50%',
+                    border: isCompleted || isCurrent ? '2px solid #16a34a' : '2px solid #cbd5e1',
+                    background: isCompleted || isCurrent ? '#16a34a' : '#ffffff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 2,
+                    boxShadow: isCurrent ? '0 0 0 4px rgba(22, 163, 74, 0.2)' : 'none'
+                  }}>
+                    {isCompleted ? (
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="4">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    ) : isCurrent ? (
+                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#ffffff' }} />
+                    ) : (
+                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#cbd5e1' }} />
+                    )}
+                  </div>
+                  {idx < steps.length - 1 && (
+                    <div style={{
+                      width: '2px',
+                      flex: 1,
+                      background: idx < activeStep ? '#16a34a' : '#cbd5e1',
+                      marginTop: '2px',
+                      marginBottom: '2px'
+                    }} />
+                  )}
+                </div>
+
+                <div style={{ flex: 1, paddingBottom: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{
+                      fontSize: '13.5px',
+                      fontWeight: '700',
+                      color: isCompleted || isCurrent ? '#0f172a' : '#64748b'
+                    }}>
+                      {step.title}
+                    </span>
+                    <span style={{
+                      fontSize: '11.5px',
+                      fontWeight: '600',
+                      color: isCompleted || isCurrent ? '#475569' : '#94a3b8'
+                    }}>
+                      {step.date}
+                    </span>
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: isCompleted || isCurrent ? '#64748b' : '#94a3b8',
+                    marginTop: '2px'
+                  }}>
+                    {step.subtext}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 const resolveItemImage = (item) => {
   const img = item?.image || item?.product_image;
   if (!img) return '/gift image.jpg';
@@ -475,6 +632,9 @@ export default function MyOrdersPage() {
                           {ord.status || 'Processing'}
                         </span>
                       </div>
+
+                      {/* Dynamic Track Item Stepper */}
+                      <OrderTrackStepper order={ord} />
 
                       {/* Items */}
                       {ord.items && ord.items.map((item, idx) => {
