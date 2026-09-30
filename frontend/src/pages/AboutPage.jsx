@@ -20,7 +20,12 @@ export default function AboutPage() {
       {/* ── HERO BANNER ── */}
       <section className="about-hero">
         <div className="about-hero__container">
-          <div className="about-hero__badge">✨ OUR STORY & VISION</div>
+          <div className="about-hero__badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7c3a1d" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+            OUR STORY & VISION
+          </div>
           <h1 className="about-hero__title">
             Crafting Moments of Joy & <span className="about-hero__highlight">Celestial Harmony</span>
           </h1>
@@ -66,7 +71,16 @@ export default function AboutPage() {
           <div className="about-grid__image-wrap">
             <img src={giftsImage} alt="AstroGifts Hampers" className="about-grid__img" />
             <div className="about-grid__glass-card">
-              <span className="about-glass-title">🎁 Premium Packaging</span>
+              <span className="about-glass-title" style={{ display: 'flex', alignItems: 'center' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c3a1d" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                  <polyline points="20 12 20 22 4 22 4 12"/>
+                  <rect x="2" y="7" width="20" height="5"/>
+                  <line x1="12" y1="22" x2="12" y2="7"/>
+                  <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
+                  <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+                </svg>
+                Premium Packaging
+              </span>
               <span className="about-glass-sub">Custom handwritten notes & luxury hampers</span>
             </div>
           </div>
@@ -85,7 +99,15 @@ export default function AboutPage() {
           <div className="about-pillars-grid">
             {/* Pillar 1 */}
             <div className="about-pillar-card">
-              <div className="about-pillar-card__icon">🎁</div>
+              <div className="about-pillar-card__icon-wrap">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7c3a1d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 12 20 22 4 22 4 12"/>
+                  <rect x="2" y="7" width="20" height="5"/>
+                  <line x1="12" y1="22" x2="12" y2="7"/>
+                  <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
+                  <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+                </svg>
+              </div>
               <h3 className="about-pillar-card__title">Luxury Gift Hampers</h3>
               <p className="about-pillar-card__desc">
                 From birthday gift boxes to anniversary keepsakes and festive hampers, designed to make every occasion unforgettable.
@@ -95,7 +117,14 @@ export default function AboutPage() {
 
             {/* Pillar 2 */}
             <div className="about-pillar-card">
-              <div className="about-pillar-card__icon">🧸</div>
+              <div className="about-pillar-card__icon-wrap">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7c3a1d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="6" width="20" height="12" rx="3" />
+                  <path d="M6 12h4m-2-2v4" />
+                  <circle cx="17" cy="10" r="1" fill="#7c3a1d" />
+                  <circle cx="15" cy="13" r="1" fill="#7c3a1d" />
+                </svg>
+              </div>
               <h3 className="about-pillar-card__title">Safe & Fun Toys</h3>
               <p className="about-pillar-card__desc">
                 Eco-friendly wooden toys, plush teddy bears, and cognitive board games crafted for growing young minds.
@@ -105,7 +134,13 @@ export default function AboutPage() {
 
             {/* Pillar 3 */}
             <div className="about-pillar-card">
-              <div className="about-pillar-card__icon">🔮</div>
+              <div className="about-pillar-card__icon-wrap">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7c3a1d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="12 2 22 8.5 17 22 7 22 2 8.5 12 2" />
+                  <line x1="12" y1="2" x2="12" y2="22" />
+                  <line x1="2" y1="8.5" x2="22" y2="8.5" />
+                </svg>
+              </div>
               <h3 className="about-pillar-card__title">Astrology & Gemstones</h3>
               <p className="about-pillar-card__desc">
                 Certified healing crystals, Rose Quartz, Amethyst, and birthstone rings crafted to bring positive cosmic alignment.
@@ -115,7 +150,12 @@ export default function AboutPage() {
 
             {/* Pillar 4 */}
             <div className="about-pillar-card">
-              <div className="about-pillar-card__icon">🌸</div>
+              <div className="about-pillar-card__icon-wrap">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7c3a1d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                  <polyline points="9 22 9 12 15 12 15 22" />
+                </svg>
+              </div>
               <h3 className="about-pillar-card__title">Spiritual Home Decor</h3>
               <p className="about-pillar-card__desc">
                 Handcrafted idols, brass diyas, aromatic candles, and fresh floral decor for a harmonious living sanctuary.
@@ -148,7 +188,7 @@ export default function AboutPage() {
             <div className="about-feature-icon-wrap">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7c3a1d" strokeWidth="2.5">
                 <rect x="1" y="3" width="15" height="13"/>
-                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                <polygon points="16 8 20 8 23 11 23 16 16 16 8"/>
                 <circle cx="5.5" cy="18.5" r="2.5"/>
                 <circle cx="18.5" cy="18.5" r="2.5"/>
               </svg>
@@ -186,7 +226,16 @@ export default function AboutPage() {
       {/* ── CTA BANNER ── */}
       <section className="about-cta">
         <div className="about-container about-cta__inner">
-          <div className="about-cta__badge">🎁 START SHOPPING WITH ASTROGIFTS</div>
+          <div className="about-cta__badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d96b27" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+              <polyline points="20 12 20 22 4 22 4 12"/>
+              <rect x="2" y="7" width="20" height="5"/>
+              <line x1="12" y1="22" x2="12" y2="7"/>
+              <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
+              <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+            </svg>
+            START SHOPPING WITH ASTROGIFTS
+          </div>
           <h2 className="about-cta__title">Ready to Find the Perfect Gift?</h2>
           <p className="about-cta__desc">
             Explore thousands of curated hampers, safe toys, certified gemstones, and home accents today.

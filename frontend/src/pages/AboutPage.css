@@ -214,9 +214,22 @@
   box-shadow: 0 12px 30px rgba(124, 58, 29, 0.12);
 }
 
-.about-pillar-card__icon {
-  font-size: 2.2rem;
-  margin-bottom: 16px;
+.about-pillar-card__icon-wrap {
+  width: 52px;
+  height: 52px;
+  background: #fdf6f0;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  border: 1px solid #f3e5d8;
+  transition: transform 0.25s ease;
+}
+
+.about-pillar-card:hover .about-pillar-card__icon-wrap {
+  transform: scale(1.08);
+  background: #fbeee3;
 }
 
 .about-pillar-card__title {
