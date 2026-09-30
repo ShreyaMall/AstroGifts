@@ -2908,15 +2908,11 @@ function PageAllProducts() {
               {/* Basic Information */}
               <div className="admin__form-section">
                 <h4 className="admin__section-title">Basic Information</h4>
-                {/* Product Name, SKU, Category in one row */}
-                <div className="admin__form-grid" style={{ gridTemplateColumns: '2fr 1fr 1fr', marginBottom: '10px' }}>
+                {/* Product Name & Category */}
+                <div className="admin__form-grid" style={{ gridTemplateColumns: '2fr 1fr', marginBottom: '10px' }}>
                   <div className="admin__input-group">
                     <label>Product Name *</label>
                     <input className="admin__form-input" style={{ width: '100%', boxSizing: 'border-box' }} placeholder="e.g. Karungali Bracelet / Rose Quartz Crystal" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
-                  </div>
-                  <div className="admin__input-group">
-                    <label>SKU</label>
-                    <input className="admin__form-input" style={{ width: '100%', boxSizing: 'border-box' }} placeholder="e.g. ASTRO-001" value={form.sku} onChange={e => setForm(f => ({ ...f, sku: e.target.value }))} />
                   </div>
                   <div className="admin__input-group">
                     <label>Category *</label>
@@ -3035,10 +3031,6 @@ function PageAllProducts() {
                       title={form.colors?.length > 0 ? "Calculated automatically from colors" : ""}
                     />
                   </div>
-                  <div className="admin__input-group">
-                    <label>Material</label>
-                    <input className="admin__form-input" style={{ width: '100%', boxSizing: 'border-box' }} placeholder="e.g. Solid Teak Wood" value={form.material} onChange={e => setForm(f => ({ ...f, material: e.target.value }))} />
-                  </div>
                   <div className="admin__input-group" style={{ gridColumn: '1 / -1' }}>
                     <label>Colors & Stock Variations</label>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', background: '#f9fafb', padding: '16px', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
@@ -3139,15 +3131,11 @@ function PageAllProducts() {
                     </div>
                   </div>
                   <div className="admin__input-group">
-                    <label>Dimensions / Size</label>
+                    <label>Size / Variation</label>
                     <select className="admin__form-input" style={{ width: '100%', boxSizing: 'border-box' }} value={form.size} onChange={e => setForm(f => ({ ...f, size: e.target.value }))}>
                       <option value="">Select Size...</option>
                       {uniqueSizes.map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
-                  </div>
-                  <div className="admin__input-group">
-                    <label>Dimensions (W x D x H)</label>
-                    <input className="admin__form-input" style={{ width: '100%', boxSizing: 'border-box' }} placeholder="e.g. W: 167cm x D: 47cm x H: 65cm" value={form.dimensions} onChange={e => setForm(f => ({ ...f, dimensions: e.target.value }))} />
                   </div>
                   <div className="admin__input-group">
                     <label>Weight</label>
