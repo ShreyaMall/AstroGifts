@@ -40,7 +40,7 @@ export const CartProvider = ({ children }) => {
 
     return {
       id: `${baseId}${colorSuffix}${sizeSuffix}`,
-      product_id: product.id || product._id || null,
+      product_id: product.id || product._id || product.product_id || baseId,
       slug: product.slug || String(productName).toLowerCase().replace(/[^a-z0-9]+/g, '-'),
       name: productName,
       title: productName,
