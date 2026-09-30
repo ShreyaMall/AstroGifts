@@ -1855,7 +1855,6 @@ function PageColors() {
               <th>#</th>
               <th>Color Preview</th>
               <th>Color Name</th>
-              <th>HEX Code</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -1863,7 +1862,7 @@ function PageColors() {
           <tbody>
             {colors.length === 0 ? (
               <tr>
-                <td colSpan="6" style={{ textAlign: 'center', padding: '30px', color: '#888' }}>
+                <td colSpan="5" style={{ textAlign: 'center', padding: '30px', color: '#888' }}>
                   No colors added yet. Click "+ Add Color" to create one.
                 </td>
               </tr>
@@ -1876,7 +1875,7 @@ function PageColors() {
                       width: '28px',
                       height: '28px',
                       borderRadius: '50%',
-                      backgroundColor: c.hex || '#cccccc',
+                      background: c.hex || '#cccccc',
                       border: '2px solid #ffffff',
                       boxShadow: '0 2px 5px rgba(0,0,0,0.15)',
                       display: 'inline-block',
@@ -1884,7 +1883,6 @@ function PageColors() {
                     }} />
                   </td>
                   <td><strong>{c.name}</strong></td>
-                  <td><code className="admin__code">{c.hex}</code></td>
                   <td>
                     <span style={{
                       display: 'inline-block',
