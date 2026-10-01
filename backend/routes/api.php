@@ -92,6 +92,7 @@ Route::prefix('admin')->group(function () {
     Route::get('/orders', [AdminController::class, 'orders']);
     Route::put('/orders/{id}/status', [AdminController::class, 'updateOrderStatus']);
     Route::patch('/orders/{id}/status', [AdminController::class, 'updateOrderStatus']);
+    Route::delete('/orders/{id}', [AdminController::class, 'deleteOrder']);
 
     Route::get('/products', [AdminController::class, 'products']);
     Route::post('/products', [AdminController::class, 'storeProduct']);

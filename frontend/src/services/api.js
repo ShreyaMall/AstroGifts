@@ -315,6 +315,12 @@ export const adminApi = {
     });
   },
 
+  deleteOrder: async (orderId) => {
+    return request(`/admin/orders/${orderId}`, {
+      method: 'DELETE',
+    });
+  },
+
   getProducts: async (search = '') => {
     const params = new URLSearchParams();
     if (search) params.append('search', search);

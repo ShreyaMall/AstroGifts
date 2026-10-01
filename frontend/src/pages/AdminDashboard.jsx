@@ -307,6 +307,36 @@ function PageDashboard({ setActivePage }) {
     }
   };
 
+  const handleDeleteOrder = async (order) => {
+    if (!order) return;
+    const confirmDelete = window.confirm(`Are you sure you want to delete order ${order.id || order.order_number || ''}?`);
+    if (!confirmDelete) return;
+
+    const orderId = order.id;
+    const numericId = order.numericId || order.dbId || order._id || order.id || order.order_number;
+
+    setOrders(prev => prev.filter(o => o.id !== orderId && o._id !== numericId && o.order_number !== order.order_number));
+
+    try {
+      const localOrders = JSON.parse(localStorage.getItem('astrogifts_user_orders') || '[]');
+      const filtered = localOrders.filter(o => 
+        o.id !== orderId && o.id !== numericId && o.order_number !== order.order_number
+      );
+      localStorage.setItem('astrogifts_user_orders', JSON.stringify(filtered));
+    } catch (err) {
+      console.warn('Failed to update local orders in localStorage:', err);
+    }
+
+    if (numericId) {
+      try {
+        await adminApi.deleteOrder(numericId);
+      } catch (err) {
+        console.warn('Order delete API failed:', err.message);
+      }
+    }
+  };
+
+
   return (
     <>
       <div className="admin__stats">
@@ -372,7 +402,7 @@ function PageDashboard({ setActivePage }) {
             </button>
           </div>
         </div>
-        <OrdersTable data={displayedOrders} onStatusChange={handleStatusUpdate} onViewOrder={handleViewOrder} />
+        <OrdersTable data={displayedOrders} onStatusChange={handleStatusUpdate} onViewOrder={handleViewOrder} onDeleteOrder={handleDeleteOrder} />
       </div>
 
       {/* Order Details Modal */}
@@ -3374,7 +3404,7 @@ const getAdminOrderStatusStyle = (status) => {
   }
 };
 
-function OrdersTable({ data, onStatusChange, onViewOrder }) {
+function OrdersTable({ data, onStatusChange, onViewOrder, onDeleteOrder }) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const totalPages = Math.ceil((data?.length || 0) / itemsPerPage);
@@ -3487,7 +3517,9 @@ function OrdersTable({ data, onStatusChange, onViewOrder }) {
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                       View
                     </button>
-                    <button style={{
+                    <button 
+                      onClick={() => onDeleteOrder && onDeleteOrder(o)}
+                      style={{
                       display: 'inline-flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -4604,6 +4636,36 @@ function PageOrders() {
     }
   };
 
+  const handleDeleteOrder = async (order) => {
+    if (!order) return;
+    const confirmDelete = window.confirm(`Are you sure you want to delete order ${order.id || order.order_number || ''}?`);
+    if (!confirmDelete) return;
+
+    const orderId = order.id;
+    const numericId = order.numericId || order.dbId || order._id || order.id || order.order_number;
+
+    setOrders(prev => prev.filter(o => o.id !== orderId && o._id !== numericId && o.order_number !== order.order_number));
+
+    try {
+      const localOrders = JSON.parse(localStorage.getItem('astrogifts_user_orders') || '[]');
+      const filtered = localOrders.filter(o => 
+        o.id !== orderId && o.id !== numericId && o.order_number !== order.order_number
+      );
+      localStorage.setItem('astrogifts_user_orders', JSON.stringify(filtered));
+    } catch (err) {
+      console.warn('Failed to update local orders in localStorage:', err);
+    }
+
+    if (numericId) {
+      try {
+        await adminApi.deleteOrder(numericId);
+      } catch (err) {
+        console.warn('Order delete API failed:', err.message);
+      }
+    }
+  };
+
+
   const displayedOrders = useMemo(() => {
     let list = [...orders];
 
@@ -4668,7 +4730,7 @@ function PageOrders() {
       {loading ? (
         <AdminPageLoader text="Loading customer orders…" />
       ) : (
-        <OrdersTable data={displayedOrders} onStatusChange={handleStatusUpdate} onViewOrder={handleViewOrder} />
+        <OrdersTable data={displayedOrders} onStatusChange={handleStatusUpdate} onViewOrder={handleViewOrder} onDeleteOrder={handleDeleteOrder} />
       )}
 
       {/* Order Details Modal */}

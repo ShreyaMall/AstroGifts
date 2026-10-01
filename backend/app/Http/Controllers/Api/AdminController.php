@@ -219,6 +219,38 @@ class AdminController extends Controller
     }
 
     /**
+     * Delete order
+     */
+    public function deleteOrder(string $id): JsonResponse
+    {
+        $order = Order::find($id) 
+            ?? Order::where('_id', $id)->first() 
+            ?? Order::where('order_number', $id)->first();
+
+        if (!$order) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Order not found',
+            ], 404);
+        }
+
+        try {
+            if (method_exists($order, 'items')) {
+                $order->items()->delete();
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to delete order items: ' . $e->getMessage());
+        }
+
+        $order->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Order deleted successfully',
+        ]);
+    }
+
+    /**
      * Product inventory list
      */
     public function products(Request $request): JsonResponse
