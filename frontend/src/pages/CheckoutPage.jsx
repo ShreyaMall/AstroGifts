@@ -308,38 +308,38 @@ export default function CheckoutPage() {
   return (
     <>
       <Header />
-      <div className="shreeji-checkout-page">
+      <div className="astrogifts-checkout-page">
         {step === 1 ? (
-          <div className="shreeji-checkout-container">
+          <div className="astrogifts-checkout-container">
             {cartItems.length === 0 ? (
-              <div className="shreeji-empty-cart-box">
+              <div className="astrogifts-empty-cart-box">
                 <h2>Your cart is empty</h2>
                 <p>Add some products to your cart before proceeding to checkout.</p>
-                <button className="shreeji-btn-primary" onClick={() => navigate('/')}>
+                <button className="astrogifts-btn-primary" onClick={() => navigate('/')}>
                   Continue Shopping
                 </button>
               </div>
             ) : (
-              <form className="shreeji-checkout-form" onSubmit={handlePlaceOrder}>
-                <div className="shreeji-checkout-grid">
+              <form className="astrogifts-checkout-form" onSubmit={handlePlaceOrder}>
+                <div className="astrogifts-checkout-grid">
                   
                   {/* LEFT COLUMN: Verification, Shipping, Payment */}
-                  <div className="shreeji-left-col">
+                  <div className="astrogifts-left-col">
                     
                     {/* 1. Email Verification / Contact Information Card */}
-                    <div className="shreeji-card">
-                      <div className="shreeji-card-header">
-                        <svg className="shreeji-header-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <div className="astrogifts-card">
+                      <div className="astrogifts-card-header">
+                        <svg className="astrogifts-header-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                           <polyline points="22 4 12 14.01 9 11.01"></polyline>
                         </svg>
                         <h2>{user ? 'Verify Your Email' : 'Contact Information'}</h2>
                       </div>
                       {user ? (
-                        <div className="shreeji-email-banner">
+                        <div className="astrogifts-email-banner">
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5">
                             <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 8 12 12 14 14"></polyline>
+                            <polyline points="12 8 12 14 14"></polyline>
                             <path d="M9 12l2 2 4-4"></path>
                           </svg>
                           <span>
@@ -380,17 +380,17 @@ export default function CheckoutPage() {
                     </div>
 
                     {/* 2. Shipping Address Card */}
-                    <div className="shreeji-card">
-                      <div className="shreeji-card-header">
-                        <svg className="shreeji-header-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <div className="astrogifts-card">
+                      <div className="astrogifts-card-header">
+                        <svg className="astrogifts-header-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                           <circle cx="12" cy="10" r="3"></circle>
                         </svg>
                         <h2>Shipping Address</h2>
                       </div>
 
-                      <div className="shreeji-form-grid">
-                        <div className="shreeji-form-group">
+                      <div className="astrogifts-form-grid">
+                        <div className="astrogifts-form-group">
                           <label>Full Name</label>
                           <input 
                             type="text" 
@@ -402,7 +402,7 @@ export default function CheckoutPage() {
                           />
                         </div>
 
-                        <div className="shreeji-form-group">
+                        <div className="astrogifts-form-group">
                           <label>Phone Number</label>
                           <input 
                             type="tel" 
@@ -416,7 +416,7 @@ export default function CheckoutPage() {
                           />
                         </div>
 
-                        <div className="shreeji-form-group shreeji-full-width">
+                        <div className="astrogifts-form-group astrogifts-full-width">
                           <label>Address</label>
                           <input 
                             type="text" 
@@ -428,7 +428,7 @@ export default function CheckoutPage() {
                           />
                         </div>
 
-                        <div className="shreeji-form-group">
+                        <div className="astrogifts-form-group">
                           <label>City</label>
                           <input 
                             type="text" 
@@ -440,7 +440,7 @@ export default function CheckoutPage() {
                           />
                         </div>
 
-                        <div className="shreeji-form-group">
+                        <div className="astrogifts-form-group">
                           <label>State</label>
                           <input 
                             type="text" 
@@ -452,7 +452,7 @@ export default function CheckoutPage() {
                           />
                         </div>
 
-                        <div className="shreeji-form-group">
+                        <div className="astrogifts-form-group">
                           <label>Pincode</label>
                           <input 
                             type="text" 
@@ -469,17 +469,17 @@ export default function CheckoutPage() {
                     </div>
 
                     {/* 3. Payment Method Card */}
-                    <div className="shreeji-card">
-                      <div className="shreeji-card-header">
-                        <svg className="shreeji-header-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <div className="astrogifts-card">
+                      <div className="astrogifts-card-header">
+                        <svg className="astrogifts-header-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <rect x="2" y="5" width="20" height="14" rx="2"></rect>
                           <line x1="2" y1="10" x2="22" y2="10"></line>
                         </svg>
                         <h2>Payment Method</h2>
                       </div>
 
-                      <div className="shreeji-payment-options">
-                        <label className={`shreeji-radio-option ${paymentMethod === 'cod' ? 'active' : ''}`}>
+                      <div className="astrogifts-payment-options">
+                        <label className={`astrogifts-radio-option ${paymentMethod === 'cod' ? 'active' : ''}`}>
                           <input 
                             type="radio" 
                             name="payment" 
@@ -487,11 +487,11 @@ export default function CheckoutPage() {
                             checked={paymentMethod === 'cod'} 
                             onChange={(e) => setPaymentMethod(e.target.value)} 
                           />
-                          <span className="shreeji-radio-custom" />
-                          <span className="shreeji-radio-text">Cash on Delivery (COD)</span>
+                          <span className="astrogifts-radio-custom" />
+                          <span className="astrogifts-radio-text">Cash on Delivery (COD)</span>
                         </label>
 
-                        <label className={`shreeji-radio-option ${paymentMethod === 'razorpay' ? 'active' : ''}`}>
+                        <label className={`astrogifts-radio-option ${paymentMethod === 'razorpay' ? 'active' : ''}`}>
                           <input 
                             type="radio" 
                             name="payment" 
@@ -499,8 +499,8 @@ export default function CheckoutPage() {
                             checked={paymentMethod === 'razorpay'} 
                             onChange={(e) => setPaymentMethod(e.target.value)} 
                           />
-                          <span className="shreeji-radio-custom" />
-                          <span className="shreeji-radio-text">Credit Card/ Debit Card/ Internet Banking/ UPI</span>
+                          <span className="astrogifts-radio-custom" />
+                          <span className="astrogifts-radio-text">Credit Card/ Debit Card/ Internet Banking/ UPI</span>
                         </label>
                       </div>
                     </div>
@@ -508,12 +508,12 @@ export default function CheckoutPage() {
                   </div>
 
                   {/* RIGHT COLUMN: Order Items & Order Summary */}
-                  <div className="shreeji-right-col">
+                  <div className="astrogifts-right-col">
                     
                     {/* 1. Order Items (N) Card */}
-                    <div className="shreeji-card">
-                      <div className="shreeji-card-header">
-                        <svg className="shreeji-header-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <div className="astrogifts-card">
+                      <div className="astrogifts-card-header">
+                        <svg className="astrogifts-header-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
                           <line x1="3" y1="6" x2="21" y2="6"></line>
                           <path d="M16 10a4 4 0 0 1-8 0"></path>
@@ -521,21 +521,21 @@ export default function CheckoutPage() {
                         <h2>Order Items ({cartItems.length})</h2>
                       </div>
 
-                      <div className="shreeji-items-list">
+                      <div className="astrogifts-items-list">
                         {cartItems.map((item, idx) => (
-                          <div key={idx} className="shreeji-item-row">
-                            <img src={item.image || item.img} alt={item.name} className="shreeji-item-thumb" />
-                            <div className="shreeji-item-info">
-                              <div className="shreeji-item-top">
-                                <h4 className="shreeji-item-title">{item.name}</h4>
-                                <div className="shreeji-item-price-wrap">
-                                  <span className="shreeji-item-price">₹{Math.round(item.price)}</span>
+                          <div key={idx} className="astrogifts-item-row">
+                            <img src={item.image || item.img} alt={item.name} className="astrogifts-item-thumb" />
+                            <div className="astrogifts-item-info">
+                              <div className="astrogifts-item-top">
+                                <h4 className="astrogifts-item-title">{item.name}</h4>
+                                <div className="astrogifts-item-price-wrap">
+                                  <span className="astrogifts-item-price">₹{Math.round(item.price)}</span>
                                   {item.originalPrice && item.originalPrice > item.price && (
-                                    <span className="shreeji-item-old-price">₹{Math.round(item.originalPrice)}</span>
+                                    <span className="astrogifts-item-old-price">₹{Math.round(item.originalPrice)}</span>
                                   )}
                                 </div>
                               </div>
-                              <div className="shreeji-item-meta">
+                              <div className="astrogifts-item-meta">
                                 Size: {item.size || 'Standard Box (M)'} | Color: {getColorName(item.color || item.selectedColor || 'Default')} | Qty: {item.quantity || 1}
                               </div>
                             </div>
@@ -545,46 +545,46 @@ export default function CheckoutPage() {
                     </div>
 
                     {/* 2. Order Summary Card */}
-                    <div className="shreeji-card shreeji-summary-card">
-                      <div className="shreeji-card-header">
+                    <div className="astrogifts-card astrogifts-summary-card">
+                      <div className="astrogifts-card-header">
                         <h2>Order Summary</h2>
                       </div>
 
-                      <div className="shreeji-summary-rows">
-                        <div className="shreeji-summary-row">
+                      <div className="astrogifts-summary-rows">
+                        <div className="astrogifts-summary-row">
                           <span>Subtotal</span>
                           <strong>₹{cartTotal.toFixed(2)}</strong>
                         </div>
                         {appliedCoupon && (
-                          <div className="shreeji-summary-row shreeji-discount-row">
+                          <div className="astrogifts-summary-row astrogifts-discount-row">
                             <span>Discount ({appliedCoupon.code})</span>
                             <strong style={{ color: '#16a34a' }}>-₹{couponDiscountAmount.toFixed(2)}</strong>
                           </div>
                         )}
-                        <div className="shreeji-summary-row">
+                        <div className="astrogifts-summary-row">
                           <span>Shipping</span>
                           <strong>₹0</strong>
                         </div>
-                        <div className="shreeji-summary-row">
+                        <div className="astrogifts-summary-row">
                           <span>Tax</span>
                           <strong>₹0</strong>
                         </div>
-                        <div className="shreeji-divider" />
-                        <div className="shreeji-summary-row shreeji-total-row">
+                        <div className="astrogifts-divider" />
+                        <div className="astrogifts-summary-row astrogifts-total-row">
                           <span>Total</span>
-                          <strong className="shreeji-total-price">₹{finalTotal.toFixed(2)}</strong>
+                          <strong className="astrogifts-total-price">₹{finalTotal.toFixed(2)}</strong>
                         </div>
                       </div>
 
                       {/* Coupon Toggle in Summary */}
-                      <div className="shreeji-coupon-section">
+                      <div className="astrogifts-coupon-section">
                         {!showCouponBox ? (
-                          <button type="button" className="shreeji-coupon-link" onClick={() => setShowCouponBox(true)}>
+                          <button type="button" className="astrogifts-coupon-link" onClick={() => setShowCouponBox(true)}>
                             + Have a coupon code?
                           </button>
                         ) : (
-                          <div className="shreeji-coupon-box">
-                            <div className="shreeji-coupon-input-group">
+                          <div className="astrogifts-coupon-box">
+                            <div className="astrogifts-coupon-input-group">
                               <input 
                                 type="text" 
                                 placeholder="Enter coupon code" 
@@ -593,24 +593,24 @@ export default function CheckoutPage() {
                               />
                               <button type="button" onClick={handleApplyCoupon}>Apply</button>
                             </div>
-                            {couponSuccess && <div className="shreeji-coupon-msg success">{couponSuccess}</div>}
-                            {couponError && <div className="shreeji-coupon-msg error">{couponError}</div>}
+                            {couponSuccess && <div className="astrogifts-coupon-msg success">{couponSuccess}</div>}
+                            {couponError && <div className="astrogifts-coupon-msg error">{couponError}</div>}
                           </div>
                         )}
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="shreeji-action-buttons">
+                      <div className="astrogifts-action-buttons">
                         <button 
                           type="submit" 
-                          className="shreeji-place-order-btn" 
+                          className="astrogifts-place-order-btn" 
                           disabled={isSubmitting}
                         >
                           {isSubmitting ? 'Processing...' : 'Place Order'}
                         </button>
                         <button 
                           type="button" 
-                          className="shreeji-back-cart-btn" 
+                          className="astrogifts-back-cart-btn" 
                           onClick={() => navigate('/')}
                         >
                           Back to Cart
@@ -626,9 +626,9 @@ export default function CheckoutPage() {
             )}
           </div>
         ) : step === 2 && orderDetails && (
-          <div className="shreeji-checkout-container">
-            <div className="shreeji-success-box">
-              <div className="shreeji-success-icon">
+          <div className="astrogifts-checkout-container">
+            <div className="astrogifts-success-box">
+              <div className="astrogifts-success-icon">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5">
                   <polyline points="20 6 9 17 4 12"/>
                 </svg>
@@ -636,17 +636,17 @@ export default function CheckoutPage() {
               <h2>Order Placed Successfully!</h2>
               <p>Thank you for your purchase. Your order number is <strong>#{orderDetails.orderId}</strong>.</p>
               
-              <div className="shreeji-success-details">
+              <div className="astrogifts-success-details">
                 <div><span>Date:</span> <strong>{orderDetails.date}</strong></div>
                 <div><span>Total Paid:</span> <strong>₹{orderDetails.total?.toFixed(2)}</strong></div>
                 <div><span>Payment Method:</span> <strong>{orderDetails.paymentMethodStr}</strong></div>
               </div>
 
-              <div className="shreeji-success-actions">
-                <button className="shreeji-place-order-btn" onClick={handleFinish}>
+              <div className="astrogifts-success-actions">
+                <button className="astrogifts-place-order-btn" onClick={handleFinish}>
                   Return to Home
                 </button>
-                <button className="shreeji-back-cart-btn" onClick={() => navigate('/my-orders')}>
+                <button className="astrogifts-back-cart-btn" onClick={() => navigate('/my-orders')}>
                   View My Orders
                 </button>
               </div>

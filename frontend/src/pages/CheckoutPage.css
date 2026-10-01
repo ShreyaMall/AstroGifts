@@ -2,7 +2,7 @@
    AstroGifts Checkout Page Styling (Warm Chestnut Theme)
    ────────────────────────────────────────────── */
 
-.shreeji-checkout-page {
+.astrogifts-checkout-page {
   width: 100%;
   background-color: #faf8f5;
   min-height: 85vh;
@@ -11,13 +11,13 @@
   font-family: inherit;
 }
 
-.shreeji-checkout-container {
+.astrogifts-checkout-container {
   max-width: 1140px;
   margin: 0 auto;
   padding: 0 20px;
 }
 
-.shreeji-checkout-grid {
+.astrogifts-checkout-grid {
   display: grid;
   grid-template-columns: 1.25fr 0.75fr;
   gap: 24px;
@@ -25,19 +25,19 @@
 }
 
 @media (max-width: 992px) {
-  .shreeji-checkout-grid {
+  .astrogifts-checkout-grid {
     grid-template-columns: 1fr;
     gap: 20px;
   }
 }
 
-.shreeji-left-col {
+.astrogifts-left-col {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.shreeji-right-col {
+.astrogifts-right-col {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -46,7 +46,7 @@
 }
 
 /* Cards styling */
-.shreeji-card {
+.astrogifts-card {
   background: #ffffff;
   border: 1px solid #eae5df;
   border-radius: 12px;
@@ -54,7 +54,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
 }
 
-.shreeji-card-header {
+.astrogifts-card-header {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -63,7 +63,7 @@
   border-bottom: 1px solid #f3eeea;
 }
 
-.shreeji-card-header h2 {
+.astrogifts-card-header h2 {
   font-size: 18px;
   font-weight: 700;
   color: #111827;
@@ -71,12 +71,12 @@
   letter-spacing: -0.2px;
 }
 
-.shreeji-header-icon {
+.astrogifts-header-icon {
   color: #7c3a1d;
 }
 
 /* Email Banner */
-.shreeji-email-banner {
+.astrogifts-email-banner {
   background: #eef7ed;
   border: 1px solid #c3e6cb;
   border-radius: 8px;
@@ -88,40 +88,40 @@
   color: #155724;
 }
 
-.shreeji-email-banner strong {
+.astrogifts-email-banner strong {
   color: #0f401b;
 }
 
 /* Form Grid */
-.shreeji-form-grid {
+.astrogifts-form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
 }
 
 @media (max-width: 640px) {
-  .shreeji-form-grid {
+  .astrogifts-form-grid {
     grid-template-columns: 1fr;
   }
 }
 
-.shreeji-form-group {
+.astrogifts-form-group {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.shreeji-full-width {
+.astrogifts-full-width {
   grid-column: 1 / -1;
 }
 
-.shreeji-form-group label {
+.astrogifts-form-group label {
   font-size: 13px;
   font-weight: 600;
   color: #374151;
 }
 
-.shreeji-form-group input {
+.astrogifts-form-group input {
   width: 100%;
   padding: 11px 14px;
   border: 1px solid #dcd5cc;
@@ -134,24 +134,24 @@
   box-sizing: border-box;
 }
 
-.shreeji-form-group input::placeholder {
+.astrogifts-form-group input::placeholder {
   color: #9ca3af;
   font-size: 13px;
 }
 
-.shreeji-form-group input:focus {
+.astrogifts-form-group input:focus {
   border-color: #7c3a1d;
   box-shadow: 0 0 0 3px rgba(124, 58, 29, 0.12);
 }
 
 /* Payment Method Options */
-.shreeji-payment-options {
+.astrogifts-payment-options {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.shreeji-radio-option {
+.astrogifts-radio-option {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -164,37 +164,37 @@
   position: relative;
 }
 
-.shreeji-radio-option:hover {
+.astrogifts-radio-option:hover {
   border-color: #7c3a1d;
   background: #fdfaf6;
 }
 
-.shreeji-radio-option.active {
+.astrogifts-radio-option.active {
   border-color: #7c3a1d;
   background: #fdf6f0;
 }
 
-.shreeji-radio-option input[type="radio"] {
+.astrogifts-radio-option input[type="radio"] {
   accent-color: #7c3a1d;
   width: 16px;
   height: 16px;
   cursor: pointer;
 }
 
-.shreeji-radio-text {
+.astrogifts-radio-text {
   font-size: 14px;
   font-weight: 500;
   color: #374151;
 }
 
 /* Order Items List */
-.shreeji-items-list {
+.astrogifts-items-list {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
-.shreeji-item-row {
+.astrogifts-item-row {
   display: flex;
   gap: 14px;
   align-items: flex-start;
@@ -202,12 +202,12 @@
   border-bottom: 1px solid #f3eeea;
 }
 
-.shreeji-item-row:last-child {
+.astrogifts-item-row:last-child {
   padding-bottom: 0;
   border-bottom: none;
 }
 
-.shreeji-item-thumb {
+.astrogifts-item-thumb {
   width: 56px;
   height: 56px;
   object-fit: cover;
@@ -216,11 +216,11 @@
   flex-shrink: 0;
 }
 
-.shreeji-item-info {
+.astrogifts-item-info {
   flex: 1;
 }
 
-.shreeji-item-top {
+.astrogifts-item-top {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -228,7 +228,7 @@
   margin-bottom: 4px;
 }
 
-.shreeji-item-title {
+.astrogifts-item-title {
   font-size: 14px;
   font-weight: 600;
   color: #111827;
@@ -236,77 +236,77 @@
   line-height: 1.3;
 }
 
-.shreeji-item-price-wrap {
+.astrogifts-item-price-wrap {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
 }
 
-.shreeji-item-price {
+.astrogifts-item-price {
   font-size: 15px;
   font-weight: 700;
   color: #7c3a1d;
 }
 
-.shreeji-item-old-price {
+.astrogifts-item-old-price {
   font-size: 12px;
   color: #9ca3af;
   text-decoration: line-through;
 }
 
-.shreeji-item-meta {
+.astrogifts-item-meta {
   font-size: 12px;
   color: #6b7280;
 }
 
 /* Order Summary Card */
-.shreeji-summary-card .shreeji-card-header {
+.astrogifts-summary-card .astrogifts-card-header {
   border-bottom: 1px solid #eae5df;
 }
 
-.shreeji-summary-rows {
+.astrogifts-summary-rows {
   display: flex;
   flex-direction: column;
   gap: 12px;
   margin-bottom: 18px;
 }
 
-.shreeji-summary-row {
+.astrogifts-summary-row {
   display: flex;
   justify-content: space-between;
   font-size: 14px;
   color: #4b5563;
 }
 
-.shreeji-summary-row strong {
+.astrogifts-summary-row strong {
   color: #111827;
   font-weight: 600;
 }
 
-.shreeji-divider {
+.astrogifts-divider {
   height: 1px;
   background-color: #eae5df;
   margin: 4px 0;
 }
 
-.shreeji-total-row {
+.astrogifts-total-row {
   font-size: 16px;
   color: #111827;
   padding-top: 4px;
 }
 
-.shreeji-total-price {
+.astrogifts-total-price {
   font-size: 20px;
   font-weight: 800;
   color: #7c3a1d;
 }
 
 /* Coupon section */
-.shreeji-coupon-section {
+.astrogifts-coupon-section {
   margin-bottom: 20px;
 }
 
-.shreeji-coupon-link {
+.astrogifts-coupon-link {
   background: none;
   border: none;
   color: #7c3a1d;
@@ -316,20 +316,20 @@
   padding: 0;
 }
 
-.shreeji-coupon-link:hover {
+.astrogifts-coupon-link:hover {
   text-decoration: underline;
 }
 
-.shreeji-coupon-box {
+.astrogifts-coupon-box {
   margin-top: 10px;
 }
 
-.shreeji-coupon-input-group {
+.astrogifts-coupon-input-group {
   display: flex;
   gap: 8px;
 }
 
-.shreeji-coupon-input-group input {
+.astrogifts-coupon-input-group input {
   flex: 1;
   padding: 8px 12px;
   border: 1px solid #d1d5db;
@@ -338,7 +338,7 @@
   outline: none;
 }
 
-.shreeji-coupon-input-group button {
+.astrogifts-coupon-input-group button {
   background: #7c3a1d;
   color: #ffffff;
   border: none;
@@ -349,31 +349,31 @@
   cursor: pointer;
 }
 
-.shreeji-coupon-msg {
+.astrogifts-coupon-msg {
   font-size: 12px;
   margin-top: 6px;
   padding: 6px 10px;
   border-radius: 4px;
 }
 
-.shreeji-coupon-msg.success {
+.astrogifts-coupon-msg.success {
   background: #d1fae5;
   color: #065f46;
 }
 
-.shreeji-coupon-msg.error {
+.astrogifts-coupon-msg.error {
   background: #fee2e2;
   color: #991b1b;
 }
 
 /* Action Buttons */
-.shreeji-action-buttons {
+.astrogifts-action-buttons {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.shreeji-place-order-btn {
+.astrogifts-place-order-btn {
   width: 100%;
   background: #7c3a1d;
   color: #ffffff;
@@ -387,16 +387,16 @@
   box-shadow: 0 2px 6px rgba(124, 58, 29, 0.2);
 }
 
-.shreeji-place-order-btn:hover {
+.astrogifts-place-order-btn:hover {
   background: #6b3117;
 }
 
-.shreeji-place-order-btn:disabled {
+.astrogifts-place-order-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.shreeji-back-cart-btn {
+.astrogifts-back-cart-btn {
   width: 100%;
   background: #ffffff;
   color: #374151;
@@ -409,14 +409,14 @@
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 
-.shreeji-back-cart-btn:hover {
+.astrogifts-back-cart-btn:hover {
   background: #fdf6f0;
   border-color: #7c3a1d;
   color: #7c3a1d;
 }
 
 /* Empty Cart State */
-.shreeji-empty-cart-box {
+.astrogifts-empty-cart-box {
   background: #ffffff;
   border-radius: 12px;
   padding: 60px 20px;
@@ -426,19 +426,19 @@
   border: 1px solid #e5e7eb;
 }
 
-.shreeji-empty-cart-box h2 {
+.astrogifts-empty-cart-box h2 {
   font-size: 22px;
   font-weight: 700;
   margin-bottom: 8px;
 }
 
-.shreeji-empty-cart-box p {
+.astrogifts-empty-cart-box p {
   color: #6b7280;
   font-size: 14px;
   margin-bottom: 24px;
 }
 
-.shreeji-btn-primary {
+.astrogifts-btn-primary {
   background: #7c3a1d;
   color: #ffffff;
   border: none;
@@ -450,7 +450,7 @@
 }
 
 /* Success Step Screen */
-.shreeji-success-box {
+.astrogifts-success-box {
   background: #ffffff;
   border-radius: 12px;
   padding: 40px;
@@ -461,7 +461,7 @@
   box-shadow: 0 4px 15px rgba(0,0,0,0.03);
 }
 
-.shreeji-success-icon {
+.astrogifts-success-icon {
   width: 64px;
   height: 64px;
   border-radius: 50%;
@@ -472,20 +472,20 @@
   margin: 0 auto 20px;
 }
 
-.shreeji-success-box h2 {
+.astrogifts-success-box h2 {
   font-size: 22px;
   font-weight: 800;
   color: #111827;
   margin-bottom: 8px;
 }
 
-.shreeji-success-box p {
+.astrogifts-success-box p {
   color: #4b5563;
   font-size: 14px;
   margin-bottom: 24px;
 }
 
-.shreeji-success-details {
+.astrogifts-success-details {
   background: #faf8f5;
   border: 1px solid #f3eeea;
   border-radius: 8px;
@@ -498,21 +498,21 @@
   font-size: 14px;
 }
 
-.shreeji-success-details div {
+.astrogifts-success-details div {
   display: flex;
   justify-content: space-between;
   color: #4b5563;
 }
 
-.shreeji-success-details strong {
+.astrogifts-success-details strong {
   color: #111827;
 }
 
-.shreeji-success-actions {
+.astrogifts-success-actions {
   display: flex;
   gap: 12px;
 }
 
-.shreeji-success-actions button {
+.astrogifts-success-actions button {
   flex: 1;
 }
