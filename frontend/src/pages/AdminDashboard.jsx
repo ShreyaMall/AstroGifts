@@ -182,6 +182,7 @@ function PageDashboard({ setActivePage }) {
   const [loading, setLoading] = useState(true);
   const [dateFilter, setDateFilter] = useState('');
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [orderToDelete, setOrderToDelete] = useState(null);
 
   const handleViewOrder = (order) => setSelectedOrder(order);
 
@@ -307,11 +308,14 @@ function PageDashboard({ setActivePage }) {
     }
   };
 
-  const handleDeleteOrder = async (order) => {
+  const handleDeleteOrder = (order) => {
     if (!order) return;
-    const confirmDelete = window.confirm(`Are you sure you want to delete order ${order.id || order.order_number || ''}?`);
-    if (!confirmDelete) return;
+    setOrderToDelete(order);
+  };
 
+  const handleConfirmDeleteOrder = async () => {
+    if (!orderToDelete) return;
+    const order = orderToDelete;
     const orderId = order.id;
     const numericId = order.numericId || order.dbId || order._id || order.id || order.order_number;
 
@@ -334,6 +338,8 @@ function PageDashboard({ setActivePage }) {
         console.warn('Order delete API failed:', err.message);
       }
     }
+
+    setOrderToDelete(null);
   };
 
 
@@ -404,6 +410,63 @@ function PageDashboard({ setActivePage }) {
         </div>
         <OrdersTable data={displayedOrders} onStatusChange={handleStatusUpdate} onViewOrder={handleViewOrder} onDeleteOrder={handleDeleteOrder} />
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {orderToDelete && (
+        <div className="admin__modal-overlay" onClick={() => setOrderToDelete(null)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 999999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="admin__detailed-form" onClick={e => e.stopPropagation()} style={{ maxWidth: '440px', width: '90%', padding: '28px', background: '#fff', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.2)', textAlign: 'center' }}>
+            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#fee2e2', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                <line x1="10" y1="11" x2="10" y2="17"/>
+                <line x1="14" y1="11" x2="14" y2="17"/>
+              </svg>
+            </div>
+
+            <h3 style={{ fontSize: '20px', fontWeight: '700', color: '#1e293b', margin: '0 0 8px' }}>Delete Order</h3>
+            <p style={{ fontSize: '14px', color: '#64748b', margin: '0 0 24px', lineHeight: 1.5 }}>
+              Are you sure you want to delete order <strong>{orderToDelete.id || orderToDelete.order_number}</strong>? This action cannot be undone.
+            </p>
+
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <button
+                onClick={() => setOrderToDelete(null)}
+                style={{
+                  flex: 1,
+                  padding: '10px 18px',
+                  background: '#f1f5f9',
+                  color: '#475569',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmDeleteOrder}
+                style={{
+                  flex: 1,
+                  padding: '10px 18px',
+                  background: '#ef4444',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(239, 68, 68, 0.25)'
+                }}
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Order Details Modal */}
       {selectedOrder && (
@@ -4636,11 +4699,14 @@ function PageOrders() {
     }
   };
 
-  const handleDeleteOrder = async (order) => {
+  const handleDeleteOrder = (order) => {
     if (!order) return;
-    const confirmDelete = window.confirm(`Are you sure you want to delete order ${order.id || order.order_number || ''}?`);
-    if (!confirmDelete) return;
+    setOrderToDelete(order);
+  };
 
+  const handleConfirmDeleteOrder = async () => {
+    if (!orderToDelete) return;
+    const order = orderToDelete;
     const orderId = order.id;
     const numericId = order.numericId || order.dbId || order._id || order.id || order.order_number;
 
@@ -4663,6 +4729,8 @@ function PageOrders() {
         console.warn('Order delete API failed:', err.message);
       }
     }
+
+    setOrderToDelete(null);
   };
 
 
