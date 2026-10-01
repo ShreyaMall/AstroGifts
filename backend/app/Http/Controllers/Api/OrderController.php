@@ -152,15 +152,18 @@ class OrderController extends Controller
         // Calculate subtotal from items and verify against database
         $subtotal = 0;
         $processedItems = [];
+        $embeddedItems = [];
+
         foreach ($validated['items'] as $rawItem) {
             $item = $rawItem;
             $product = null;
             $pId = $item['product_id'] ?? $item['id'] ?? null;
-            if (!empty($pId)) {
-                $product = Product::find($pId) ?? Product::where('_id', $pId)->first();
-            }
-            if (!$product && !empty($item['name'])) {
+
+            if (!empty($item['name'])) {
                 $product = Product::where('name', $item['name'])->first();
+            }
+            if (!$product && !empty($pId)) {
+                $product = Product::find($pId) ?? Product::where('_id', $pId)->first();
             }
 
             if ($product) {
@@ -182,6 +185,23 @@ class OrderController extends Controller
 
             $subtotal += ($realPrice * (int)($item['quantity'] ?? 1));
             $processedItems[] = $item;
+
+            $embeddedItems[] = [
+                'productId' => (string)($item['product_id'] ?? $item['id'] ?? ''),
+                'product_id' => (string)($item['product_id'] ?? $item['id'] ?? ''),
+                'title' => $item['name'],
+                'name' => $item['name'],
+                'product_name' => $item['name'],
+                'image' => $item['image'] ?? null,
+                'product_image' => $item['image'] ?? null,
+                'price' => (float)$item['price'],
+                'quantity' => (int)($item['quantity'] ?? 1),
+                'qty' => (int)($item['quantity'] ?? 1),
+                'size' => $item['size'] ?? null,
+                'color' => $item['selected_color'] ?? $item['color'] ?? null,
+                'selected_color' => $item['selected_color'] ?? $item['color'] ?? null,
+                'status' => 'Pending',
+            ];
         }
         $validated['items'] = $processedItems;
 
@@ -224,6 +244,7 @@ class OrderController extends Controller
             'state' => $validated['state'] ?? 'Delhi',
             'zip' => $validated['zip'] ?? null,
             'shippingAddress' => $shippingAddress,
+            'items' => $embeddedItems,
             'subtotal' => (float)$subtotal,
             'discount' => (float)$discount,
             'shipping' => 0.00,
@@ -248,12 +269,11 @@ class OrderController extends Controller
             ],
         ]);
 
-        $embeddedItems = [];
-        foreach ($validated['items'] as $item) {
+        foreach ($embeddedItems as $item) {
             $createdItem = OrderItem::create([
                 'order_id' => $order->id,
-                'product_id' => $item['product_id'] ?? $item['id'] ?? null,
-                'productId' => (string)($item['product_id'] ?? $item['id'] ?? ''),
+                'product_id' => $item['product_id'] ?? $item['productId'] ?? null,
+                'productId' => (string)($item['product_id'] ?? $item['productId'] ?? ''),
                 'product_name' => $item['name'],
                 'title' => $item['name'],
                 'product_image' => $item['image'] ?? null,
@@ -267,27 +287,10 @@ class OrderController extends Controller
                 'subtotal' => ((float)$item['price'] * (int)$item['quantity']),
             ]);
 
-            $embeddedItems[] = [
-                'productId' => (string)($item['product_id'] ?? $item['id'] ?? ''),
-                'product_id' => (string)($item['product_id'] ?? $item['id'] ?? ''),
-                'title' => $item['name'],
-                'name' => $item['name'],
-                'product_name' => $item['name'],
-                'image' => $item['image'] ?? null,
-                'product_image' => $item['image'] ?? null,
-                'price' => (float)$item['price'],
-                'quantity' => (int)$item['quantity'],
-                'qty' => (int)$item['quantity'],
-                'size' => $item['size'] ?? null,
-                'color' => $item['selected_color'] ?? $item['color'] ?? null,
-                'selected_color' => $item['selected_color'] ?? $item['color'] ?? null,
-                'status' => 'Pending',
-            ];
-
             // Deduct stock from Product
             try {
                 $product = null;
-                $pId = $item['product_id'] ?? $item['id'] ?? null;
+                $pId = $item['product_id'] ?? $item['productId'] ?? null;
                 if (!empty($pId)) {
                     $product = Product::find($pId) ?? Product::where('_id', $pId)->first();
                 }
@@ -297,7 +300,7 @@ class OrderController extends Controller
 
                 if ($product) {
                     $deductQty = (int)($item['quantity'] ?? 1);
-                    $color = $item['color'] ?? $item['selected_color'] ?? $item['options']['color'] ?? null;
+                    $color = $item['color'] ?? $item['selected_color'] ?? null;
                     
                     // Deduct from variant stock if applicable
                     if ($color && isset($product->stock_by_color) && is_array($product->stock_by_color) && isset($product->stock_by_color[$color])) {
@@ -323,8 +326,6 @@ class OrderController extends Controller
             }
         }
 
-        // Save embedded items array to MongoDB Order document
-        $order->update(['items' => $embeddedItems]);
         $this->normalizeOrderItems($order);
 
         // Push to Shiprocket after response is sent (no queue worker needed)
