@@ -318,6 +318,8 @@ class OrderController extends Controller
                     
                     if ($newStock <= 0) {
                         $product->in_stock = false;
+                        $product->stock_status = 'out_of_stock';
+                        Log::warning("⚠️ OUT OF STOCK ALERT: Product [{$product->name}] (ID: {$product->id}) has reached 0 stock!");
                     }
                     $product->save();
                 }

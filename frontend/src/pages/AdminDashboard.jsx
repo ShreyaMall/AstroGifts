@@ -184,18 +184,25 @@ function PageDashboard({ setActivePage }) {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [orderToDelete, setOrderToDelete] = useState(null);
 
+  const [outOfStockList, setOutOfStockList] = useState([]);
+  const [lowStockList, setLowStockList] = useState([]);
+
   const handleViewOrder = (order) => setSelectedOrder(order);
 
   const fetchDashboardData = async () => {
     setLoading(true);
     let apiOrders = [];
     let apiStats = [];
+    let apiOutOfStock = [];
+    let apiLowStock = [];
     
     try {
       const res = await adminApi.getStats();
       if (res && res.data) {
         if (res.data.stats && res.data.stats.length > 0) apiStats = res.data.stats;
         if (res.data.recent_orders) apiOrders = res.data.recent_orders;
+        if (res.data.out_of_stock_products) apiOutOfStock = res.data.out_of_stock_products;
+        if (res.data.low_stock_products) apiLowStock = res.data.low_stock_products;
       }
     } catch (err) {
       console.warn('Using local stats fallback:', err.message);
@@ -253,6 +260,10 @@ function PageDashboard({ setActivePage }) {
       const pList = prodRes?.data || (Array.isArray(prodRes) ? prodRes : []);
       if (pList.length > 0) {
         realProductsCount = String(pList.length);
+        const outItems = pList.filter(p => p.in_stock === false || (p.stock !== undefined && p.stock !== null && Number(p.stock) <= 0) || p.stock_status === 'out_of_stock');
+        const lowItems = pList.filter(p => p.in_stock !== false && Number(p.stock) > 0 && Number(p.stock) <= 5);
+        if (apiOutOfStock.length === 0) apiOutOfStock = outItems;
+        if (apiLowStock.length === 0) apiLowStock = lowItems;
       } else {
         const statVal = apiStats.find(a => a.label === 'Total Products')?.value;
         realProductsCount = statVal !== undefined ? String(statVal) : '0';
@@ -264,10 +275,14 @@ function PageDashboard({ setActivePage }) {
 
     const usersCount = (apiStats.find(a => a.label === 'Total Users')?.value) || '2';
 
+    setOutOfStockList(apiOutOfStock);
+    setLowStockList(apiLowStock);
+
     setStats([
       { label: 'Total Revenue',  value: '₹' + totalRev.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), delta: totalRev > 0 ? '+12.4%' : '0%', icon: STATS[0].icon, color: '#d96b27' },
       { label: 'Total Orders',   value: String(mappedOrders.length), delta: mappedOrders.length > 0 ? '+8.1%' : '0%',  icon: STATS[1].icon, color: '#2563eb' },
       { label: 'Total Products', value: String(realProductsCount), delta: realProductsCount > 0 ? '+3.5%' : '0%', icon: STATS[2].icon, color: '#16a34a' },
+      { label: 'Out of Stock Items', value: String(apiOutOfStock.length), delta: apiOutOfStock.length > 0 ? '⚠️ Action Needed' : 'All In Stock', icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>, color: '#dc2626' },
       { label: 'Total Users',    value: String(usersCount), delta: '+21.3%', icon: STATS[3].icon, color: '#7c3aed' },
     ]);
     
@@ -357,6 +372,86 @@ function PageDashboard({ setActivePage }) {
           </div>
         ))}
       </div>
+
+      {/* Out of Stock & Low Stock Urgent Warning Banner */}
+      {(outOfStockList.length > 0 || lowStockList.length > 0) && (
+        <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '12px', padding: '20px', marginBottom: '24px', boxShadow: '0 4px 12px rgba(220,38,38,0.06)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '20px' }}>⚠️</span>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#991b1b' }}>
+                  Inventory Alert: {outOfStockList.length} Out of Stock | {lowStockList.length} Low Stock Item(s)
+                </h3>
+                <p style={{ margin: '2px 0 0 0', fontSize: '13px', color: '#7f1d1d' }}>
+                  Products reaching 0 stock cannot be ordered by customers. Please restock these items soon.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => setActivePage('all-products')}
+              style={{ background: '#dc2626', color: '#fff', border: 'none', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+            >
+              <span>Manage Inventory</span> →
+            </button>
+          </div>
+
+          <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #fee2e2', overflow: 'hidden' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'left' }}>
+              <thead style={{ background: '#fff5f5', color: '#991b1b', fontWeight: '700', borderBottom: '1px solid #fee2e2' }}>
+                <tr>
+                  <th style={{ padding: '10px 14px' }}>Product Name</th>
+                  <th style={{ padding: '10px 14px' }}>Category</th>
+                  <th style={{ padding: '10px 14px' }}>Current Stock</th>
+                  <th style={{ padding: '10px 14px' }}>Status</th>
+                  <th style={{ padding: '10px 14px', textAlign: 'right' }}>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...outOfStockList, ...lowStockList].slice(0, 5).map((prod, idx) => {
+                  const isOut = prod.in_stock === false || Number(prod.stock || 0) <= 0 || prod.stock_status === 'out_of_stock';
+                  return (
+                    <tr key={prod._id || prod.id || idx} style={{ borderBottom: '1px solid #fef2f2' }}>
+                      <td style={{ padding: '10px 14px', fontWeight: '600', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        {(prod.image || prod.image_url) && (
+                          <img src={prod.image || prod.image_url} alt={prod.name} style={{ width: '32px', height: '32px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #e2e8f0' }} />
+                        )}
+                        <span>{prod.name}</span>
+                      </td>
+                      <td style={{ padding: '10px 14px', color: '#64748b' }}>{prod.category_name || prod.category || 'Product'}</td>
+                      <td style={{ padding: '10px 14px', fontWeight: '700', color: isOut ? '#dc2626' : '#d97706' }}>
+                        {prod.stock !== undefined ? prod.stock : 0} units
+                      </td>
+                      <td style={{ padding: '10px 14px' }}>
+                        <span style={{
+                          display: 'inline-block',
+                          padding: '3px 8px',
+                          borderRadius: '12px',
+                          fontSize: '11px',
+                          fontWeight: '700',
+                          background: isOut ? '#fee2e2' : '#fef3c7',
+                          color: isOut ? '#dc2626' : '#b45309'
+                        }}>
+                          {isOut ? 'OUT OF STOCK' : 'LOW STOCK'}
+                        </span>
+                      </td>
+                      <td style={{ padding: '10px 14px', textAlign: 'right' }}>
+                        <button
+                          onClick={() => setActivePage('all-products')}
+                          style={{ background: '#fecaca', color: '#991b1b', border: 'none', borderRadius: '6px', padding: '4px 10px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}
+                        >
+                          Restock
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       <div className="admin__orders-section">
         <div className="admin__section-header" style={{ alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
           <h2 className="admin__section-title">Recent Orders</h2>
@@ -2547,6 +2642,7 @@ function PageAllProducts() {
   const [filterCategory, setFilterCategory] = useState('');
   const [filterSize, setFilterSize] = useState('');
   const [filterColor, setFilterColor] = useState('');
+  const [filterStock, setFilterStock] = useState('');
   const initialFormState = {
     name: '', sku: '', category: '', description: '',
     regularPrice: '', salePrice: '', discount: '', tax: '',
@@ -2878,6 +2974,20 @@ function PageAllProducts() {
       list = list.filter(p => p.raw && p.raw.color === filterColor);
     }
 
+    if (filterStock === 'out_of_stock') {
+      list = list.filter(p => p.raw?.in_stock === false || Number(p.raw?.stock ?? p.stock ?? 0) <= 0 || p.raw?.stock_status === 'out_of_stock' || p.stock === 'Out of Stock');
+    } else if (filterStock === 'low_stock') {
+      list = list.filter(p => {
+        const stk = Number(p.raw?.stock ?? p.stock ?? 0);
+        return p.raw?.in_stock !== false && stk > 0 && stk <= 5;
+      });
+    } else if (filterStock === 'in_stock') {
+      list = list.filter(p => {
+        const stk = Number(p.raw?.stock ?? p.stock ?? 0);
+        return p.raw?.in_stock !== false && stk > 5 && p.stock !== 'Out of Stock';
+      });
+    }
+
     if (dateFilter) {
       list = list.filter(p => {
         if (!p.created_at) return false;
@@ -2953,6 +3063,13 @@ function PageAllProducts() {
           <select value={filterColor} onChange={e => setFilterColor(e.target.value)} style={{ padding: '6px 12px', borderRadius: '4px', border: '1px solid #ccc', outline: 'none', background: '#fff' }}>
             <option value="">All Colors</option>
             {uniqueColors.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+
+          <select value={filterStock} onChange={e => setFilterStock(e.target.value)} style={{ padding: '6px 12px', borderRadius: '4px', border: filterStock === 'out_of_stock' ? '1px solid #dc2626' : '1px solid #ccc', outline: 'none', background: filterStock === 'out_of_stock' ? '#fff5f5' : '#fff', fontWeight: filterStock ? '600' : '400', color: filterStock === 'out_of_stock' ? '#dc2626' : '#1e293b' }}>
+            <option value="">All Stock Statuses</option>
+            <option value="out_of_stock">⚠️ Out of Stock</option>
+            <option value="low_stock">⚡ Low Stock (≤ 5)</option>
+            <option value="in_stock">✓ In Stock</option>
           </select>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '6px 12px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
@@ -3309,19 +3426,24 @@ function PageAllProducts() {
               <th style={{ padding: '16px', fontWeight: 'bold', color: '#1e293b', textAlign: 'center' }}>Product Name</th>
               <th style={{ padding: '16px', fontWeight: 'bold', color: '#1e293b' }}>Category</th>
               <th style={{ padding: '16px', fontWeight: 'bold', color: '#1e293b' }}>Price</th>
+              <th style={{ padding: '16px', fontWeight: 'bold', color: '#1e293b' }}>Stock Status</th>
               <th style={{ padding: '16px', fontWeight: 'bold', color: '#1e293b' }}>Date Added</th>
               <th style={{ padding: '16px', fontWeight: 'bold', color: '#1e293b' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan="7" style={{ padding: 0 }}><AdminPageLoader text="Loading product inventory…" /></td></tr>
+              <tr><td colSpan="8" style={{ padding: 0 }}><AdminPageLoader text="Loading product inventory…" /></td></tr>
             ) : paginatedProducts.length === 0 ? (
-              <tr><td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>
+              <tr><td colSpan="8" style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>
                 {dateFilter ? `No products found on ${dateFilter}.` : 'No products found. Click "+ Add Product" to add one.'}
               </td></tr>
-            ) : paginatedProducts.map((p, idx) => (
-              <tr key={p.id || idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
+            ) : paginatedProducts.map((p, idx) => {
+              const rawStk = p.raw?.stock !== undefined ? p.raw.stock : (typeof p.stock === 'number' ? p.stock : (parseInt(p.stock, 10) || 0));
+              const isOut = p.raw?.in_stock === false || rawStk <= 0 || p.raw?.stock_status === 'out_of_stock' || p.stock === 'Out of Stock';
+              const isLow = !isOut && rawStk <= 5;
+              return (
+              <tr key={p.id || idx} style={{ borderBottom: '1px solid #f1f5f9', background: isOut ? '#fff5f5' : 'transparent' }}>
                 <td style={{ padding: '16px', fontSize: '13px', fontWeight: '500', color: '#1e293b' }}><span className="admin__order-id">{(currentPage - 1) * itemsPerPage + idx + 1}</span></td>
                 <td style={{ padding: '16px', textAlign: 'center' }}>
                   {p.image ? (
@@ -3356,6 +3478,22 @@ function PageAllProducts() {
                 </td>
                 <td style={{ padding: '16px' }}><span className="admin__count-badge" style={{ background: '#f1f5f9', color: '#334155' }}>{p.category}</span></td>
                 <td style={{ padding: '16px' }}><span className="admin__price-sale" style={{ fontSize: '14px', fontWeight: '600' }}>{p.price}</span></td>
+                <td style={{ padding: '16px' }}>
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    padding: '4px 10px',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    fontWeight: '700',
+                    background: isOut ? '#fee2e2' : (isLow ? '#fef3c7' : '#dcfce7'),
+                    color: isOut ? '#dc2626' : (isLow ? '#b45309' : '#15803d'),
+                    border: `1px solid ${isOut ? '#fca5a5' : (isLow ? '#fde68a' : '#86efac')}`
+                  }}>
+                    {isOut ? '⚠️ Out of Stock (0)' : (isLow ? `⚡ Low Stock (${rawStk})` : `✓ In Stock (${rawStk})`)}
+                  </span>
+                </td>
                 <td style={{ padding: '16px' }}><span style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>{p.date}</span></td>
                 <td style={{ padding: '16px' }}>
                   <div className="admin__actions-cell" style={{ display: 'flex', gap: '8px' }}>
@@ -3368,7 +3506,8 @@ function PageAllProducts() {
                   </div>
                 </td>
               </tr>
-            ))}
+            );
+          })}
           </tbody>
         </table>
 

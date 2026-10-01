@@ -34,6 +34,21 @@ class AdminController extends Controller
         $categories = Category::withCount('products')->get();
         $topSellingProducts = Product::where('is_bestseller', true)->take(5)->get();
 
+        // Out of stock & low stock queries
+        $outOfStockQuery = Product::where(function ($q) {
+            $q->where('in_stock', false)
+              ->orWhere('stock', '<=', 0)
+              ->orWhere('stock_status', 'out_of_stock');
+        });
+        $outOfStockCount = (clone $outOfStockQuery)->count();
+        $outOfStockProducts = (clone $outOfStockQuery)->orderBy('name', 'asc')->take(50)->get();
+
+        $lowStockQuery = Product::where('in_stock', true)
+            ->where('stock', '>', 0)
+            ->where('stock', '<=', 5);
+        $lowStockCount = (clone $lowStockQuery)->count();
+        $lowStockProducts = (clone $lowStockQuery)->orderBy('stock', 'asc')->take(20)->get();
+
         return response()->json([
             'status' => 'success',
             'data' => [
@@ -63,17 +78,21 @@ class AdminController extends Controller
                         'color' => '#16a34a',
                     ],
                     [
-                        'label' => 'Total Users',
-                        'value' => number_format($totalUsers),
-                        'raw_value' => $totalUsers,
-                        'delta' => '+21.3%',
-                        'icon' => '👥',
-                        'color' => '#7c3aed',
+                        'label' => 'Out of Stock Items',
+                        'value' => number_format($outOfStockCount),
+                        'raw_value' => $outOfStockCount,
+                        'delta' => $outOfStockCount > 0 ? '⚠️ Action Required' : 'All In Stock',
+                        'icon' => '⚠️',
+                        'color' => '#dc2626',
                     ],
                 ],
                 'recent_orders' => $recentOrders,
                 'categories' => $categories,
                 'top_products' => $topSellingProducts,
+                'out_of_stock_count' => $outOfStockCount,
+                'low_stock_count' => $lowStockCount,
+                'out_of_stock_products' => $outOfStockProducts,
+                'low_stock_products' => $lowStockProducts,
             ],
         ]);
     }
