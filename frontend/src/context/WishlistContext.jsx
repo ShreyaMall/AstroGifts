@@ -48,15 +48,18 @@ export const WishlistProvider = ({ children }) => {
   const toggleWishlist = (product) => {
     const item = normalizeProduct(product);
     const exists = isInWishlist(item.id);
-    console.log('❤️ [Wishlist] Item toggled in wishlist:', {
+    console.log('====================================');
+    console.log(`❤️ [WISHLIST ${exists ? 'REMOVE' : 'ADD'} EVENT] Data Sent From Frontend:`);
+    console.log('1️⃣ RAW INPUT PRODUCT:', product);
+    console.log('2️⃣ PROCESSED WISHLIST ITEM:', {
       action: exists ? 'REMOVED' : 'ADDED',
       wishlist_id: item.id,
       name: item.name,
       price: item.price,
       category: item.category,
       image: item.image,
-      full_object: item
     });
+    console.log('====================================');
 
     if (exists) {
       setWishlistItems(prev => prev.filter(i => i.id !== item.id));
