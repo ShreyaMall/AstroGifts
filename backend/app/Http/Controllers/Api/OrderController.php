@@ -151,7 +151,9 @@ class OrderController extends Controller
 
         // Calculate subtotal from items and verify against database
         $subtotal = 0;
-        foreach ($validated['items'] as &$item) {
+        $processedItems = [];
+        foreach ($validated['items'] as $rawItem) {
+            $item = $rawItem;
             $product = null;
             $pId = $item['product_id'] ?? $item['id'] ?? null;
             if (!empty($pId)) {
@@ -179,7 +181,9 @@ class OrderController extends Controller
             }
 
             $subtotal += ($realPrice * (int)($item['quantity'] ?? 1));
+            $processedItems[] = $item;
         }
+        $validated['items'] = $processedItems;
 
         // Coupon discount calculation
         $discount = 0;
@@ -616,6 +620,7 @@ class OrderController extends Controller
                 }
             }
         }
+        unset($it);
 
         OrderItem::where('order_id', $order->id)->update(['status' => 'Cancelled']);
 
