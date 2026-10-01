@@ -171,7 +171,23 @@ export default function CheckoutPage() {
       total: finalTotal
     };
 
-    console.log('📦 [Checkout] Order Payload Sent to Backend API:', payload);
+    console.log('====================================');
+    console.log('📦 [CHECKOUT SUBMIT] Full Order Payload Being Sent To API:');
+    console.log('Customer:', payload.customer_name, '| Email:', payload.email);
+    console.log('Total Amount: ₹' + payload.total);
+    console.log('Items Array Sent:', payload.items.map((it, index) => ({
+      item_number: index + 1,
+      id: it.id,
+      product_id: it.product_id,
+      name: it.name,
+      price: it.price,
+      quantity: it.quantity,
+      color: it.selected_color,
+      size: it.size,
+      image: it.image
+    })));
+    console.log('Full Raw Payload:', payload);
+    console.log('====================================');
 
     const saveOrderLocally = (orderId, total) => {
       const newOrder = {

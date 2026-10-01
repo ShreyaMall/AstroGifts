@@ -583,6 +583,32 @@ export default function MyOrdersPage() {
       .finally(() => setLoading(false));
   }, [user?.email]);
 
+  useEffect(() => {
+    if (orders && orders.length > 0) {
+      console.log('====================================');
+      console.log('📋 [MY ORDERS PAGE LOADED] Orders List Rendered:');
+      orders.forEach((ord, oIndex) => {
+        console.log(`Order #${oIndex + 1} (${ord.order_number || ord.id}):`, {
+          status: ord.status,
+          total: ord.total,
+          items_count: ord.items?.length || 0,
+          items: (ord.items || []).map((it, iIndex) => ({
+            item_number: iIndex + 1,
+            name: it.name || it.product_name || it.title,
+            product_id: it.product_id || it.id || it.productId,
+            price: it.price,
+            qty: it.qty || it.quantity,
+            color: it.color || it.selected_color,
+            size: it.size,
+            image: it.image || it.product_image
+          })),
+          raw_order_object: ord
+        });
+      });
+      console.log('====================================');
+    }
+  }, [orders]);
+
   const handleLogout = () => { logout(); navigate('/'); };
 
   const NAV = [
