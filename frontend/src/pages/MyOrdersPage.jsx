@@ -49,10 +49,11 @@ const deduplicateOrderItems = (rawItems = []) => {
   if (!Array.isArray(rawItems)) return [];
   const map = new Map();
   rawItems.forEach((it, idx) => {
-    const pId = it.product_id || it.id || it.productId || it.name || it.product_name || `item-${idx}`;
-    const color = it.selected_color || it.color || '';
-    const size = it.size || '';
-    const key = `${pId}-${color}-${size}`;
+    const pId = it.product_id || it.id || it.productId || '';
+    const name = String(it.name || it.product_name || it.title || `item-${idx}`).toLowerCase().trim();
+    const color = String(it.selected_color || it.color || '').toLowerCase().trim();
+    const size = String(it.size || '').toLowerCase().trim();
+    const key = `${pId}-${name}-${color}-${size}`;
 
     if (map.has(key)) {
       const existing = map.get(key);

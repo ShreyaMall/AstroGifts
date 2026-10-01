@@ -101,9 +101,10 @@ class OrderController extends Controller
         foreach ($rawItems as $it) {
             $itArray = is_array($it) ? $it : (method_exists($it, 'toArray') ? $it->toArray() : (array)$it);
             $pId = $itArray['product_id'] ?? $itArray['productId'] ?? $itArray['id'] ?? '';
-            $color = $itArray['selected_color'] ?? $itArray['color'] ?? '';
-            $size = $itArray['size'] ?? '';
-            $key = "{$pId}-{$color}-{$size}";
+            $name = strtolower(trim($itArray['name'] ?? $itArray['product_name'] ?? $itArray['title'] ?? ''));
+            $color = strtolower(trim($itArray['selected_color'] ?? $itArray['color'] ?? ''));
+            $size = strtolower(trim($itArray['size'] ?? ''));
+            $key = "{$pId}-{$name}-{$color}-{$size}";
 
             if (!isset($seen[$key])) {
                 $seen[$key] = count($unique);

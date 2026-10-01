@@ -33,11 +33,25 @@ export const WishlistProvider = ({ children }) => {
       : parseFloat(String(rawPrice || '0').replace(/[^0-9.]/g, '')) || 0;
 
     const productName = product.name || product.title || 'Product';
-    const actualProductId = product.product_id || product._id || product.id || String(productName).toLowerCase().replace(/\s+/g, '-');
+    const productSlug = product.slug || String(productName).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+    let actualProductId = null;
+    if (product.product_id && String(product.product_id) !== String(product.category_id)) {
+      actualProductId = String(product.product_id);
+    } else if (product._id) {
+      actualProductId = String(product._id);
+    } else if (product.id && String(product.id) !== String(product.category_id)) {
+      actualProductId = String(product.id);
+    } else {
+      actualProductId = productSlug;
+    }
+
+    const uniqueWishlistId = `${actualProductId}-${productSlug}`;
 
     return {
-      id: actualProductId,
+      id: uniqueWishlistId,
       product_id: actualProductId,
+      slug: productSlug,
       name: productName,
       title: productName,
       price: numericPrice,
@@ -52,10 +66,14 @@ export const WishlistProvider = ({ children }) => {
 
   const isInWishlist = (idOrProduct) => {
     if (!idOrProduct) return false;
-    const targetId = typeof idOrProduct === 'object'
-      ? (idOrProduct.product_id || idOrProduct._id || idOrProduct.id)
-      : idOrProduct;
-    return wishlistItems.some(item => item.id === targetId || item.product_id === targetId);
+    let targetId = '';
+    if (typeof idOrProduct === 'object') {
+      const item = normalizeProduct(idOrProduct);
+      targetId = item.id;
+    } else {
+      targetId = String(idOrProduct);
+    }
+    return wishlistItems.some(item => item.id === targetId || item.product_id === targetId || item.slug === targetId);
   };
 
   const toggleWishlist = (product) => {

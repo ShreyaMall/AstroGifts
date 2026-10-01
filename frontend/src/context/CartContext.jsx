@@ -34,15 +34,30 @@ export const CartProvider = ({ children }) => {
       : parseFloat(String(rawPrice || '0').replace(/[^0-9.]/g, '')) || 0;
 
     const productName = product.name || product.title || 'Product';
-    // Clean product ID: prioritize product_id, _id, or id (never category_id)
-    const actualProductId = product.product_id || product._id || product.id || String(productName).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const productSlug = product.slug || String(productName).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+    // Clean product ID: prioritize product_id, _id, or id (never category_id alone)
+    let actualProductId = null;
+    if (product.product_id && String(product.product_id) !== String(product.category_id)) {
+      actualProductId = String(product.product_id);
+    } else if (product._id) {
+      actualProductId = String(product._id);
+    } else if (product.id && String(product.id) !== String(product.category_id)) {
+      actualProductId = String(product.id);
+    } else {
+      actualProductId = productSlug;
+    }
+
     const colorSuffix = product.color ? `-${String(product.color).toLowerCase().replace(/[^a-z0-9]+/g, '-')}` : '';
     const sizeSuffix = product.size ? `-${String(product.size).toLowerCase().replace(/[^a-z0-9]+/g, '-')}` : '';
 
+    // Cart line item key MUST uniquely identify the product variant using BOTH actualProductId AND productSlug
+    const uniqueCartId = `${actualProductId}-${productSlug}${colorSuffix}${sizeSuffix}`;
+
     return {
-      id: `${actualProductId}${colorSuffix}${sizeSuffix}`,
+      id: uniqueCartId,
       product_id: actualProductId,
-      slug: product.slug || String(productName).toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      slug: productSlug,
       name: productName,
       title: productName,
       price: numericPrice,
