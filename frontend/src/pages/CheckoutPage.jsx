@@ -334,8 +334,7 @@ export default function CheckoutPage() {
                           <polyline points="22 4 12 14.01 9 11.01"></polyline>
                         </svg>
                         <h2>{user ? 'Verify Your Email' : 'Contact Information'}</h2>
-                      </div>
-                      {user ? (
+                                            {user ? (
                         <div className="astrogifts-email-banner">
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5">
                             <circle cx="12" cy="12" r="10"></circle>
@@ -348,12 +347,14 @@ export default function CheckoutPage() {
                         </div>
                       ) : (
                         <div style={{ padding: '4px 0' }}>
-                          <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: 600, color: '#374151' }}>
+                          <label htmlFor="checkout-email" style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: 600, color: '#374151' }}>
                             Email Address (For Order Receipt & Tracking) *
                           </label>
                           <input 
+                            id="checkout-email"
                             type="email" 
                             name="email" 
+                            autoComplete="email"
                             placeholder="Enter your email address" 
                             value={formData.email} 
                             onChange={handleInputChange} 
@@ -391,10 +392,12 @@ export default function CheckoutPage() {
 
                       <div className="astrogifts-form-grid">
                         <div className="astrogifts-form-group">
-                          <label>Full Name</label>
+                          <label htmlFor="checkout-fullName">Full Name</label>
                           <input 
+                            id="checkout-fullName"
                             type="text" 
                             name="fullName" 
+                            autoComplete="name"
                             placeholder="Enter your full name" 
                             value={formData.fullName} 
                             onChange={handleInputChange} 
@@ -403,10 +406,12 @@ export default function CheckoutPage() {
                         </div>
 
                         <div className="astrogifts-form-group">
-                          <label>Phone Number</label>
+                          <label htmlFor="checkout-phone">Phone Number</label>
                           <input 
+                            id="checkout-phone"
                             type="tel" 
                             name="phone" 
+                            autoComplete="tel"
                             placeholder="10-digit mobile number" 
                             maxLength="10" 
                             pattern="[0-9]{10}" 
@@ -417,10 +422,12 @@ export default function CheckoutPage() {
                         </div>
 
                         <div className="astrogifts-form-group astrogifts-full-width">
-                          <label>Address</label>
+                          <label htmlFor="checkout-address">Address</label>
                           <input 
+                            id="checkout-address"
                             type="text" 
                             name="address" 
+                            autoComplete="street-address"
                             placeholder="House no., street, locality" 
                             value={formData.address} 
                             onChange={handleInputChange} 
@@ -429,10 +436,12 @@ export default function CheckoutPage() {
                         </div>
 
                         <div className="astrogifts-form-group">
-                          <label>City</label>
+                          <label htmlFor="checkout-city">City</label>
                           <input 
+                            id="checkout-city"
                             type="text" 
                             name="city" 
+                            autoComplete="address-level2"
                             placeholder="City" 
                             value={formData.city} 
                             onChange={handleInputChange} 
@@ -441,10 +450,12 @@ export default function CheckoutPage() {
                         </div>
 
                         <div className="astrogifts-form-group">
-                          <label>State</label>
+                          <label htmlFor="checkout-state">State</label>
                           <input 
+                            id="checkout-state"
                             type="text" 
                             name="state" 
+                            autoComplete="address-level1"
                             placeholder="State" 
                             value={formData.state} 
                             onChange={handleInputChange} 
@@ -453,10 +464,12 @@ export default function CheckoutPage() {
                         </div>
 
                         <div className="astrogifts-form-group">
-                          <label>Pincode</label>
+                          <label htmlFor="checkout-pinCode">Pincode</label>
                           <input 
+                            id="checkout-pinCode"
                             type="text" 
                             name="pinCode" 
+                            autoComplete="postal-code"
                             placeholder="Pincode" 
                             maxLength="6" 
                             pattern="[0-9]{6}" 
@@ -479,8 +492,9 @@ export default function CheckoutPage() {
                       </div>
 
                       <div className="astrogifts-payment-options">
-                        <label className={`astrogifts-radio-option ${paymentMethod === 'cod' ? 'active' : ''}`}>
+                        <label className={`astrogifts-radio-option ${paymentMethod === 'cod' ? 'active' : ''}`} htmlFor="payment-cod">
                           <input 
+                            id="payment-cod"
                             type="radio" 
                             name="payment" 
                             value="cod" 
@@ -491,8 +505,9 @@ export default function CheckoutPage() {
                           <span className="astrogifts-radio-text">Cash on Delivery (COD)</span>
                         </label>
 
-                        <label className={`astrogifts-radio-option ${paymentMethod === 'razorpay' ? 'active' : ''}`}>
+                        <label className={`astrogifts-radio-option ${paymentMethod === 'razorpay' ? 'active' : ''}`} htmlFor="payment-razorpay">
                           <input 
+                            id="payment-razorpay"
                             type="radio" 
                             name="payment" 
                             value="razorpay" 
@@ -586,7 +601,10 @@ export default function CheckoutPage() {
                           <div className="astrogifts-coupon-box">
                             <div className="astrogifts-coupon-input-group">
                               <input 
+                                id="checkout-couponCode"
                                 type="text" 
+                                name="couponCode"
+                                autoComplete="off"
                                 placeholder="Enter coupon code" 
                                 value={couponCode}
                                 onChange={(e) => setCouponCode(e.target.value)}
@@ -597,7 +615,7 @@ export default function CheckoutPage() {
                             {couponError && <div className="astrogifts-coupon-msg error">{couponError}</div>}
                           </div>
                         )}
-                      </div>
+                      </div>               </div>
 
                       {/* Action Buttons */}
                       <div className="astrogifts-action-buttons">
