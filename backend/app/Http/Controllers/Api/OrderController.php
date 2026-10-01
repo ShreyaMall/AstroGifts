@@ -72,12 +72,54 @@ class OrderController extends Controller
         }
 
         $orders = $query->orderBy('created_at', 'desc')->get();
+        foreach ($orders as $ord) {
+            $this->normalizeOrderItems($ord);
+        }
 
         return response()->json([
             'status' => 'success',
             'data'   => $orders,
             'orders' => $orders,
         ]);
+    }
+
+    /**
+     * Helper to clean & deduplicate items on an Order instance
+     */
+    private function normalizeOrderItems($order)
+    {
+        if (!$order) return $order;
+        $rawItems = [];
+        if ($order->relationLoaded('items') && count($order->getRelations()['items']) > 0) {
+            $rawItems = $order->getRelations()['items']->toArray();
+        } else {
+            $rawItems = is_array($order->items) ? $order->items : [];
+        }
+
+        $unique = [];
+        $seen = [];
+        foreach ($rawItems as $it) {
+            $itArray = is_array($it) ? $it : (method_exists($it, 'toArray') ? $it->toArray() : (array)$it);
+            $pId = $itArray['product_id'] ?? $itArray['productId'] ?? $itArray['id'] ?? '';
+            $color = $itArray['selected_color'] ?? $itArray['color'] ?? '';
+            $size = $itArray['size'] ?? '';
+            $key = "{$pId}-{$color}-{$size}";
+
+            if (!isset($seen[$key])) {
+                $seen[$key] = count($unique);
+                $unique[] = $itArray;
+            } else {
+                $idx = $seen[$key];
+                $existingQty = (int)($unique[$idx]['quantity'] ?? $unique[$idx]['qty'] ?? 1);
+                $addQty = (int)($itArray['quantity'] ?? $itArray['qty'] ?? 1);
+                $unique[$idx]['quantity'] = $existingQty + $addQty;
+                $unique[$idx]['qty'] = $existingQty + $addQty;
+            }
+        }
+
+        $order->unsetRelation('items');
+        $order->items = $unique;
+        return $order;
     }
 
     /**
@@ -278,9 +320,7 @@ class OrderController extends Controller
 
         // Save embedded items array to MongoDB Order document
         $order->update(['items' => $embeddedItems]);
-
-        // Reload items onto the order object
-        $order->load('items');
+        $this->normalizeOrderItems($order);
 
         // Push to Shiprocket after response is sent (no queue worker needed)
         try {
@@ -331,9 +371,7 @@ class OrderController extends Controller
      */
     public function show(string $orderNumber): JsonResponse
     {
-        $order = Order::with('items')
-            ->where('order_number', $orderNumber)
-            ->first();
+        $order = Order::where('order_number', $orderNumber)->first();
 
         if (!$order) {
             return response()->json([
@@ -341,6 +379,8 @@ class OrderController extends Controller
                 'message' => 'Order not found',
             ], 404);
         }
+
+        $this->normalizeOrderItems($order);
 
         return response()->json([
             'status' => 'success',

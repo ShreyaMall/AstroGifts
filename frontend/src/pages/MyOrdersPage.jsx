@@ -45,6 +45,30 @@ const STATUS_STYLE = {
   Refunded:              { background: '#10b981', color: '#fff' },
 };
 
+const deduplicateOrderItems = (rawItems = []) => {
+  if (!Array.isArray(rawItems)) return [];
+  const map = new Map();
+  rawItems.forEach((it, idx) => {
+    const pId = it.product_id || it.id || it.productId || it.name || it.product_name || `item-${idx}`;
+    const color = it.selected_color || it.color || '';
+    const size = it.size || '';
+    const key = `${pId}-${color}-${size}`;
+
+    if (map.has(key)) {
+      const existing = map.get(key);
+      const newQty = (existing.quantity || existing.qty || 1) + (it.quantity || it.qty || 1);
+      map.set(key, {
+        ...existing,
+        quantity: newQty,
+        qty: newQty,
+      });
+    } else {
+      map.set(key, { ...it });
+    }
+  });
+  return Array.from(map.values());
+};
+
 function OrderTrackStepper({ order }) {
   const status = (order.status || 'Order Placed').toLowerCase();
 
@@ -698,7 +722,7 @@ export default function MyOrdersPage() {
                       <OrderTrackStepper order={ord} />
 
                       {/* Items */}
-                      {ord.items && ord.items.map((item, idx) => {
+                      {ord.items && deduplicateOrderItems(ord.items).map((item, idx) => {
                         const isItemCancelled = (item.status === 'Cancelled') || (ord.status === 'Cancelled');
                         const canCancelItem = !isItemCancelled && ['Pending', 'Processing', 'Partially Cancelled'].includes(ord.status || 'Processing');
 
@@ -955,7 +979,7 @@ export default function MyOrdersPage() {
 
               <h4 style={{ margin: '0 0 16px 0', fontSize: '16px', color: '#111' }}>Items Summary</h4>
               <div style={{ border: '1px solid #eee', borderRadius: '12px', overflow: 'hidden' }}>
-                {selectedOrder.items && selectedOrder.items.map((item, idx) => {
+                {selectedOrder.items && deduplicateOrderItems(selectedOrder.items).map((item, idx) => {
                   const pParam = item.product_id || item.id || item.productId || (item.name || item.product_name ? String(item.name || item.product_name).toLowerCase().replace(/[^a-z0-9]+/g, '-') : '');
                   return (
                     <div key={idx} style={{ 
