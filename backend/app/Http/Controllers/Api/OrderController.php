@@ -221,6 +221,28 @@ class OrderController extends Controller
 
         $paymentMethod = in_array(strtolower($validated['payment_method'] ?? 'cod'), ['razorpay', 'online', 'card', 'prepaid']) ? 'online' : 'cod';
         $paymentStatus = $paymentMethod === 'online' ? 'paid' : 'pending';
+        
+        $transactionId = $request->get('transaction_id') ?? $request->get('razorpay_payment_id') ?? '';
+        
+        if ($paymentMethod === 'online' && !empty($transactionId) && !str_starts_with($transactionId, 'pay_mock_')) {
+            try {
+                $razorpayKey = env('RAZORPAY_KEY_ID');
+                $razorpaySecret = env('RAZORPAY_KEY_SECRET');
+                if ($razorpayKey && $razorpaySecret) {
+                    $response = \Illuminate\Support\Facades\Http::withBasicAuth($razorpayKey, $razorpaySecret)
+                        ->get("https://api.razorpay.com/v1/payments/{$transactionId}");
+
+                    if ($response->successful()) {
+                        $rMethod = $response->json('method'); // e.g. card, upi, netbanking
+                        if (!empty($rMethod)) {
+                            $paymentMethod = strtoupper($rMethod);
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Razorpay Error: ' . $e->getMessage());
+            }
+        }
 
         $shippingAddress = [
             'fullName' => $validated['customer_name'],
