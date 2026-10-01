@@ -347,7 +347,25 @@ function PageDashboard({ setActivePage }) {
       }
     }
 
+
     setOrderToDelete(null);
+  };
+
+  const handleReturnAction = async (order, action) => {
+    const targetId = order.numericId || order.dbId || order._id || order.order_number || order.id;
+    const newStatus = action === 'approve'
+      ? (order.status === 'Exchange Requested' ? 'Exchange Approved' : 'Return Approved')
+      : 'Return Rejected';
+    setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: newStatus } : o));
+    if (targetId) {
+      try {
+        await adminApi.returnAction(targetId, { action });
+      } catch (err) {
+        console.warn('Return action failed:', err.message);
+        alert('Failed to process return action: ' + (err.message || 'Server error'));
+        setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: order.status } : o));
+      }
+    }
   };
 
 
@@ -417,7 +435,7 @@ function PageDashboard({ setActivePage }) {
             </button>
           </div>
         </div>
-        <OrdersTable data={displayedOrders} onStatusChange={handleStatusUpdate} onViewOrder={handleViewOrder} onDeleteOrder={handleDeleteOrder} />
+        <OrdersTable data={displayedOrders} onStatusChange={handleStatusUpdate} onViewOrder={handleViewOrder} onDeleteOrder={handleDeleteOrder} onReturnAction={handleReturnAction} />
       </div>
 
       {/* Delete Confirmation Modal */}
@@ -2968,7 +2986,7 @@ function PageAllProducts() {
         </div>
 
         {/* Date Filter & Sort Controls + Add Product Button (All in 1 Row) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           
           <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} style={{ padding: '5px 8px', borderRadius: '6px', border: '1px solid #d1d5db', outline: 'none', background: '#fff', fontSize: '12px', height: '34px' }}>
             <option value="">All Categories</option>
@@ -3043,6 +3061,7 @@ function PageAllProducts() {
               fontSize: '12.5px',
               whiteSpace: 'nowrap',
               margin: 0,
+              marginLeft: '8px',
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center'
@@ -3552,7 +3571,7 @@ const getAdminOrderStatusStyle = (status) => {
   }
 };
 
-function OrdersTable({ data, onStatusChange, onViewOrder, onDeleteOrder }) {
+function OrdersTable({ data, onStatusChange, onViewOrder, onDeleteOrder, onReturnAction }) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const totalPages = Math.ceil((data?.length || 0) / itemsPerPage);
@@ -3581,8 +3600,9 @@ function OrdersTable({ data, onStatusChange, onViewOrder, onDeleteOrder }) {
           {paginatedData.length === 0 ? (
             <tr><td colSpan="7" style={{ textAlign: 'center', padding: '30px', color: '#888' }}>No orders found.</td></tr>
           ) : paginatedData.map((o, idx) => {
+            const isReturnPending = o.status === 'Return Requested' || o.status === 'Exchange Requested';
             return (
-              <tr key={o.id || idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
+              <tr key={o.id || idx} style={{ borderBottom: '1px solid #f1f5f9', background: isReturnPending ? '#fffbeb' : 'transparent' }}>
                 <td style={{ padding: '16px', fontSize: '13px', fontWeight: '500', color: '#1e293b' }}>
                   {(currentPage - 1) * itemsPerPage + idx + 1}
                 </td>
@@ -3593,7 +3613,7 @@ function OrdersTable({ data, onStatusChange, onViewOrder, onDeleteOrder }) {
                   {o.date}
                 </td>
                 <td style={{ padding: '16px' }}>
-                  <div style={{ position: 'relative', display: 'inline-block', width: '150px' }}>
+                  <div style={{ position: 'relative', display: 'inline-block', width: '165px' }}>
                     <select
                       value={o.status === 'Partially Cancelled' ? 'Cancelled' : o.status}
                       onChange={e => onStatusChange && onStatusChange(o.id, o.numericId, e.target.value)}
@@ -3620,6 +3640,8 @@ function OrdersTable({ data, onStatusChange, onViewOrder, onDeleteOrder }) {
                       <option value="Return Requested">Return Requested</option>
                       <option value="Return Approved">Return Approved</option>
                       <option value="Return Rejected">Return Rejected</option>
+                      <option value="Exchange Requested">Exchange Requested</option>
+                      <option value="Exchange Approved">Exchange Approved</option>
                       <option value="Refunded">Refunded</option>
                       <option value="Cancelled">Cancelled</option>
                     </select>
@@ -3646,7 +3668,7 @@ function OrdersTable({ data, onStatusChange, onViewOrder, onDeleteOrder }) {
                   })()}
                 </td>
                 <td style={{ padding: '16px' }}>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
                     <button 
                       onClick={() => onViewOrder && onViewOrder(o)}
                       style={{
@@ -3665,6 +3687,39 @@ function OrdersTable({ data, onStatusChange, onViewOrder, onDeleteOrder }) {
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                       View
                     </button>
+
+                    {/* Approve/Reject buttons for Return/Exchange requests */}
+                    {isReturnPending && onReturnAction && (
+                      <>
+                        <button
+                          onClick={() => onReturnAction(o, 'approve')}
+                          style={{
+                            display: 'inline-flex', alignItems: 'center', gap: '4px',
+                            padding: '6px 10px', background: '#dcfce7', color: '#16a34a',
+                            border: '1px solid #86efac', borderRadius: '6px',
+                            fontSize: '12px', fontWeight: '700', cursor: 'pointer'
+                          }}
+                          title="Approve Return/Exchange"
+                        >
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => onReturnAction(o, 'reject')}
+                          style={{
+                            display: 'inline-flex', alignItems: 'center', gap: '4px',
+                            padding: '6px 10px', background: '#fee2e2', color: '#dc2626',
+                            border: '1px solid #fca5a5', borderRadius: '6px',
+                            fontSize: '12px', fontWeight: '700', cursor: 'pointer'
+                          }}
+                          title="Reject Return/Exchange"
+                        >
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                          Reject
+                        </button>
+                      </>
+                    )}
+
                     <button 
                       onClick={() => onDeleteOrder && onDeleteOrder(o)}
                       style={{
@@ -4749,6 +4804,10 @@ function PageOrders() {
             return_reason: o.return_reason || '',
             return_notes: o.return_notes || '',
             return_bank_details: o.return_bank_details || '',
+            return_status: o.return_status || '',
+            return_proof_images: o.return_proof_images || [],
+            exchange_details: o.exchange_details || null,
+            delivered_at: o.delivered_at || null,
             created_at: o.created_at || null,
             date: o.created_at ? new Date(o.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : (o.date || 'Recently'),
           }));
@@ -4818,6 +4877,22 @@ function PageOrders() {
     setOrderToDelete(null);
   };
 
+  const handleReturnAction = async (order, action) => {
+    const targetId = order.numericId || order.dbId || order._id || order.order_number || order.id;
+    const newStatus = action === 'approve'
+      ? (order.status === 'Exchange Requested' ? 'Exchange Approved' : 'Return Approved')
+      : 'Return Rejected';
+    setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: newStatus } : o));
+    if (targetId) {
+      try {
+        await adminApi.returnAction(targetId, { action });
+      } catch (err) {
+        console.warn('Return action failed:', err.message);
+        alert('Failed: ' + (err.message || 'Server error'));
+        setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: order.status } : o));
+      }
+    }
+  };
 
   const displayedOrders = useMemo(() => {
     let list = [...orders];
@@ -4883,7 +4958,7 @@ function PageOrders() {
       {loading ? (
         <AdminPageLoader text="Loading customer orders…" />
       ) : (
-        <OrdersTable data={displayedOrders} onStatusChange={handleStatusUpdate} onViewOrder={handleViewOrder} onDeleteOrder={handleDeleteOrder} />
+        <OrdersTable data={displayedOrders} onStatusChange={handleStatusUpdate} onViewOrder={handleViewOrder} onDeleteOrder={handleDeleteOrder} onReturnAction={handleReturnAction} />
       )}
 
       {/* Order Details Modal */}
@@ -4960,11 +5035,58 @@ function PageOrders() {
               )}
             </div>
 
+            {/* Return/Exchange Details (if any) */}
+            {(selectedOrder.return_type || selectedOrder.return_status || selectedOrder.return_reason) && (
+              <div style={{ background: selectedOrder.status === 'Return Rejected' ? '#fef2f2' : '#fffbeb', border: `1px solid ${selectedOrder.status === 'Return Rejected' ? '#fecaca' : '#fde68a'}`, borderRadius: '10px', padding: '16px', marginBottom: '16px' }}>
+                <h4 style={{ fontSize: '13px', fontWeight: '700', color: '#92400e', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                  {selectedOrder.return_type || 'Return'} Request Details
+                </h4>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
+                  {selectedOrder.return_reason && (
+                    <div><span style={{ fontSize: '11px', color: '#78716c', textTransform: 'uppercase' }}>Reason</span><p style={{ margin: '2px 0', fontSize: '13px', color: '#1c1917', fontWeight: '500' }}>{selectedOrder.return_reason}</p></div>
+                  )}
+                  {selectedOrder.return_status && (
+                    <div><span style={{ fontSize: '11px', color: '#78716c', textTransform: 'uppercase' }}>Return Status</span><p style={{ margin: '2px 0', fontSize: '13px', color: '#1c1917', fontWeight: '600' }}>{selectedOrder.return_status}</p></div>
+                  )}
+                  {selectedOrder.return_notes && (
+                    <div style={{ gridColumn: '1 / -1' }}><span style={{ fontSize: '11px', color: '#78716c', textTransform: 'uppercase' }}>Customer Notes</span><p style={{ margin: '2px 0', fontSize: '13px', color: '#1c1917' }}>{selectedOrder.return_notes}</p></div>
+                  )}
+                  {selectedOrder.return_bank_details && (
+                    <div style={{ gridColumn: '1 / -1' }}><span style={{ fontSize: '11px', color: '#78716c', textTransform: 'uppercase' }}>Refund Details (UPI/Bank)</span><p style={{ margin: '2px 0', fontSize: '13px', color: '#1c1917', fontFamily: 'monospace' }}>{selectedOrder.return_bank_details}</p></div>
+                  )}
+                </div>
+                {selectedOrder.exchange_details && Object.keys(selectedOrder.exchange_details).length > 0 && (
+                  <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '10px', marginBottom: '10px' }}>
+                    <span style={{ fontSize: '11px', color: '#1d4ed8', fontWeight: '700', textTransform: 'uppercase' }}>Requested Exchange Item</span>
+                    <div style={{ fontSize: '13px', color: '#1e3a8a', marginTop: '4px' }}>
+                      {selectedOrder.exchange_details.product_name && <span>Product: <strong>{selectedOrder.exchange_details.product_name}</strong></span>}
+                      {selectedOrder.exchange_details.size && <span style={{ marginLeft: '12px' }}>Size: <strong>{selectedOrder.exchange_details.size}</strong></span>}
+                      {selectedOrder.exchange_details.color && <span style={{ marginLeft: '12px' }}>Color: <strong>{selectedOrder.exchange_details.color}</strong></span>}
+                    </div>
+                  </div>
+                )}
+                {selectedOrder.return_proof_images && selectedOrder.return_proof_images.length > 0 && (
+                  <div>
+                    <span style={{ fontSize: '11px', color: '#78716c', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>Proof Images</span>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      {selectedOrder.return_proof_images.map((img, idx) => (
+                        <a key={idx} href={img} target="_blank" rel="noreferrer">
+                          <img src={img} alt={`proof-${idx}`} style={{ width: '70px', height: '70px', objectFit: 'cover', borderRadius: '6px', border: '2px solid #fde68a', cursor: 'pointer' }} />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <button onClick={() => setSelectedOrder(null)} style={{ padding: '8px 24px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: '600', cursor: 'pointer', fontSize: '14px' }}>
                 Close
               </button>
             </div>
+
           </div>
         </div>
       )}

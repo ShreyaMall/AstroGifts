@@ -162,6 +162,9 @@ class AdminController extends Controller
 
         if ($validated['status'] === 'Delivered') {
             $order->payment_status = 'paid';
+            if (empty($order->delivered_at)) {
+                $order->delivered_at = now()->toDateTimeString();
+            }
         }
 
         if ($validated['status'] === 'Return Approved') {
@@ -740,5 +743,76 @@ class AdminController extends Controller
         }
 
         return response()->json(['status' => 'error', 'message' => 'No image file uploaded'], 400);
+    }
+
+    /**
+     * Admin: Approve or Reject a return/exchange request
+     * PUT /api/admin/orders/{id}/return-action
+     */
+    public function returnAction(Request $request, string $id): JsonResponse
+    {
+        $order = Order::find($id)
+            ?? Order::where('_id', $id)->first()
+            ?? Order::where('order_number', $id)->first();
+
+        if (!$order) {
+            return response()->json(['status' => 'error', 'message' => 'Order not found'], 404);
+        }
+
+        $validated = $request->validate([
+            'action'         => 'required|string|in:approve,reject',
+            'admin_notes'    => 'nullable|string|max:500',
+            'refund_amount'  => 'nullable|numeric|min:0',
+            'pickup_date'    => 'nullable|string|max:100',
+        ]);
+
+        $returnType = $order->return_type; // 'Return' or 'Exchange'
+        $isExchange = $returnType === 'Exchange';
+
+        if ($validated['action'] === 'approve') {
+            if ($isExchange) {
+                $newStatus       = 'Exchange Approved';
+                $newReturnStatus = 'Exchange Approved';
+            } else {
+                $newStatus       = 'Return Approved';
+                $newReturnStatus = 'Approved';
+            }
+        } else {
+            $newStatus       = 'Return Rejected';
+            $newReturnStatus = 'Rejected';
+        }
+
+        $updateData = [
+            'status'        => $newStatus,
+            'return_status' => $newReturnStatus,
+        ];
+
+        // Set refund info if approving a Return
+        if ($validated['action'] === 'approve' && !$isExchange) {
+            $refAmt = !empty($validated['refund_amount'])
+                ? (float)$validated['refund_amount']
+                : (float)$order->total;
+            $updateData['refund_amount'] = $refAmt;
+        }
+
+        $order->update($updateData);
+        $order->refresh();
+
+        // Send status email to customer
+        try {
+            if (!empty($order->email)) {
+                dispatch(function () use ($order) {
+                    Mail::to($order->email)->send(new \App\Mail\ReturnStatusCustomerMail($order));
+                })->afterResponse();
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Return action email failed: ' . $e->getMessage());
+        }
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => "Return/Exchange request {$validated['action']}d for order {$order->order_number}",
+            'data'    => $order,
+        ]);
     }
 }

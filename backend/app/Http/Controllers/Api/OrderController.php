@@ -9,6 +9,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Mail\AdminNewOrderMail;
 use App\Mail\CustomerOrderConfirmationMail;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -406,23 +407,71 @@ class OrderController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Order not found'], 404);
         }
 
+        // 1. Order must be in Delivered status
+        if ($order->status !== 'Delivered') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Return/Exchange can only be requested for delivered orders. Current status: ' . $order->status,
+            ], 422);
+        }
+
+        // 2. 7-day return window validation
+        $deliveredAt = $order->delivered_at ? new \Carbon\Carbon($order->delivered_at) : null;
+        if (!$deliveredAt) {
+            // Fallback: use created_at + 2 days as estimated delivery if delivered_at not set
+            $deliveredAt = \Carbon\Carbon::parse($order->created_at)->addDays(2);
+        }
+        $daysSinceDelivery = $deliveredAt->diffInDays(now(), false);
+        if ($daysSinceDelivery > 7) {
+            return response()->json([
+                'status' => 'error',
+                'message' => "Return/Exchange window has expired. Requests must be made within 7 days of delivery. ({$daysSinceDelivery} days since delivery)",
+            ], 422);
+        }
+
+        // 3. Check if return already requested
+        if (in_array($order->return_status, ['Requested', 'Approved', 'Exchange Approved'])) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'A return/exchange request has already been submitted for this order.',
+            ], 422);
+        }
+
         $validated = $request->validate([
-            'return_type' => 'required|string|in:Return,Exchange',
-            'reason' => 'required|string|max:255',
-            'notes' => 'nullable|string|max:1000',
-            'bank_details' => 'nullable|string|max:500',
+            'return_type'             => 'required|string|in:Return,Exchange',
+            'reason'                  => 'required|string|max:255',
+            'notes'                   => 'nullable|string|max:1000',
+            'bank_details'            => 'nullable|string|max:500',
+            'proof_images'            => 'nullable|array|max:5',
+            'proof_images.*'          => 'nullable|string',
+            'exchange_product_name'   => 'nullable|string|max:255',
+            'exchange_size'           => 'nullable|string|max:100',
+            'exchange_color'          => 'nullable|string|max:100',
+            'exchange_product_id'     => 'nullable|string|max:255',
         ]);
+
+        $exchangeDetails = null;
+        if ($validated['return_type'] === 'Exchange') {
+            $exchangeDetails = array_filter([
+                'product_id'   => $validated['exchange_product_id'] ?? null,
+                'product_name' => $validated['exchange_product_name'] ?? null,
+                'size'         => $validated['exchange_size'] ?? null,
+                'color'        => $validated['exchange_color'] ?? null,
+            ]);
+        }
 
         $statusName = $validated['return_type'] === 'Exchange' ? 'Exchange Requested' : 'Return Requested';
 
         $order->update([
-            'return_type' => $validated['return_type'],
-            'return_reason' => $validated['reason'],
-            'return_notes' => $validated['notes'] ?? null,
+            'return_type'         => $validated['return_type'],
+            'return_reason'       => $validated['reason'],
+            'return_notes'        => $validated['notes'] ?? null,
             'return_bank_details' => $validated['bank_details'] ?? null,
-            'return_status' => 'Requested',
+            'return_status'       => 'Requested',
             'return_requested_at' => now(),
-            'status' => $statusName,
+            'return_proof_images' => !empty($validated['proof_images']) ? $validated['proof_images'] : null,
+            'exchange_details'    => $exchangeDetails ?: null,
+            'status'              => $statusName,
         ]);
 
         // Send Email to Admin
@@ -439,10 +488,13 @@ class OrderController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => "{$validated['return_type']} request submitted successfully! Our team will review and schedule pickup.",
+            'message' => "{$validated['return_type']} request submitted successfully! Our team will review within 24-48 hours and schedule pickup.",
+            'days_since_delivery' => (int)$daysSinceDelivery,
+            'days_remaining_in_window' => max(0, 7 - (int)$daysSinceDelivery),
             'data' => $order,
         ]);
     }
+
 
     /**
      * Cancel an individual item in an order (Amazon / Myntra style)

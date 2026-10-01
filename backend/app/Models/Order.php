@@ -52,20 +52,26 @@ class Order extends Model
         'return_bank_details',
         'return_status',
         'return_requested_at',
+        'return_proof_images',
+        'exchange_details',
+        'delivered_at',
         'refund_amount',
         'refunded_at',
     ];
 
     protected $casts = [
-        'subtotal' => 'float',
-        'discount' => 'float',
-        'shipping' => 'float',
-        'shipping_cost' => 'float',
-        'tax' => 'float',
-        'total' => 'float',
-        'shippingAddress' => 'array',
-        'shiprocket' => 'array',
-        'items' => 'array',
+        'subtotal'            => 'float',
+        'discount'            => 'float',
+        'shipping'            => 'float',
+        'shipping_cost'       => 'float',
+        'tax'                 => 'float',
+        'total'               => 'float',
+        'refund_amount'       => 'float',
+        'shippingAddress'     => 'array',
+        'shiprocket'          => 'array',
+        'items'               => 'array',
+        'return_proof_images' => 'array',
+        'exchange_details'    => 'array',
     ];
 
     public function user(): BelongsTo

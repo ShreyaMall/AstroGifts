@@ -321,6 +321,13 @@ export const adminApi = {
     });
   },
 
+  returnAction: async (orderId, actionData) => {
+    return request(`/admin/orders/${orderId}/return-action`, {
+      method: 'PUT',
+      body: JSON.stringify(actionData),
+    });
+  },
+
   getProducts: async (search = '') => {
     const params = new URLSearchParams();
     if (search) params.append('search', search);

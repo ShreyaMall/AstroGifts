@@ -275,9 +275,30 @@ export default function MyOrdersPage() {
     reason: 'Defective / Damaged piece',
     notes: '',
     bank_details: '',
+    exchange_product_name: '',
+    exchange_size: '',
+    exchange_color: '',
+    proof_images: [],
   });
   const [submittingReturn, setSubmittingReturn] = useState(false);
   const [returnSuccessMsg, setReturnSuccessMsg] = useState('');
+
+  // Helper: check if order is within 7-day return window
+  const isWithinReturnWindow = (ord) => {
+    const deliveredAt = ord.delivered_at
+      ? new Date(ord.delivered_at)
+      : new Date(new Date(ord.created_at || Date.now()).getTime() + 2 * 24 * 60 * 60 * 1000);
+    const daysDiff = (Date.now() - deliveredAt.getTime()) / (1000 * 60 * 60 * 24);
+    return daysDiff <= 7;
+  };
+
+  const getDaysRemainingInWindow = (ord) => {
+    const deliveredAt = ord.delivered_at
+      ? new Date(ord.delivered_at)
+      : new Date(new Date(ord.created_at || Date.now()).getTime() + 2 * 24 * 60 * 60 * 1000);
+    const daysDiff = (Date.now() - deliveredAt.getTime()) / (1000 * 60 * 60 * 24);
+    return Math.max(0, Math.ceil(7 - daysDiff));
+  };
 
   const handleOpenReturnModal = (ord) => {
     setReturnOrder(ord);
@@ -286,6 +307,10 @@ export default function MyOrdersPage() {
       reason: 'Defective / Damaged piece',
       notes: '',
       bank_details: '',
+      exchange_product_name: '',
+      exchange_size: '',
+      exchange_color: '',
+      proof_images: [],
     });
     setReturnSuccessMsg('');
   };
@@ -295,8 +320,22 @@ export default function MyOrdersPage() {
     if (!returnOrder) return;
     setSubmittingReturn(true);
     try {
-      await ordersApi.requestReturn(returnOrder.order_number, returnForm);
-      setReturnSuccessMsg(`Your ${returnForm.return_type} request has been submitted successfully! Our team will review and schedule pickup.`);
+      const payload = {
+        return_type: returnForm.return_type,
+        reason: returnForm.reason,
+        notes: returnForm.notes,
+        bank_details: returnForm.bank_details,
+      };
+      if (returnForm.proof_images && returnForm.proof_images.length > 0) {
+        payload.proof_images = returnForm.proof_images;
+      }
+      if (returnForm.return_type === 'Exchange') {
+        if (returnForm.exchange_product_name) payload.exchange_product_name = returnForm.exchange_product_name;
+        if (returnForm.exchange_size) payload.exchange_size = returnForm.exchange_size;
+        if (returnForm.exchange_color) payload.exchange_color = returnForm.exchange_color;
+      }
+      await ordersApi.requestReturn(returnOrder.order_number, payload);
+      setReturnSuccessMsg(`Your ${returnForm.return_type} request has been submitted successfully! Our team will review within 24-48 hours and schedule pickup.`);
       const updatedStatus = returnForm.return_type === 'Exchange' ? 'Exchange Requested' : 'Return Requested';
       setOrders(prev => prev.map(o => o.order_number === returnOrder.order_number ? { ...o, status: updatedStatus } : o));
       setTimeout(() => {
@@ -869,8 +908,8 @@ export default function MyOrdersPage() {
                         </div>
 
                         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                          {/* Show Return/Exchange button only if Delivered */}
-                          {ord.status === 'Delivered' && (
+                          {/* Show Return/Exchange button only if Delivered AND within 7-day window */}
+                          {ord.status === 'Delivered' && isWithinReturnWindow(ord) && (
                             <button
                               onClick={() => handleOpenReturnModal(ord)}
                               style={{
@@ -891,8 +930,16 @@ export default function MyOrdersPage() {
                               onMouseLeave={e => { e.currentTarget.style.background = '#fff'; }}
                             >
                               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                              Request Return / Exchange
+                              Return / Exchange
+                              <span style={{ fontSize: '10.5px', background: '#fff7ed', border: '1px solid #fdba74', borderRadius: '4px', padding: '1px 5px', color: '#c2410c' }}>
+                                {getDaysRemainingInWindow(ord)}d left
+                              </span>
                             </button>
+                          )}
+                          {ord.status === 'Delivered' && !isWithinReturnWindow(ord) && (
+                            <span style={{ fontSize: '11.5px', color: '#94a3b8', fontStyle: 'italic' }}>
+                              Return window expired
+                            </span>
                           )}
 
                           <button
@@ -1070,7 +1117,7 @@ export default function MyOrdersPage() {
                 <p style={{ margin: 0, fontSize: '14px', color: '#4b5563', lineHeight: 1.5 }}>{returnSuccessMsg}</p>
               </div>
             ) : (
-              <form onSubmit={handleReturnSubmit} style={{ padding: '22px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <form onSubmit={handleReturnSubmit} style={{ padding: '22px 24px', display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: '75vh', overflowY: 'auto' }}>
                 {/* Choose Type */}
                 <div>
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
@@ -1089,7 +1136,7 @@ export default function MyOrdersPage() {
                       }}
                     >
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 2v6h6"/><path d="M21 12A9 9 0 0 0 6 5.3L3 8"/><path d="M21 22v-6h-6"/><path d="M3 12a9 9 0 0 0 15 6.7l3-2.7"/></svg>
-                      Return & Refund
+                      Return &amp; Refund
                     </button>
                     <button
                       type="button"
@@ -1140,7 +1187,92 @@ export default function MyOrdersPage() {
                   />
                 </div>
 
-                {/* Bank/UPI for COD orders */}
+                {/* Exchange Variant Selector */}
+                {returnForm.return_type === 'Exchange' && (
+                  <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', padding: '14px' }}>
+                    <div style={{ fontSize: '13px', fontWeight: '700', color: '#1d4ed8', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                      Replacement Product Details
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <input
+                        type="text"
+                        placeholder="Product name (if different product)"
+                        value={returnForm.exchange_product_name}
+                        onChange={e => setReturnForm(f => ({ ...f, exchange_product_name: e.target.value }))}
+                        style={{ width: '100%', padding: '9px 12px', borderRadius: '7px', border: '1px solid #bfdbfe', fontSize: '13px', outline: 'none', boxSizing: 'border-box', background: '#fff' }}
+                      />
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                        <input
+                          type="text"
+                          placeholder="Preferred Size"
+                          value={returnForm.exchange_size}
+                          onChange={e => setReturnForm(f => ({ ...f, exchange_size: e.target.value }))}
+                          style={{ padding: '9px 12px', borderRadius: '7px', border: '1px solid #bfdbfe', fontSize: '13px', outline: 'none', background: '#fff' }}
+                        />
+                        <input
+                          type="text"
+                          placeholder="Preferred Color"
+                          value={returnForm.exchange_color}
+                          onChange={e => setReturnForm(f => ({ ...f, exchange_color: e.target.value }))}
+                          style={{ padding: '9px 12px', borderRadius: '7px', border: '1px solid #bfdbfe', fontSize: '13px', outline: 'none', background: '#fff' }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Proof Image Upload */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>
+                    Upload Proof Images (optional, max 3)
+                  </label>
+                  <label
+                    htmlFor="return-proof-upload"
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px',
+                      border: '1.5px dashed #d1d5db', borderRadius: '8px', cursor: 'pointer',
+                      fontSize: '13px', color: '#6b7280', background: '#f9fafb'
+                    }}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    {returnForm.proof_images.length > 0 ? `${returnForm.proof_images.length} image(s) selected` : 'Click to upload images (JPG, PNG)'}
+                  </label>
+                  <input
+                    id="return-proof-upload"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    style={{ display: 'none' }}
+                    onChange={e => {
+                      const files = Array.from(e.target.files || []).slice(0, 3);
+                      const readers = files.map(file => new Promise(resolve => {
+                        const reader = new FileReader();
+                        reader.onload = ev => resolve(ev.target.result);
+                        reader.readAsDataURL(file);
+                      }));
+                      Promise.all(readers).then(base64s => {
+                        setReturnForm(f => ({ ...f, proof_images: base64s }));
+                      });
+                    }}
+                  />
+                  {returnForm.proof_images.length > 0 && (
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
+                      {returnForm.proof_images.map((img, idx) => (
+                        <div key={idx} style={{ position: 'relative' }}>
+                          <img src={img} alt={`proof-${idx}`} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e5e7eb' }} />
+                          <button
+                            type="button"
+                            onClick={() => setReturnForm(f => ({ ...f, proof_images: f.proof_images.filter((_, i) => i !== idx) }))}
+                            style={{ position: 'absolute', top: '-6px', right: '-6px', width: '18px', height: '18px', borderRadius: '50%', background: '#ef4444', border: 'none', color: '#fff', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', lineHeight: 1 }}
+                          >×</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Bank/UPI for Return orders */}
                 {returnForm.return_type === 'Return' && (
                   <div>
                     <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>
@@ -1160,7 +1292,7 @@ export default function MyOrdersPage() {
                 )}
 
                 {/* Submit button */}
-                <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
                   <button
                     type="button"
                     onClick={() => setReturnOrder(null)}
@@ -1171,12 +1303,13 @@ export default function MyOrdersPage() {
                   <button
                     type="submit"
                     disabled={submittingReturn}
-                    style={{ flex: 1.5, padding: '11px', background: '#ea580c', border: 'none', borderRadius: '8px', fontWeight: '600', color: '#fff', cursor: 'pointer' }}
+                    style={{ flex: 1.5, padding: '11px', background: '#ea580c', border: 'none', borderRadius: '8px', fontWeight: '600', color: '#fff', cursor: 'pointer', opacity: submittingReturn ? 0.7 : 1 }}
                   >
                     {submittingReturn ? 'Submitting…' : `Submit ${returnForm.return_type} Request`}
                   </button>
                 </div>
               </form>
+
             )}
           </div>
         </div>
