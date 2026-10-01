@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { addressesApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { customConfirm } from '../utils/confirmModal';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import ProfileSidebar from '../components/layout/ProfileSidebar';
@@ -100,7 +101,7 @@ export default function AddressPage() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this address?")) return;
+    if (!await customConfirm("Are you sure you want to delete this address?")) return;
     try {
       await addressesApi.deleteAddress(id);
       fetchAddresses();

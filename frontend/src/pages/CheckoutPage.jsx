@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { customConfirm } from '../utils/confirmModal';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import { useCart } from '../context/CartContext';
@@ -273,8 +274,8 @@ export default function CheckoutPage() {
 
       try {
         if (options.key === 'rzp_test_dummykey12345' || !options.key.startsWith('rzp_')) {
-          setTimeout(() => {
-            if (window.confirm("Razorpay Payment Gateway (Test Mode).\n\nClick OK to confirm payment, or Cancel to return.")) {
+          setTimeout(async () => {
+            if (await customConfirm("Razorpay Payment Gateway (Test Mode).\n\nClick OK to confirm payment, or Cancel to return.")) {
               processOrderSuccess('pay_mock_' + Math.floor(Math.random() * 1000000));
             } else {
               setIsSubmitting(false);
@@ -334,7 +335,8 @@ export default function CheckoutPage() {
                           <polyline points="22 4 12 14.01 9 11.01"></polyline>
                         </svg>
                         <h2>{user ? 'Verify Your Email' : 'Contact Information'}</h2>
-                                            {user ? (
+                      </div>
+                      {user ? (
                         <div className="astrogifts-email-banner">
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5">
                             <circle cx="12" cy="12" r="10"></circle>
@@ -638,10 +640,8 @@ export default function CheckoutPage() {
                     </div>
 
                   </div>
-
-                </div>
-              </form>
-            )}
+                </form>
+              )}
           </div>
         ) : step === 2 && orderDetails && (
           <div className="astrogifts-checkout-container">

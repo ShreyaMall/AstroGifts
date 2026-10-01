@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { ordersApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { customConfirm } from '../utils/confirmModal';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import ProfileSidebar from '../components/layout/ProfileSidebar';
@@ -414,7 +415,7 @@ export default function MyOrdersPage() {
   };
 
   const handleCancelFullOrder = async (order) => {
-    if (!window.confirm(`Are you sure you want to cancel Order #${order.order_number}?`)) return;
+    if (!await customConfirm(`Are you sure you want to cancel Order #${order.order_number}?`)) return;
     try {
       const res = await ordersApi.cancelOrder(order.order_number || order.id, { reason: 'Cancelled by customer' });
       const updatedOrder = res?.data || res?.order;
@@ -540,12 +541,21 @@ export default function MyOrdersPage() {
         } else if (localOrders.length > 0) {
           // Fallback: track individual local orders if getUserOrders returned empty
           Promise.allSettled(
-            localOrderNumbers.map(num => ordersApi.track(num).catch(() => null))
+            localOrderNumbers.map(num => ordersApi.track(num).catch(err => ({ isError: true, status: err.status, num })))
           ).then(results => {
             let hasUpdate = false;
-            const updated = localOrders.map(loc => {
+            let updated = localOrders.map(loc => {
               const num = loc.order_number || loc.id;
-              const match = results.find(r => r.status === 'fulfilled' && (r.value?.data?.order_number === num || r.value?.order?.order_number === num));
+              
+              // Find matching API response
+              const match = results.find(r => r.status === 'fulfilled' && (r.value?.data?.order_number === num || r.value?.order?.order_number === num || r.value?.num === num));
+              
+              if (match?.status === 'fulfilled' && match?.value?.isError && match?.value?.status === 404) {
+                // If API returned 404 Not Found, mark for deletion by returning null
+                hasUpdate = true;
+                return null;
+              }
+
               const freshData = match?.value?.data || match?.value?.order;
               if (freshData) {
                 hasUpdate = true;
@@ -579,9 +589,12 @@ export default function MyOrdersPage() {
                 };
               }
               return loc;
-            });
+            }).filter(Boolean); // Filter out the nulls (404 orders)
+
             if (hasUpdate) {
               localStorage.setItem('astrogifts_user_orders', JSON.stringify(updated));
+              setOrders(updated);
+            } else {
               setOrders(updated);
             }
           });
@@ -593,12 +606,18 @@ export default function MyOrdersPage() {
         // If network error on getUserOrders, track local orders directly
         if (localOrderNumbers.length > 0) {
           Promise.allSettled(
-            localOrderNumbers.map(num => ordersApi.track(num).catch(() => null))
+            localOrderNumbers.map(num => ordersApi.track(num).catch(err => ({ isError: true, status: err.status, num })))
           ).then(results => {
             let hasUpdate = false;
-            const updated = localOrders.map(loc => {
+            let updated = localOrders.map(loc => {
               const num = loc.order_number || loc.id;
-              const match = results.find(r => r.status === 'fulfilled' && (r.value?.data?.order_number === num || r.value?.order?.order_number === num));
+              const match = results.find(r => r.status === 'fulfilled' && (r.value?.data?.order_number === num || r.value?.order?.order_number === num || r.value?.num === num));
+              
+              if (match?.status === 'fulfilled' && match?.value?.isError && match?.value?.status === 404) {
+                hasUpdate = true;
+                return null;
+              }
+
               const freshData = match?.value?.data || match?.value?.order;
               if (freshData) {
                 hasUpdate = true;
@@ -632,12 +651,13 @@ export default function MyOrdersPage() {
                 };
               }
               return loc;
-            });
+            }).filter(Boolean); // Filter out the nulls (404 orders)
+
             if (hasUpdate) {
               localStorage.setItem('astrogifts_user_orders', JSON.stringify(updated));
               setOrders(updated);
             } else {
-              setOrders(localOrders);
+              setOrders(updated);
             }
           });
         } else {
@@ -705,9 +725,9 @@ export default function MyOrdersPage() {
 
           {/* ── Main Content ── */}
           <div className="profile-main">
-            <div style={{ textAlign: 'center', margin: '0 0 28px' }}>
-              <h1 style={{ fontSize: '26px', fontWeight: '700', margin: '0 0 6px', color: '#111' }}>Order Details</h1>
-              <p style={{ color: '#888', margin: 0, fontSize: '14px' }}>Track your recent orders</p>
+            <div style={{ background: '#fff', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 8px rgba(0,0,0,0.06)', marginBottom: '24px' }}>
+              <h1 style={{ fontSize: '22px', fontWeight: '700', margin: '0 0 4px', color: '#111' }}>My Orders</h1>
+              <p style={{ color: '#888', margin: 0, fontSize: '14px' }}>Track and manage your recent orders</p>
             </div>
 
             {loading ? (

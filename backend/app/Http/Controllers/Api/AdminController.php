@@ -48,6 +48,7 @@ class AdminController extends Controller
             ->where('stock', '<=', 5);
         $lowStockCount = (clone $lowStockQuery)->count();
         $lowStockProducts = (clone $lowStockQuery)->orderBy('stock', 'asc')->take(20)->get();
+        $totalUsers = User::count();
 
         return response()->json([
             'status' => 'success',
@@ -84,6 +85,14 @@ class AdminController extends Controller
                         'delta' => $outOfStockCount > 0 ? '⚠️ Action Required' : 'All In Stock',
                         'icon' => '⚠️',
                         'color' => '#dc2626',
+                    ],
+                    [
+                        'label' => 'Total Users',
+                        'value' => number_format($totalUsers),
+                        'raw_value' => $totalUsers,
+                        'delta' => '+21.3%',
+                        'icon' => '👥',
+                        'color' => '#7c3aed',
                     ],
                 ],
                 'recent_orders' => $recentOrders,
@@ -720,6 +729,43 @@ class AdminController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $users,
+        ]);
+    }
+
+    public function updateUser(Request $request, $id): JsonResponse
+    {
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['status' => 'error', 'message' => 'User not found'], 404);
+        }
+
+        $request->validate([
+            'name' => 'string|max:255',
+            'email' => 'email|unique:users,email,' . $id,
+            'phone' => 'nullable|string|max:20',
+        ]);
+
+        $user->update($request->only(['name', 'email', 'phone']));
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User updated successfully',
+            'data' => $user
+        ]);
+    }
+
+    public function destroyUser($id): JsonResponse
+    {
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['status' => 'error', 'message' => 'User not found'], 404);
+        }
+
+        $user->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User deleted successfully'
         ]);
     }
 

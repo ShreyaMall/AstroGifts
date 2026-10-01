@@ -435,6 +435,19 @@ export const adminApi = {
     return request('/admin/users');
   },
 
+  updateUser: async (id, data) => {
+    return request(`/admin/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteUser: async (id) => {
+    return request(`/admin/users/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
   getReviews: async () => {
     return request('/admin/reviews');
   },

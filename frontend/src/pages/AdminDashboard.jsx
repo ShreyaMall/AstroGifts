@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { customConfirm } from '../utils/confirmModal';
 import './AdminDashboard.css';
 import { adminApi, contactApi, faqApi, productsApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -205,24 +206,8 @@ function PageDashboard({ setActivePage }) {
       console.warn('Using local stats fallback:', err.message);
     }
 
-    // Merge API orders with LocalStorage orders (saved from customer checkouts)
-    try {
-      const saved = localStorage.getItem('astrogifts_user_orders');
-      if (saved) {
-        const localOrders = JSON.parse(saved);
-        const allOrders = [...localOrders, ...apiOrders];
-        const unique = [];
-        const seen = new Set();
-        for (const o of allOrders) {
-          const id = o.order_number || o.id;
-          if (id && !seen.has(id)) {
-            seen.add(id);
-            unique.push(o);
-          }
-        }
-        apiOrders = unique;
-      }
-    } catch(e) {}
+    // Removed local storage merging logic to prevent artificially inflating the orders list.
+    // The admin dashboard should solely rely on the backend database for all statistics.
 
     let mappedOrders = [];
     if (apiOrders.length > 0) {
@@ -324,16 +309,17 @@ function PageDashboard({ setActivePage }) {
   const handleConfirmDeleteOrder = async () => {
     if (!orderToDelete) return;
     const order = orderToDelete;
-    const orderId = order.id;
-    const numericId = order.numericId || order.dbId || order._id || order.id || order.order_number;
+    const rawOrderNumber = order.raw?.order_number || order.order_number;
+    const numericId = order.numericId || order.dbId || order._id || order.id || rawOrderNumber;
 
-    setOrders(prev => prev.filter(o => o.id !== orderId && o._id !== numericId && o.order_number !== order.order_number));
+    setOrders(prev => prev.filter(o => o.id !== order.id && o.numericId !== order.numericId));
 
     try {
       const localOrders = JSON.parse(localStorage.getItem('astrogifts_user_orders') || '[]');
-      const filtered = localOrders.filter(o => 
-        o.id !== orderId && o.id !== numericId && o.order_number !== order.order_number
-      );
+      const filtered = localOrders.filter(o => {
+        const localId = o.id || o._id || o.order_number;
+        return localId !== order.numericId && localId !== rawOrderNumber && localId !== order.id && o.order_number !== rawOrderNumber;
+      });
       localStorage.setItem('astrogifts_user_orders', JSON.stringify(filtered));
     } catch (err) {
       console.warn('Failed to update local orders in localStorage:', err);
@@ -675,7 +661,7 @@ function PagePost() {
   }, []);
 
   const handleDeleteComment = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this comment?')) return;
+    if (!await customConfirm('Are you sure you want to delete this comment?')) return;
     try {
       await adminApi.deleteComment(id);
       setComments(prev => prev.filter(c => (c._id !== id && c.id !== id)));
@@ -885,7 +871,7 @@ function PageSliders() {
   };
 
   const deleteSlide = async (id) => {
-    if (!window.confirm('Delete this slide?')) return;
+    if (!await customConfirm('Delete this slide?')) return;
     try {
       await adminApi.deleteSlider(id);
       setSlides(prev => prev.filter(s => (s._id || s.id) !== id));
@@ -1214,7 +1200,7 @@ function PageCategories() {
   };
 
   const deleteCat = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this category?")) return;
+    if (!await customConfirm("Are you sure you want to delete this category?")) return;
     try {
       await adminApi.deleteCategory(id);
       setCats(prev => prev.filter(c => (c._id || c.id) !== id));
@@ -1904,8 +1890,8 @@ function PageColors() {
     saveStoredColors(updated);
   };
 
-  const deleteColor = (id) => {
-    if (!window.confirm('Are you sure you want to delete this color option?')) return;
+  const deleteColor = async (id) => {
+    if (!await customConfirm('Are you sure you want to delete this color option?')) return;
     const updated = colors.filter(c => c.id !== id);
     setColors(updated);
     saveStoredColors(updated);
@@ -2190,7 +2176,7 @@ function PageSizes() {
 
   const deleteSize = async (s) => {
     const id = s.id || s._id;
-    if (!window.confirm(`Are you sure you want to delete size "${s.name}"?`)) return;
+    if (!await customConfirm(`Are you sure you want to delete size "${s.name}"?`)) return;
     setSizes(prev => prev.filter(item => item.id !== id && item._id !== id));
     try {
       await adminApi.deleteSize(id);
@@ -2794,7 +2780,7 @@ function PageAllProducts() {
   };
 
   const handleDeleteProduct = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) return;
+    if (!await customConfirm("Are you sure you want to delete this product?")) return;
     try {
       await adminApi.deleteProduct(id);
       setProducts(prev => prev.filter(p => p.id !== id));
@@ -3126,16 +3112,14 @@ function PageAllProducts() {
                           <>
                             {parents.map(parent => {
                               const subs = children.filter(c => c.parent_category === parent.slug || c.parent_category === parent.name);
-                              if (subs.length > 0) {
-                                return (
-                                  <optgroup key={parent._id || parent.id} label={`── ${parent.name} ──`}>
-                                    {subs.map(sub => (
-                                      <option key={sub._id || sub.id} value={sub.name}>{sub.name}</option>
-                                    ))}
-                                  </optgroup>
-                                );
-                              }
-                              return <option key={parent._id || parent.id} value={parent.name}>{parent.name}</option>;
+                              return (
+                                <React.Fragment key={parent._id || parent.id}>
+                                  <option value={parent.name} style={{ fontWeight: 'bold' }}>{parent.name}</option>
+                                  {subs.map(sub => (
+                                    <option key={sub._id || sub.id} value={sub.name}>&nbsp;&nbsp;&nbsp;↳ {sub.name}</option>
+                                  ))}
+                                </React.Fragment>
+                              );
                             })}
                             {children.filter(c => !parents.some(p => p.slug === c.parent_category || p.name === c.parent_category)).map(c => (
                               <option key={c._id || c.id} value={c.name}>{c.name}</option>
@@ -3940,7 +3924,7 @@ function PageReviews() {
 
   const handleDelete = async (review) => {
     const id = review.id || review._id;
-    if (!window.confirm(`Are you sure you want to delete the review from "${review.user_name || review.name}"?`)) return;
+    if (!await customConfirm(`Are you sure you want to delete the review from "${review.user_name || review.name}"?`)) return;
 
     try {
       await adminApi.deleteReview(id);
@@ -4546,7 +4530,7 @@ function PageContacts() {
   useEffect(() => { fetchContacts(); }, []);
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Kya aap is message ko delete karna chahte hain?')) return;
+    if (!await customConfirm('Kya aap is message ko delete karna chahte hain?')) return;
     try {
       await contactApi.delete(id);
       setContacts(prev => prev.filter(c => c.id !== id));
@@ -4780,6 +4764,7 @@ function PageOrders() {
   const [loading, setLoading] = useState(false);
   const [dateFilter, setDateFilter] = useState('');
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [orderToDelete, setOrderToDelete] = useState(null);
 
   const handleViewOrder = (order) => setSelectedOrder(order);
 
@@ -4851,16 +4836,17 @@ function PageOrders() {
   const handleConfirmDeleteOrder = async () => {
     if (!orderToDelete) return;
     const order = orderToDelete;
-    const orderId = order.id;
-    const numericId = order.numericId || order.dbId || order._id || order.id || order.order_number;
+    const rawOrderNumber = order.raw?.order_number || order.order_number;
+    const numericId = order.numericId || order.dbId || order._id || order.id || rawOrderNumber;
 
-    setOrders(prev => prev.filter(o => o.id !== orderId && o._id !== numericId && o.order_number !== order.order_number));
+    setOrders(prev => prev.filter(o => o.id !== order.id && o.numericId !== order.numericId));
 
     try {
       const localOrders = JSON.parse(localStorage.getItem('astrogifts_user_orders') || '[]');
-      const filtered = localOrders.filter(o => 
-        o.id !== orderId && o.id !== numericId && o.order_number !== order.order_number
-      );
+      const filtered = localOrders.filter(o => {
+        const localId = o.id || o._id || o.order_number;
+        return localId !== order.numericId && localId !== rawOrderNumber && localId !== order.id && o.order_number !== rawOrderNumber;
+      });
       localStorage.setItem('astrogifts_user_orders', JSON.stringify(filtered));
     } catch (err) {
       console.warn('Failed to update local orders in localStorage:', err);
@@ -5090,6 +5076,63 @@ function PageOrders() {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      {orderToDelete && (
+        <div className="admin__modal-overlay" onClick={() => setOrderToDelete(null)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 999999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="admin__detailed-form" onClick={e => e.stopPropagation()} style={{ maxWidth: '440px', width: '90%', padding: '28px', background: '#fff', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.2)', textAlign: 'center' }}>
+            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#fee2e2', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                <line x1="10" y1="11" x2="10" y2="17"/>
+                <line x1="14" y1="11" x2="14" y2="17"/>
+              </svg>
+            </div>
+
+            <h3 style={{ fontSize: '20px', fontWeight: '700', color: '#1e293b', margin: '0 0 8px' }}>Delete Order</h3>
+            <p style={{ fontSize: '14px', color: '#64748b', margin: '0 0 24px', lineHeight: 1.5 }}>
+              Are you sure you want to delete order <strong>{orderToDelete.id || orderToDelete.order_number}</strong>? This action cannot be undone.
+            </p>
+
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <button
+                onClick={() => setOrderToDelete(null)}
+                style={{
+                  flex: 1,
+                  padding: '10px 18px',
+                  background: '#f1f5f9',
+                  color: '#475569',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmDeleteOrder}
+                style={{
+                  flex: 1,
+                  padding: '10px 18px',
+                  background: '#ef4444',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(239, 68, 68, 0.25)'
+                }}
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -5098,22 +5141,55 @@ function PageOrders() {
 function PageUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [editingUser, setEditingUser] = useState(null);
+  const [editFormData, setEditFormData] = useState({ name: '', email: '', phone: '' });
+
+  const fetchUsers = async () => {
+    try {
+      const res = await adminApi.getUsers();
+      if (res && res.data) {
+        setUsers(res.data);
+      }
+    } catch (e) {
+      setUsers([]);
+    }
+    setLoading(false);
+  };
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const res = await adminApi.getUsers();
-        if (res && res.data) {
-          setUsers(res.data);
-        }
-      } catch (e) {
-        // Fallback dummy data
-        setUsers([]);
-      }
-      setLoading(false);
-    };
     fetchUsers();
   }, []);
+
+  const handleDelete = async (id) => {
+    if (await customConfirm('Are you sure you want to delete this user?')) {
+      try {
+        await adminApi.deleteUser(id);
+        setUsers(users.filter(u => u.id !== id));
+      } catch (err) {
+        alert('Failed to delete user.');
+      }
+    }
+  };
+
+  const handleEditClick = (user) => {
+    setEditingUser(user.id);
+    setEditFormData({
+      name: user.name || '',
+      email: user.email || '',
+      phone: user.phone || ''
+    });
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      await adminApi.updateUser(editingUser, editFormData);
+      fetchUsers();
+      setEditingUser(null);
+    } catch (err) {
+      alert('Failed to update user.');
+    }
+  };
 
   return (
     <div className="admin__page-panel">
@@ -5143,7 +5219,7 @@ function PageUsers() {
                 <td><span className="admin__order-id">{idx + 1}</span></td>
                 <td>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span className="admin__customer-avatar">{u.name.charAt(0)}</span>
+                    <span className="admin__customer-avatar">{u.name ? u.name.charAt(0) : 'U'}</span>
                     <strong style={{ color: '#111', fontSize: '14px' }}>{u.name}</strong>
                   </div>
                 </td>
@@ -5151,8 +5227,8 @@ function PageUsers() {
                 <td>{u.phone}</td>
                 <td>
                   <div className="admin__actions-cell">
-                    <button className="admin__action-btn admin__action-btn--edit" title="Edit User"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{marginRight: '4px'}}><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit</button>
-                    <button className="admin__action-btn admin__action-btn--delete" title="Delete User"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                    <button onClick={() => handleEditClick(u)} className="admin__action-btn admin__action-btn--edit" title="Edit User"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{marginRight: '4px'}}><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit</button>
+                    <button onClick={() => handleDelete(u.id)} className="admin__action-btn admin__action-btn--delete" title="Delete User"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
                   </div>
                 </td>
               </tr>
@@ -5161,6 +5237,52 @@ function PageUsers() {
         </table>
         )}
       </div>
+
+      {editingUser && (
+        <div className="admin__modal-overlay" onClick={() => setEditingUser(null)}>
+          <div className="admin__modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+            <div className="admin__modal-header">
+              <h3>Edit User</h3>
+              <button className="admin__modal-close" onClick={() => setEditingUser(null)}>&times;</button>
+            </div>
+            <form onSubmit={handleUpdate} className="admin__modal-body">
+              <div className="admin__form-group">
+                <label>Name</label>
+                <input 
+                  type="text" 
+                  className="admin__input" 
+                  value={editFormData.name} 
+                  onChange={e => setEditFormData({...editFormData, name: e.target.value})} 
+                  required 
+                />
+              </div>
+              <div className="admin__form-group">
+                <label>Email</label>
+                <input 
+                  type="email" 
+                  className="admin__input" 
+                  value={editFormData.email} 
+                  onChange={e => setEditFormData({...editFormData, email: e.target.value})} 
+                  required 
+                />
+              </div>
+              <div className="admin__form-group">
+                <label>Phone No.</label>
+                <input 
+                  type="text" 
+                  className="admin__input" 
+                  value={editFormData.phone} 
+                  onChange={e => setEditFormData({...editFormData, phone: e.target.value})} 
+                />
+              </div>
+              <div className="admin__modal-footer">
+                <button type="button" className="admin__btn-secondary" onClick={() => setEditingUser(null)}>Cancel</button>
+                <button type="submit" className="admin__btn-primary">Update User</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -112,6 +112,8 @@ Route::prefix('admin')->group(function () {
     Route::delete('/sliders/{id}', [AdminController::class, 'deleteSlider']);
     Route::get('/posts', [AdminController::class, 'posts']);
     Route::get('/users', [AdminController::class, 'users']);
+    Route::put('/users/{id}', [AdminController::class, 'updateUser']);
+    Route::delete('/users/{id}', [AdminController::class, 'destroyUser']);
     
     // Reviews
     Route::get('/reviews', [ReviewController::class, 'allReviews']);
