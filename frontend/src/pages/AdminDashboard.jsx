@@ -2961,40 +2961,40 @@ function PageAllProducts() {
 
   return (
     <div className="admin__page-panel">
-      <div className="admin__panel-header" style={{ alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+      <div className="admin__panel-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
         <div>
           <h2 className="admin__panel-title">All Products</h2>
           <p className="admin__panel-sub">Manage all items across categories ({displayedProducts.length} Products)</p>
         </div>
 
-        {/* Date Filter & Sort Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+        {/* Date Filter & Sort Controls + Add Product Button (All in 1 Row) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
           
-          <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} style={{ padding: '6px 12px', borderRadius: '4px', border: '1px solid #ccc', outline: 'none', background: '#fff' }}>
+          <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} style={{ padding: '5px 8px', borderRadius: '6px', border: '1px solid #d1d5db', outline: 'none', background: '#fff', fontSize: '12px', height: '34px' }}>
             <option value="">All Categories</option>
             {uniqueCategories.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
 
-          <select value={filterSize} onChange={e => setFilterSize(e.target.value)} style={{ padding: '6px 12px', borderRadius: '4px', border: '1px solid #ccc', outline: 'none', background: '#fff' }}>
+          <select value={filterSize} onChange={e => setFilterSize(e.target.value)} style={{ padding: '5px 8px', borderRadius: '6px', border: '1px solid #d1d5db', outline: 'none', background: '#fff', fontSize: '12px', height: '34px' }}>
             <option value="">All Sizes</option>
             {uniqueSizes.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
 
-          <select value={filterColor} onChange={e => setFilterColor(e.target.value)} style={{ padding: '6px 12px', borderRadius: '4px', border: '1px solid #ccc', outline: 'none', background: '#fff' }}>
+          <select value={filterColor} onChange={e => setFilterColor(e.target.value)} style={{ padding: '5px 8px', borderRadius: '6px', border: '1px solid #d1d5db', outline: 'none', background: '#fff', fontSize: '12px', height: '34px' }}>
             <option value="">All Colors</option>
             {uniqueColors.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
 
-          <select value={filterStock} onChange={e => setFilterStock(e.target.value)} style={{ padding: '6px 12px', borderRadius: '4px', border: filterStock === 'out_of_stock' ? '1px solid #dc2626' : '1px solid #ccc', outline: 'none', background: filterStock === 'out_of_stock' ? '#fff5f5' : '#fff', fontWeight: filterStock ? '600' : '400', color: filterStock === 'out_of_stock' ? '#dc2626' : '#1e293b' }}>
+          <select value={filterStock} onChange={e => setFilterStock(e.target.value)} style={{ padding: '5px 8px', borderRadius: '6px', border: filterStock === 'out_of_stock' ? '1px solid #dc2626' : '1px solid #d1d5db', outline: 'none', background: filterStock === 'out_of_stock' ? '#fff5f5' : '#fff', fontWeight: filterStock ? '600' : '400', color: filterStock === 'out_of_stock' ? '#dc2626' : '#1e293b', fontSize: '12px', height: '34px' }}>
             <option value="">All Stock Statuses</option>
             <option value="out_of_stock">Out of Stock</option>
             <option value="low_stock">Low Stock (≤ 5)</option>
             <option value="in_stock">In Stock</option>
           </select>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '6px 12px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-            <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', padding: '4px 8px', height: '34px', boxSizing: 'border-box' }}>
+            <span style={{ fontSize: '11.5px', color: '#64748b', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '3px', whiteSpace: 'nowrap' }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
               Filter Date:
             </span>
             <input
@@ -3004,7 +3004,7 @@ function PageAllProducts() {
               style={{
                 border: 'none',
                 outline: 'none',
-                fontSize: '12.5px',
+                fontSize: '11.5px',
                 color: '#1e293b',
                 background: 'transparent',
                 cursor: 'pointer',
@@ -3019,13 +3019,13 @@ function PageAllProducts() {
                   background: '#f1f5f9',
                   border: 'none',
                   borderRadius: '50%',
-                  width: '18px',
-                  height: '18px',
+                  width: '16px',
+                  height: '16px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  fontSize: '10px',
+                  fontSize: '9px',
                   color: '#64748b'
                 }}
               >
@@ -3034,9 +3034,20 @@ function PageAllProducts() {
             )}
           </div>
 
-
-
-          <button className="admin__add-btn" onClick={() => { if (showAdd) handleCancel(); else setShowAdd(true); }}>
+          <button
+            className="admin__add-btn"
+            onClick={() => { if (showAdd) handleCancel(); else setShowAdd(true); }}
+            style={{
+              height: '34px',
+              padding: '0 14px',
+              fontSize: '12.5px',
+              whiteSpace: 'nowrap',
+              margin: 0,
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
             {showAdd ? '✕ Close' : '+ Add Product'}
           </button>
         </div>
