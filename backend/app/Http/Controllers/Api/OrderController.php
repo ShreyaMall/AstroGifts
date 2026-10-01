@@ -124,6 +124,13 @@ class OrderController extends Controller
                 }
                 $realPrice = (float)$product->price;
                 $item['price'] = $realPrice;
+                $item['product_id'] = (string)($product->_id ?? $product->id);
+                if (empty($item['name'])) {
+                    $item['name'] = $product->name;
+                }
+                if (empty($item['image'])) {
+                    $item['image'] = $product->image ?? $product->image_url ?? null;
+                }
             } else {
                 $realPrice = (float)($item['price'] ?? 0);
             }
