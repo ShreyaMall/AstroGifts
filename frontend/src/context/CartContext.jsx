@@ -34,19 +34,21 @@ export const CartProvider = ({ children }) => {
       : parseFloat(String(rawPrice || '0').replace(/[^0-9.]/g, '')) || 0;
 
     const productName = product.name || product.title || 'Product';
-    const baseId = product.id || product._id || String(productName).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    // Clean product ID: prioritize product_id, _id, or id (never category_id)
+    const actualProductId = product.product_id || product._id || product.id || String(productName).toLowerCase().replace(/[^a-z0-9]+/g, '-');
     const colorSuffix = product.color ? `-${String(product.color).toLowerCase().replace(/[^a-z0-9]+/g, '-')}` : '';
     const sizeSuffix = product.size ? `-${String(product.size).toLowerCase().replace(/[^a-z0-9]+/g, '-')}` : '';
 
     return {
-      id: `${baseId}${colorSuffix}${sizeSuffix}`,
-      product_id: product.id || product._id || product.product_id || baseId,
+      id: `${actualProductId}${colorSuffix}${sizeSuffix}`,
+      product_id: actualProductId,
       slug: product.slug || String(productName).toLowerCase().replace(/[^a-z0-9]+/g, '-'),
       name: productName,
       title: productName,
       price: numericPrice,
       image: product.img || product.image || product.product_image || product.bgImg || '',
-      category: product.category || '',
+      category: product.category_name || product.category || '',
+      category_id: product.category_id || null,
       stock: product.stock !== undefined ? product.stock : null,
       color: product.color || null,
       size: product.size || null,

@@ -32,17 +32,30 @@ export const WishlistProvider = ({ children }) => {
       ? rawPrice
       : parseFloat(String(rawPrice || '0').replace(/[^0-9.]/g, '')) || 0;
 
+    const productName = product.name || product.title || 'Product';
+    const actualProductId = product.product_id || product._id || product.id || String(productName).toLowerCase().replace(/\s+/g, '-');
+
     return {
-      id: product.id || String(product.name).toLowerCase().replace(/\s+/g, '-'),
-      name: product.name || product.title || 'Product',
+      id: actualProductId,
+      product_id: actualProductId,
+      name: productName,
+      title: productName,
       price: numericPrice,
-      image: product.img || product.image || product.bgImg || '',
-      category: product.category || '',
+      image: product.img || product.image || product.product_image || product.bgImg || '',
+      category: product.category_name || product.category || '',
+      category_id: product.category_id || null,
+      stock: product.stock !== undefined ? product.stock : null,
+      color: product.color || null,
+      size: product.size || null,
     };
   };
 
-  const isInWishlist = (id) => {
-    return wishlistItems.some(item => item.id === id);
+  const isInWishlist = (idOrProduct) => {
+    if (!idOrProduct) return false;
+    const targetId = typeof idOrProduct === 'object'
+      ? (idOrProduct.product_id || idOrProduct._id || idOrProduct.id)
+      : idOrProduct;
+    return wishlistItems.some(item => item.id === targetId || item.product_id === targetId);
   };
 
   const toggleWishlist = (product) => {

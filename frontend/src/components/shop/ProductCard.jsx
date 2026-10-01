@@ -14,7 +14,7 @@ export const ProductCard = ({ product, viewMode = 'grid-3' }) => {
   const { isInWishlist, toggleWishlist } = useWishlist();
   const [hovered, setHovered] = useState(false);
   const navigate = useNavigate();
-  const wishlisted = isInWishlist(product.id);
+  const wishlisted = isInWishlist(product);
   const isList = viewMode === 'list';
 
   let badgeClass = '';
