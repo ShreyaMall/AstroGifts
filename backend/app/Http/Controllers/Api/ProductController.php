@@ -156,12 +156,14 @@ class ProductController extends Controller
      */
     public function show(string $identifier): JsonResponse
     {
-        $product = Product::where('is_active', true)
-            ->where(function ($q) use ($identifier) {
-                $q->where('id', $identifier)
-                  ->orWhere('slug', $identifier);
-            })
-            ->first();
+        $product = Product::find($identifier)
+            ?? Product::where('_id', $identifier)->first()
+            ?? Product::where('id', $identifier)->first()
+            ?? Product::where('slug', $identifier)->first();
+
+        if (!$product) {
+            $product = Product::where('name', 'like', "%{$identifier}%")->first();
+        }
 
         if (!$product) {
             return response()->json([

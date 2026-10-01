@@ -702,18 +702,25 @@ export default function MyOrdersPage() {
                         const isItemCancelled = (item.status === 'Cancelled') || (ord.status === 'Cancelled');
                         const canCancelItem = !isItemCancelled && ['Pending', 'Processing', 'Partially Cancelled'].includes(ord.status || 'Processing');
 
+                        const productParam = item.product_id || item.id || item.productId || (item.name || item.product_name ? String(item.name || item.product_name).toLowerCase().replace(/[^a-z0-9]+/g, '-') : '');
+
                         return (
                           <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '18px 22px', borderBottom: '1px solid #f7f7f7', opacity: isItemCancelled ? 0.65 : 1, background: isItemCancelled ? '#fafafa' : '#fff' }}>
-                            <img
-                              src={resolveItemImage(item)}
-                              alt={item.name || item.product_name}
-                              style={{ width: '72px', height: '72px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #eee', flexShrink: 0, filter: isItemCancelled ? 'grayscale(80%)' : 'none' }}
-                              onError={e => { e.target.src = '/gift image.jpg'; }}
-                            />
+                            <Link to={`/product/${productParam}`} style={{ textDecoration: 'none', display: 'block' }}>
+                              <img
+                                src={resolveItemImage(item)}
+                                alt={item.name || item.product_name}
+                                style={{ width: '72px', height: '72px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #eee', flexShrink: 0, filter: isItemCancelled ? 'grayscale(80%)' : 'none', cursor: 'pointer' }}
+                                onError={e => { e.target.src = '/gift image.jpg'; }}
+                              />
+                            </Link>
                             <div style={{ flex: 1 }}>
-                              <div style={{ fontWeight: '600', fontSize: '15px', color: '#111', marginBottom: '6px', textDecoration: isItemCancelled ? 'line-through' : 'none' }}>
+                              <Link 
+                                to={`/product/${productParam}`} 
+                                style={{ fontWeight: '600', fontSize: '15px', color: '#111', marginBottom: '6px', textDecoration: isItemCancelled ? 'line-through' : 'none', display: 'inline-block', cursor: 'pointer' }}
+                              >
                                 {item.name || item.product_name}
-                              </div>
+                              </Link>
                               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '6px', alignItems: 'center' }}>
                                 {item.size && (
                                   <span style={{ padding: '2px 10px', background: '#f3f4f6', borderRadius: '4px', fontSize: '12px', color: '#555' }}>
@@ -948,25 +955,32 @@ export default function MyOrdersPage() {
 
               <h4 style={{ margin: '0 0 16px 0', fontSize: '16px', color: '#111' }}>Items Summary</h4>
               <div style={{ border: '1px solid #eee', borderRadius: '12px', overflow: 'hidden' }}>
-                {selectedOrder.items && selectedOrder.items.map((item, idx) => (
-                  <div key={idx} style={{ 
-                    display: 'flex', alignItems: 'center', padding: '16px', 
-                    borderBottom: idx < selectedOrder.items.length - 1 ? '1px solid #eee' : 'none'
-                  }}>
-                    <img src={resolveItemImage(item)} alt={item.name || item.product_name} style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover' }} onError={e=>e.target.src='/gift image.jpg'} />
-                    <div style={{ flex: 1, marginLeft: '16px' }}>
-                      <div style={{ fontWeight: '600', color: '#222', fontSize: '14px' }}>{item.name || item.product_name}</div>
-                      <div style={{ fontSize: '13px', color: '#666', marginTop: '4px' }}>
-                        Qty: {item.qty || item.quantity || 1} 
-                        {item.size && ` | Size: ${item.size}`}
-                        {(item.color || item.selected_color) && ` | Color: ${getColorName(item.color || item.selected_color)}`}
+                {selectedOrder.items && selectedOrder.items.map((item, idx) => {
+                  const pParam = item.product_id || item.id || item.productId || (item.name || item.product_name ? String(item.name || item.product_name).toLowerCase().replace(/[^a-z0-9]+/g, '-') : '');
+                  return (
+                    <div key={idx} style={{ 
+                      display: 'flex', alignItems: 'center', padding: '16px', 
+                      borderBottom: idx < selectedOrder.items.length - 1 ? '1px solid #eee' : 'none'
+                    }}>
+                      <Link to={`/product/${pParam}`} style={{ textDecoration: 'none', display: 'block' }}>
+                        <img src={resolveItemImage(item)} alt={item.name || item.product_name} style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover', cursor: 'pointer' }} onError={e=>e.target.src='/gift image.jpg'} />
+                      </Link>
+                      <div style={{ flex: 1, marginLeft: '16px' }}>
+                        <Link to={`/product/${pParam}`} style={{ fontWeight: '600', color: '#222', fontSize: '14px', textDecoration: 'none', cursor: 'pointer' }}>
+                          {item.name || item.product_name}
+                        </Link>
+                        <div style={{ fontSize: '13px', color: '#666', marginTop: '4px' }}>
+                          Qty: {item.qty || item.quantity || 1} 
+                          {item.size && ` | Size: ${item.size}`}
+                          {(item.color || item.selected_color) && ` | Color: ${getColorName(item.color || item.selected_color)}`}
+                        </div>
+                      </div>
+                      <div style={{ fontWeight: '600', color: '#111' }}>
+                        ₹{Number((item.price || 0) * (item.qty || item.quantity || 1)).toLocaleString('en-IN')}
                       </div>
                     </div>
-                    <div style={{ fontWeight: '600', color: '#111' }}>
-                      ₹{Number((item.price || 0) * (item.qty || item.quantity || 1)).toLocaleString('en-IN')}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               <div style={{ marginTop: '24px', background: '#fef5f0', padding: '20px', borderRadius: '12px', border: '1px solid #fde4d5' }}>
