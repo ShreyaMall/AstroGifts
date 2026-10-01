@@ -1336,7 +1336,10 @@ function PageCategories() {
         <div className="admin__modal-overlay" onClick={() => setEditingCat(null)}>
           <div className="admin__detailed-form" onClick={e => e.stopPropagation()} style={{ maxWidth: '680px' }}>
             <div className="admin__detailed-form-header" style={{ background: '#fdf8f5', borderBottom: '1px solid #f1e5dd' }}>
-              <h3>✏️ Edit Category & Subcategories</h3>
+              <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit Category & Subcategories
+              </h3>
               <button className="admin__form-close" onClick={() => setEditingCat(null)}>×</button>
             </div>
             
@@ -1413,7 +1416,10 @@ function PageCategories() {
 
               {/* Subcategories Management */}
               <div className="admin__form-section" style={{ marginTop: '20px', background: '#fcf8f5', padding: '16px', borderRadius: '10px', border: '1px solid #f5e6db' }}>
-                <h4 className="admin__section-title" style={{ color: '#7c3a1d', margin: '0 0 10px' }}>🌿 Manage Subcategories</h4>
+                <h4 className="admin__section-title" style={{ color: '#7c3a1d', margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                  Manage Subcategories
+                </h4>
                 <p style={{ fontSize: '12px', color: '#666', margin: '0 0 12px' }}>
                   Add or remove subcategories under <strong>{editForm.name || 'this category'}</strong>:
                 </p>
@@ -2981,9 +2987,9 @@ function PageAllProducts() {
 
           <select value={filterStock} onChange={e => setFilterStock(e.target.value)} style={{ padding: '6px 12px', borderRadius: '4px', border: filterStock === 'out_of_stock' ? '1px solid #dc2626' : '1px solid #ccc', outline: 'none', background: filterStock === 'out_of_stock' ? '#fff5f5' : '#fff', fontWeight: filterStock ? '600' : '400', color: filterStock === 'out_of_stock' ? '#dc2626' : '#1e293b' }}>
             <option value="">All Stock Statuses</option>
-            <option value="out_of_stock">⚠️ Out of Stock</option>
-            <option value="low_stock">⚡ Low Stock (≤ 5)</option>
-            <option value="in_stock">✓ In Stock</option>
+            <option value="out_of_stock">Out of Stock</option>
+            <option value="low_stock">Low Stock (≤ 5)</option>
+            <option value="in_stock">In Stock</option>
           </select>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '6px 12px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
@@ -3396,7 +3402,7 @@ function PageAllProducts() {
                   <span style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '4px',
+                    gap: '5px',
                     padding: '4px 10px',
                     borderRadius: '12px',
                     fontSize: '12px',
@@ -3405,7 +3411,22 @@ function PageAllProducts() {
                     color: isOut ? '#dc2626' : (isLow ? '#b45309' : '#15803d'),
                     border: `1px solid ${isOut ? '#fca5a5' : (isLow ? '#fde68a' : '#86efac')}`
                   }}>
-                    {isOut ? '⚠️ Out of Stock (0)' : (isLow ? `⚡ Low Stock (${rawStk})` : `✓ In Stock (${rawStk})`)}
+                    {isOut ? (
+                      <>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        <span>Out of Stock (0)</span>
+                      </>
+                    ) : isLow ? (
+                      <>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        <span>Low Stock ({rawStk})</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>In Stock ({rawStk})</span>
+                      </>
+                    )}
                   </span>
                 </td>
                 <td style={{ padding: '16px' }}><span style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>{p.date}</span></td>
