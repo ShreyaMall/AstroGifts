@@ -184,9 +184,6 @@ function PageDashboard({ setActivePage }) {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [orderToDelete, setOrderToDelete] = useState(null);
 
-  const [outOfStockList, setOutOfStockList] = useState([]);
-  const [lowStockList, setLowStockList] = useState([]);
-
   const handleViewOrder = (order) => setSelectedOrder(order);
 
   const fetchDashboardData = async () => {
@@ -275,14 +272,10 @@ function PageDashboard({ setActivePage }) {
 
     const usersCount = (apiStats.find(a => a.label === 'Total Users')?.value) || '2';
 
-    setOutOfStockList(apiOutOfStock);
-    setLowStockList(apiLowStock);
-
     setStats([
       { label: 'Total Revenue',  value: '₹' + totalRev.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), delta: totalRev > 0 ? '+12.4%' : '0%', icon: STATS[0].icon, color: '#d96b27' },
       { label: 'Total Orders',   value: String(mappedOrders.length), delta: mappedOrders.length > 0 ? '+8.1%' : '0%',  icon: STATS[1].icon, color: '#2563eb' },
       { label: 'Total Products', value: String(realProductsCount), delta: realProductsCount > 0 ? '+3.5%' : '0%', icon: STATS[2].icon, color: '#16a34a' },
-      { label: 'Out of Stock Items', value: String(apiOutOfStock.length), delta: apiOutOfStock.length > 0 ? '⚠️ Action Needed' : 'All In Stock', icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>, color: '#dc2626' },
       { label: 'Total Users',    value: String(usersCount), delta: '+21.3%', icon: STATS[3].icon, color: '#7c3aed' },
     ]);
     
@@ -372,85 +365,6 @@ function PageDashboard({ setActivePage }) {
           </div>
         ))}
       </div>
-
-      {/* Out of Stock & Low Stock Urgent Warning Banner */}
-      {(outOfStockList.length > 0 || lowStockList.length > 0) && (
-        <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '12px', padding: '20px', marginBottom: '24px', boxShadow: '0 4px 12px rgba(220,38,38,0.06)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '20px' }}>⚠️</span>
-              <div>
-                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#991b1b' }}>
-                  Inventory Alert: {outOfStockList.length} Out of Stock | {lowStockList.length} Low Stock Item(s)
-                </h3>
-                <p style={{ margin: '2px 0 0 0', fontSize: '13px', color: '#7f1d1d' }}>
-                  Products reaching 0 stock cannot be ordered by customers. Please restock these items soon.
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={() => setActivePage('all-products')}
-              style={{ background: '#dc2626', color: '#fff', border: 'none', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
-            >
-              <span>Manage Inventory</span> →
-            </button>
-          </div>
-
-          <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #fee2e2', overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'left' }}>
-              <thead style={{ background: '#fff5f5', color: '#991b1b', fontWeight: '700', borderBottom: '1px solid #fee2e2' }}>
-                <tr>
-                  <th style={{ padding: '10px 14px' }}>Product Name</th>
-                  <th style={{ padding: '10px 14px' }}>Category</th>
-                  <th style={{ padding: '10px 14px' }}>Current Stock</th>
-                  <th style={{ padding: '10px 14px' }}>Status</th>
-                  <th style={{ padding: '10px 14px', textAlign: 'right' }}>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[...outOfStockList, ...lowStockList].slice(0, 5).map((prod, idx) => {
-                  const isOut = prod.in_stock === false || Number(prod.stock || 0) <= 0 || prod.stock_status === 'out_of_stock';
-                  return (
-                    <tr key={prod._id || prod.id || idx} style={{ borderBottom: '1px solid #fef2f2' }}>
-                      <td style={{ padding: '10px 14px', fontWeight: '600', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        {(prod.image || prod.image_url) && (
-                          <img src={prod.image || prod.image_url} alt={prod.name} style={{ width: '32px', height: '32px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #e2e8f0' }} />
-                        )}
-                        <span>{prod.name}</span>
-                      </td>
-                      <td style={{ padding: '10px 14px', color: '#64748b' }}>{prod.category_name || prod.category || 'Product'}</td>
-                      <td style={{ padding: '10px 14px', fontWeight: '700', color: isOut ? '#dc2626' : '#d97706' }}>
-                        {prod.stock !== undefined ? prod.stock : 0} units
-                      </td>
-                      <td style={{ padding: '10px 14px' }}>
-                        <span style={{
-                          display: 'inline-block',
-                          padding: '3px 8px',
-                          borderRadius: '12px',
-                          fontSize: '11px',
-                          fontWeight: '700',
-                          background: isOut ? '#fee2e2' : '#fef3c7',
-                          color: isOut ? '#dc2626' : '#b45309'
-                        }}>
-                          {isOut ? 'OUT OF STOCK' : 'LOW STOCK'}
-                        </span>
-                      </td>
-                      <td style={{ padding: '10px 14px', textAlign: 'right' }}>
-                        <button
-                          onClick={() => setActivePage('all-products')}
-                          style={{ background: '#fecaca', color: '#991b1b', border: 'none', borderRadius: '6px', padding: '4px 10px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}
-                        >
-                          Restock
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
 
       <div className="admin__orders-section">
         <div className="admin__section-header" style={{ alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
