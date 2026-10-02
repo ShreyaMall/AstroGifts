@@ -822,6 +822,34 @@ export default function ProductDetailPage() {
                 </svg>
               </button>
 
+              <button 
+                className="pdp-img-wishlist-btn"
+                style={{ top: '60px' }}
+                onClick={async () => {
+                  const slug = product.slug || String(product.name).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                  const shareUrl = `${window.location.origin}/product/${slug}`;
+                  const shareData = {
+                    title: product.name,
+                    text: `Check out ${product.name} at AstroGifts for just ₹${product.price.toFixed(0)}!`,
+                    url: shareUrl
+                  };
+                  if (navigator.share) {
+                    try { await navigator.share(shareData); } catch (err) {}
+                  } else {
+                    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareData.text + ' ' + shareData.url)}`, '_blank');
+                  }
+                }}
+                title="Share product"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="18" cy="5" r="3"></circle>
+                  <circle cx="6" cy="12" r="3"></circle>
+                  <circle cx="18" cy="19" r="3"></circle>
+                  <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                  <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                </svg>
+              </button>
+
               <img 
                 src={getFormattedImageUrl(activeImage || (galleryImages && galleryImages[activeImgIndex]) || product.image || product.img)} 
                 alt={product.name} 

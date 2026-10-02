@@ -26,6 +26,21 @@ export const ProductCard = ({ product, viewMode = 'grid-3' }) => {
   const handleCardClick = () => navigate(`/product/${slug}`);
   const discount = product.old_price && product.old_price > product.price ? Math.round(product.old_price - product.price) : 0;
 
+  const handleShare = async (e) => {
+    e.stopPropagation();
+    const shareUrl = `${window.location.origin}/product/${slug}`;
+    const shareData = {
+      title: product.name,
+      text: `Check out ${product.name} at AstroGifts for just ₹${product.price.toFixed(0)}!`,
+      url: shareUrl
+    };
+    if (navigator.share) {
+      try { await navigator.share(shareData); } catch (err) { console.error('Share failed:', err); }
+    } else {
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareData.text + ' ' + shareData.url)}`, '_blank');
+    }
+  };
+
   return (
     <div
       className={`cp-card${isList ? ' cp-card--list' : ''}${hovered ? ' cp-card--hovered' : ''}`}
@@ -37,6 +52,9 @@ export const ProductCard = ({ product, viewMode = 'grid-3' }) => {
         {product.badge && <span className={badgeClass}>{product.badge}</span>}
         <button className={`cp-card__wish${wishlisted ? ' cp-card__wish--active' : ''}`} onClick={e => { e.stopPropagation(); toggleWishlist(product); }} aria-label="Add to wishlist">
           <HeartIcon filled={wishlisted} />
+        </button>
+        <button className="cp-card__share-mobile" onClick={handleShare} aria-label="Share" style={{ position: 'absolute', top: '48px', right: '12px', background: '#fff', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', cursor: 'pointer', zIndex: 3, color: '#4b5563' }}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
         </button>
         <Link to={`/product/${slug}`} className="cp-card__img-link">
           <img 
