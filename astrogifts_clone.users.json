@@ -1,0 +1,137 @@
+[{
+  "_id": {
+    "$oid": "6ab4c94a3034c2b79e04a922"
+  },
+  "email": "admin@astrogifts.com",
+  "name": "AstroGifts Admin",
+  "password": "$2y$12$X2nZMRmB2OiFjl3sPFlxquvAG7k2uiBhGSXuBImyTqSSKun3XIOnW",
+  "role": "admin",
+  "updated_at": {
+    "$date": "2026-10-01T11:31:11.791Z"
+  },
+  "created_at": {
+    "$date": "2026-09-24T06:55:06.548Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ab4c94a3034c2b79e04a923"
+  },
+  "email": "user@astrogifts.com",
+  "name": "Demo User",
+  "password": "$2y$12$S4bCGapMjXGoudGc14fgrOxxN.JeEaAkSS9S0TMbJpbS0HKgs.txe",
+  "role": "customer",
+  "updated_at": {
+    "$date": "2026-09-24T06:55:06.888Z"
+  },
+  "created_at": {
+    "$date": "2026-09-24T06:55:06.888Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ab60437883ab5821e046322"
+  },
+  "name": "Demo User",
+  "email": "user@astrogifts.com",
+  "password": "$2y$12$7rurjuwmiM2HRH/Mg9hBmONjvFLLmF286FgthEwZYqCDYKg6oVUdi",
+  "role": "customer",
+  "updated_at": {
+    "$date": "2026-09-25T05:18:47.077Z"
+  },
+  "created_at": {
+    "$date": "2026-09-25T05:18:47.077Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ab60447883ab5821e046323"
+  },
+  "name": "Demo User",
+  "email": "user@astrogifts.com",
+  "password": "$2y$12$gj4v/.eLwlOefKuXrGQDY.OjwuPZQIueZfQ.tarX6pXrq58RXE2mO",
+  "role": "customer",
+  "updated_at": {
+    "$date": "2026-09-25T05:19:03.935Z"
+  },
+  "created_at": {
+    "$date": "2026-09-25T05:19:03.935Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ab60620883ab5821e046325"
+  },
+  "name": "Shreya mall",
+  "email": "shreyarajput1124@gmail.com",
+  "password": "$2y$12$C7UAfdzHiMIuzVov9VvbdOnsObraeAiqhG0lAensO36S.Fd2fE56i",
+  "role": "admin",
+  "updated_at": {
+    "$date": "2026-09-28T06:05:41.102Z"
+  },
+  "created_at": {
+    "$date": "2026-09-25T05:26:56.558Z"
+  },
+  "otp": null,
+  "otp_expires_at": null
+},
+{
+  "_id": {
+    "$oid": "6aba462d98eb983c3305b873"
+  },
+  "name": "Shreya mall",
+  "email": "shreyamall989@gmail.com",
+  "password": "$2y$12$nVYD1EiCbF.Hn3SW1B8s7.jrrtAx/xtj1OQL.PptMUrMQlmc4PhkS",
+  "role": "customer",
+  "updated_at": {
+    "$date": "2026-09-28T10:49:17.827Z"
+  },
+  "created_at": {
+    "$date": "2026-09-28T10:49:17.827Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abc021a95487beb340d42d2"
+  },
+  "name": "Nadeem",
+  "email": "ansarinadeem0625@gmail.com",
+  "password": "$2y$12$Rw5TIusu9L7D1gU8ipejmOc39sGDEN173DD8zk0dLca8goG8YtaxC",
+  "role": "customer",
+  "updated_at": {
+    "$date": "2026-09-29T18:23:22.212Z"
+  },
+  "created_at": {
+    "$date": "2026-09-29T18:23:22.212Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abce85488082625f5034f20"
+  },
+  "name": "payal",
+  "email": "pmall6584@gmail.com",
+  "password": "$2y$12$gY8LyXXy.CK/77j9Ju0OquLVi3yvtX3GVfSU7AisbzMqmTnRx4WGW",
+  "role": "customer",
+  "updated_at": {
+    "$date": "2026-09-30T10:45:40.874Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T10:45:40.874Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abdfd1288082625f5034f41"
+  },
+  "name": "Cyanide",
+  "email": "shreyamall6392@gmail.com",
+  "password": "$2y$12$N.2T/o4SQMPavCyXtZiymOoRsWlTNqkDvbR/OiD1K1si4gJ2C2VRa",
+  "role": "customer",
+  "updated_at": {
+    "$date": "2026-10-01T06:26:26.068Z"
+  },
+  "created_at": {
+    "$date": "2026-10-01T06:26:26.068Z"
+  }
+}]
