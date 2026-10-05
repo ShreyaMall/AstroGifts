@@ -483,9 +483,9 @@ export default function CategoryPage({ categorySlug }) {
       if (scLower === 'perfumes' || scLower.includes('perfume') || scLower.includes('fragrance')) {
         return pTitle.includes('perfume') || pTitle.includes('fragrance') || pTitle.includes('scent') || pSlug.includes('fragrance');
       }
-      if (scLower.includes('candle')) return pTitle.includes('candle') || pSlug.includes('candle');
-      if (scLower.includes('diya') || scLower.includes('lamp')) return pTitle.includes('diya') || pTitle.includes('lamp');
-      if (scLower.includes('light')) return pTitle.includes('light') || pTitle.includes('lantern');
+      if (scLower.includes('candle')) return pTitle.includes('candle') || pDesc.includes('candle') || pSlug.includes('candle');
+        if (scLower.includes('diya') || scLower.includes('lamp')) return pTitle.includes('diya') || pTitle.includes('lamp') || pTitle.includes('votive') || pTitle.includes('luminary');
+        if (scLower.includes('light')) return pTitle.includes('light') || pTitle.includes('lantern') || pTitle.includes('led');
       if (scLower.includes('photo frame') || scLower.includes('frame')) return pTitle.includes('frame');
       if (scLower.includes('sweet') || scLower.includes('dry fruit')) return pTitle.includes('sweet') || pTitle.includes('dry fruit');
       if (scLower.includes('skin')) return pTitle.includes('skin') || pTitle.includes('lotion');
@@ -593,8 +593,34 @@ export default function CategoryPage({ categorySlug }) {
 
     // Subcategory specific matching rules
     if (targetSlug === 'diwali-gifts' || targetLower === 'diwali gifts') {
-      return pSlug === 'diwali-gifts' || pName.includes('diwali') || pTitle.includes('diwali') || pTitle.includes('diya') || pTitle.includes('light') || pTitle.includes('candle') || pTitle.includes('lamp') || pTitle.includes('luminary') || pTitle.includes('votive') || pTitle.includes('utsav') || pTitle.includes('rangoli') || pTitle.includes('brass') || pDesc.includes('diwali');
-    }
+        return pSlug === 'diwali-gifts' || pName.includes('diwali') || pTitle.includes('diwali') || pTitle.includes('diya') || pTitle.includes('light') || pTitle.includes('candle') || pTitle.includes('lamp') || pTitle.includes('luminary') || pTitle.includes('votive') || pTitle.includes('utsav') || pTitle.includes('rangoli') || pTitle.includes('brass') || pDesc.includes('diwali');
+      }
+
+      // Diwali Subcategories Exact Matching
+      if (targetLower.includes('diyas') || targetLower.includes('lamps')) {
+        return pTitle.includes('diya') || pTitle.includes('lamp') || pTitle.includes('votive') || pTitle.includes('luminary') || pSlug.includes('diya') || pSlug.includes('lamp');
+      }
+      if (targetLower.includes('candle')) {
+        return pTitle.includes('candle') || pDesc.includes('candle') || pSlug.includes('candle');
+      }
+      if (targetLower.includes('light')) {
+        return pTitle.includes('light') || pTitle.includes('lantern') || pTitle.includes('led') || pTitle.includes('string');
+      }
+      if (targetLower.includes('hamper')) {
+        return pTitle.includes('hamper') || pTitle.includes('gift box') || pTitle.includes('casket') || pDesc.includes('hamper');
+      }
+      if (targetLower.includes('idol') || targetLower.includes('laxmi') || targetLower.includes('ganesh')) {
+        return pTitle.includes('idol') || pTitle.includes('statue') || pTitle.includes('murti') || pTitle.includes('laxmi') || pTitle.includes('ganesh');
+      }
+      if (targetLower.includes('sweet') || targetLower.includes('dry fruit')) {
+        return pTitle.includes('sweet') || pTitle.includes('dry fruit') || pTitle.includes('chocolate') || pTitle.includes('mithai');
+      }
+      if (targetLower.includes('toran') || targetLower.includes('door')) {
+        return pTitle.includes('toran') || pTitle.includes('bandhanwar') || pTitle.includes('hanging');
+      }
+      if (targetLower.includes('puja thali') || targetLower.includes('brass')) {
+        return pTitle.includes('thali') || pTitle.includes('brass') || pTitle.includes('puja') || pTitle.includes('pooja');
+      }
 
     if (targetSlug === 'birthday-gifts' || targetLower === 'birthday gifts') {
       return pSlug === 'birthday-gifts' || pName.includes('birthday') || pTitle.includes('birthday') || pTitle.includes('bday') || pTitle.includes('balloon');
@@ -1415,6 +1441,8 @@ export default function CategoryPage({ categorySlug }) {
       </div>
   );
 }
+
+
 
 
 
