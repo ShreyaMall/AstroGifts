@@ -430,9 +430,15 @@ export default function CategoryPage({ categorySlug }) {
   const getCategoryCount = (catName) => {
     const scLower = catName.toLowerCase().trim();
     const scSlug = scLower.replace(/[^a-z0-9]+/g, '-');
+  
+      const matched = allProds.filter(p => {
+        // Enforce route match for counts too!
+        if (activeSlug && activeSlug !== 'all' && activeSlug !== 'shop' && activeSlug !== 'astrogifts') {
+          let matchesRoute = checkProductMatchesCategory(p, activeSlug);
+          if (!matchesRoute) return false;
+        }
 
-    const matched = allProds.filter(p => {
-      const pSlug = (p.category_slug || '').toLowerCase().trim();
+        const pSlug = (p.category_slug || '').toLowerCase().trim();
       const pName = (p.category_name || p.category || '').toLowerCase().trim();
       const pTitle = (p.name || '').toLowerCase().trim();
       const pDesc = (p.description || '').toLowerCase().trim();
@@ -1441,6 +1447,8 @@ export default function CategoryPage({ categorySlug }) {
       </div>
   );
 }
+
+
 
 
 
