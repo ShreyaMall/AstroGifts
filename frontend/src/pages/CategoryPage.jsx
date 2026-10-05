@@ -151,16 +151,12 @@ export default function CategoryPage({ categorySlug }) {
 
       if (foundParent) {
         setExpandedCategories([foundParent.name]);
-        if (foundSub) {
-          setSelectedCategories([foundSub.name]);
-        } else {
-          setSelectedCategories([foundParent.name]);
-        }
+        setSelectedCategories([]);
       } else {
         const words = activeSlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1));
         const formatted = words.join(' ');
         setExpandedCategories([formatted]);
-        setSelectedCategories([formatted]);
+        setSelectedCategories([]);
       }
     }
   }, [activeSlug]);
@@ -675,26 +671,22 @@ export default function CategoryPage({ categorySlug }) {
       if (p.price < appliedPriceMin) return false;
       if (p.price > appliedPriceMax) return false;
 
-      // 4. Category Filter
-      if (selectedCategories.length > 0) {
-        // If sidebar checkboxes are selected, match any selected category
-        const matchesAnySelected = selectedCategories.some(sc => checkProductMatchesCategory(p, sc));
-        if (!matchesAnySelected) return false;
-      } else if (activeSlug && activeSlug !== 'all' && activeSlug !== 'shop' && activeSlug !== 'astrogifts') {
-        // Match active route slug
-        let matchesRoute = checkProductMatchesCategory(p, activeSlug);
-        // Fallback for subcategories without specific products in DB yet: show parent products if matchesRoute is false
-        if (!matchesRoute) {
-          if (['diwali-gifts', 'birthday-gifts', 'anniversary-gifts'].includes(activeSlug)) {
-            matchesRoute = checkProductMatchesCategory(p, 'gifts');
-          } else if (['soft-toys', 'baby-toys', 'board-games'].includes(activeSlug)) {
-            matchesRoute = checkProductMatchesCategory(p, 'toys');
-          } else if (['rings', 'pendants', 'bracelets', 'gemstones-crystals'].includes(activeSlug)) {
-            matchesRoute = checkProductMatchesCategory(p, 'astrology');
+      // 4. Route Match Filter (Always enforce intersection)
+        if (activeSlug && activeSlug !== 'all' && activeSlug !== 'shop' && activeSlug !== 'astrogifts') {
+          let matchesRoute = checkProductMatchesCategory(p, activeSlug);
+          if (!matchesRoute) {
+            if (['diwali-gifts', 'birthday-gifts', 'anniversary-gifts'].includes(activeSlug)) {
+               matchesRoute = checkProductMatchesCategory(p, 'gifts');
+            }
           }
+          if (!matchesRoute) return false;
         }
-        if (!matchesRoute) return false;
-      }
+
+        // 5. Sidebar Checkbox Category Filter
+        if (selectedCategories.length > 0) {
+          const matchesAnySelected = selectedCategories.some(sc => checkProductMatchesCategory(p, sc));
+          if (!matchesAnySelected) return false;
+        }
 
       // 5. Brands, Colors, Sizes, Platings, Discounts, Stock
       if (selectedBrands.length > 0 && !selectedBrands.some(sb => (p.brand || '').toLowerCase() === sb.toLowerCase())) return false;
@@ -1429,5 +1421,8 @@ export default function CategoryPage({ categorySlug }) {
       </div>
   );
 }
+
+
+
 
 
