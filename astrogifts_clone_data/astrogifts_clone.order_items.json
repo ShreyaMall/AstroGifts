@@ -1,0 +1,100 @@
+[{
+  "_id": {
+    "$oid": "6abe430188082625f5034f5b"
+  },
+  "order_id": "6abe430188082625f5034f5a",
+  "product_id": "6abcc4b288082625f5034f10",
+  "productId": "6abcc4b288082625f5034f10",
+  "product_name": "The Royal Purple Votive",
+  "title": "The Royal Purple Votive",
+  "product_image": "http://127.0.0.1:8000/storage/uploads/TDoJPgIlo0IbJJZiBQUlixWMrxBiH6xVgmtu1JCT.webp",
+  "image": "http://127.0.0.1:8000/storage/uploads/TDoJPgIlo0IbJJZiBQUlixWMrxBiH6xVgmtu1JCT.webp",
+  "price": 499,
+  "quantity": 1,
+  "selected_color": "Natural",
+  "color": "Natural",
+  "size": null,
+  "status": "Pending",
+  "subtotal": 499,
+  "updated_at": {
+    "$date": "2026-10-01T11:24:49.756Z"
+  },
+  "created_at": {
+    "$date": "2026-10-01T11:24:49.756Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abe430188082625f5034f5c"
+  },
+  "order_id": "6abe430188082625f5034f5a",
+  "product_id": "6abcc45688082625f5034f0f",
+  "productId": "6abcc45688082625f5034f0f",
+  "product_name": "Smoked Glass Luminary",
+  "title": "Smoked Glass Luminary",
+  "product_image": "http://127.0.0.1:8000/storage/uploads/VUHQcSjyxGSXwpiFsKtsLSSWX6j6ZUu0KkWE4iTi.webp",
+  "image": "http://127.0.0.1:8000/storage/uploads/VUHQcSjyxGSXwpiFsKtsLSSWX6j6ZUu0KkWE4iTi.webp",
+  "price": 399,
+  "quantity": 1,
+  "selected_color": "Natural",
+  "color": "Natural",
+  "size": null,
+  "status": "Pending",
+  "subtotal": 399,
+  "updated_at": {
+    "$date": "2026-10-01T11:24:49.763Z"
+  },
+  "created_at": {
+    "$date": "2026-10-01T11:24:49.763Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abe528888082625f5034f5f"
+  },
+  "order_id": "6abe528888082625f5034f5e",
+  "product_id": "6abcc1f688082625f5034f0b",
+  "productId": "6abcc1f688082625f5034f0b",
+  "product_name": "Black Pendent",
+  "title": "Black Pendent",
+  "product_image": "http://127.0.0.1:8000/storage/uploads/pKJZdE0C2f0cvDz0z5ZIE4WBi3JQxvmjTN8mj1db.webp",
+  "image": "http://127.0.0.1:8000/storage/uploads/pKJZdE0C2f0cvDz0z5ZIE4WBi3JQxvmjTN8mj1db.webp",
+  "price": 1999,
+  "quantity": 1,
+  "selected_color": "Black",
+  "color": "Black",
+  "size": "Free Size (Adjustable)",
+  "status": "Pending",
+  "subtotal": 1999,
+  "updated_at": {
+    "$date": "2026-10-01T12:31:04.865Z"
+  },
+  "created_at": {
+    "$date": "2026-10-01T12:31:04.865Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abe528888082625f5034f60"
+  },
+  "order_id": "6abe528888082625f5034f5e",
+  "product_id": "6abcc2cf88082625f5034f0d",
+  "productId": "6abcc2cf88082625f5034f0d",
+  "product_name": "Sunflower bouquet",
+  "title": "Sunflower bouquet",
+  "product_image": "http://127.0.0.1:8000/storage/uploads/SZUYpC1tFBKgexCaNYttx2EzAc9XNrPjBof4gp1t.webp",
+  "image": "http://127.0.0.1:8000/storage/uploads/SZUYpC1tFBKgexCaNYttx2EzAc9XNrPjBof4gp1t.webp",
+  "price": 799,
+  "quantity": 1,
+  "selected_color": "Yellow",
+  "color": "Yellow",
+  "size": "Standard Bouquet (10 Stems)",
+  "status": "Pending",
+  "subtotal": 799,
+  "updated_at": {
+    "$date": "2026-10-01T12:31:04.868Z"
+  },
+  "created_at": {
+    "$date": "2026-10-01T12:31:04.868Z"
+  }
+}]

@@ -1,0 +1,88 @@
+[{
+  "_id": {
+    "$oid": "6abe430188082625f5034f5a"
+  },
+  "order_number": "ORD-RIJULV",
+  "user_id": "6abdfd1288082625f5034f41",
+  "user": "6abdfd1288082625f5034f41",
+  "customer_name": "Cyanide",
+  "email": "shreyamall6392@gmail.com",
+  "phone": "6392012985",
+  "shipping_address": "Greater Noida Expressway",
+  "city": "Gautam Buddha Nagar",
+  "state": "Uttar Pradesh",
+  "zip": "201304",
+  "shippingAddress": "{\"fullName\":\"Cyanide\",\"phone\":\"6392012985\",\"addressLine\":\"Greater Noida Expressway\",\"city\":\"Gautam Buddha Nagar\",\"state\":\"Uttar Pradesh\",\"pincode\":\"201304\"}",
+  "items": "[{\"productId\":\"6abcc4b288082625f5034f10\",\"product_id\":\"6abcc4b288082625f5034f10\",\"title\":\"The Royal Purple Votive\",\"name\":\"The Royal Purple Votive\",\"product_name\":\"The Royal Purple Votive\",\"image\":\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/TDoJPgIlo0IbJJZiBQUlixWMrxBiH6xVgmtu1JCT.webp\",\"product_image\":\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/TDoJPgIlo0IbJJZiBQUlixWMrxBiH6xVgmtu1JCT.webp\",\"price\":499,\"quantity\":1,\"qty\":1,\"size\":null,\"color\":\"Natural\",\"selected_color\":\"Natural\",\"status\":\"Pending\"},{\"productId\":\"6abcc45688082625f5034f0f\",\"product_id\":\"6abcc45688082625f5034f0f\",\"title\":\"Smoked Glass Luminary\",\"name\":\"Smoked Glass Luminary\",\"product_name\":\"Smoked Glass Luminary\",\"image\":\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/VUHQcSjyxGSXwpiFsKtsLSSWX6j6ZUu0KkWE4iTi.webp\",\"product_image\":\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/VUHQcSjyxGSXwpiFsKtsLSSWX6j6ZUu0KkWE4iTi.webp\",\"price\":399,\"quantity\":1,\"qty\":1,\"size\":null,\"color\":\"Natural\",\"selected_color\":\"Natural\",\"status\":\"Pending\"}]",
+  "subtotal": 898,
+  "discount": 0,
+  "shipping": 0,
+  "shipping_cost": 0,
+  "tax": 0,
+  "total": 898,
+  "payment_method": "cod",
+  "paymentMethod": "cod",
+  "payment_status": "pending",
+  "paymentStatus": "pending",
+  "razorpayPaymentId": "",
+  "status": "Pending",
+  "orderStatus": "placed",
+  "notes": null,
+  "shiprocket": "{\"orderId\":\"1623960664\",\"shipmentId\":\"1620175343\",\"awbCode\":\"\",\"courierName\":\"\",\"trackingUrl\":\"\",\"status\":\"new\"}",
+  "updated_at": {
+    "$date": "2026-10-01T11:25:03.760Z"
+  },
+  "created_at": {
+    "$date": "2026-10-01T11:24:49.748Z"
+  },
+  "courier_name": "",
+  "shiprocket_awb_code": "",
+  "shiprocket_order_id": 1623960664,
+  "shiprocket_shipment_id": 1620175343,
+  "shiprocket_status": "NEW",
+  "tracking_url": null
+},
+{
+  "_id": {
+    "$oid": "6abe528888082625f5034f5e"
+  },
+  "order_number": "ORD-VAFCG4",
+  "user_id": "6ab4c94a3034c2b79e04a922",
+  "user": "6ab4c94a3034c2b79e04a922",
+  "customer_name": "Cyanide",
+  "email": "shreyamall6392@gmail.com",
+  "phone": "6392012985",
+  "shipping_address": "Greater Noida Expressway",
+  "city": "Gautam Buddha Nagar",
+  "state": "Uttar Pradesh",
+  "zip": "201304",
+  "shippingAddress": "{\"fullName\":\"Cyanide\",\"phone\":\"6392012985\",\"addressLine\":\"Greater Noida Expressway\",\"city\":\"Gautam Buddha Nagar\",\"state\":\"Uttar Pradesh\",\"pincode\":\"201304\"}",
+  "items": "[{\"productId\":\"6abcc1f688082625f5034f0b\",\"product_id\":\"6abcc1f688082625f5034f0b\",\"title\":\"Black Pendent\",\"name\":\"Black Pendent\",\"product_name\":\"Black Pendent\",\"image\":\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/pKJZdE0C2f0cvDz0z5ZIE4WBi3JQxvmjTN8mj1db.webp\",\"product_image\":\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/pKJZdE0C2f0cvDz0z5ZIE4WBi3JQxvmjTN8mj1db.webp\",\"price\":1999,\"quantity\":1,\"qty\":1,\"size\":\"Free Size (Adjustable)\",\"color\":\"Black\",\"selected_color\":\"Black\",\"status\":\"Pending\"},{\"productId\":\"6abcc2cf88082625f5034f0d\",\"product_id\":\"6abcc2cf88082625f5034f0d\",\"title\":\"Sunflower bouquet\",\"name\":\"Sunflower bouquet\",\"product_name\":\"Sunflower bouquet\",\"image\":\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/SZUYpC1tFBKgexCaNYttx2EzAc9XNrPjBof4gp1t.webp\",\"product_image\":\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/SZUYpC1tFBKgexCaNYttx2EzAc9XNrPjBof4gp1t.webp\",\"price\":799,\"quantity\":1,\"qty\":1,\"size\":\"Standard Bouquet (10 Stems)\",\"color\":\"Yellow\",\"selected_color\":\"Yellow\",\"status\":\"Pending\"}]",
+  "subtotal": 2798,
+  "discount": 0,
+  "shipping": 0,
+  "shipping_cost": 0,
+  "tax": 0,
+  "total": 2798,
+  "payment_method": "online",
+  "paymentMethod": "online",
+  "payment_status": "paid",
+  "paymentStatus": "paid",
+  "razorpayPaymentId": "pay_Tie1rrbiJxNTzH",
+  "status": "Pending",
+  "orderStatus": "placed",
+  "notes": null,
+  "shiprocket": "{\"orderId\":\"1624073987\",\"shipmentId\":\"1620288667\",\"awbCode\":\"\",\"courierName\":\"\",\"trackingUrl\":\"\",\"status\":\"new\"}",
+  "updated_at": {
+    "$date": "2026-10-01T12:31:14.268Z"
+  },
+  "created_at": {
+    "$date": "2026-10-01T12:31:04.855Z"
+  },
+  "courier_name": "",
+  "shiprocket_awb_code": "",
+  "shiprocket_order_id": 1624073987,
+  "shiprocket_shipment_id": 1620288667,
+  "shiprocket_status": "NEW",
+  "tracking_url": null
+}]

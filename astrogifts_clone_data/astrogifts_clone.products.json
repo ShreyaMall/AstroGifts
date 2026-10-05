@@ -1,0 +1,854 @@
+[{
+  "_id": {
+    "$oid": "6abcbf3388082625f5034f07"
+  },
+  "category_id": "6abcb364a32e2b7b8e099305",
+  "category_slug": "flowers",
+  "category_name": "Flowers",
+  "name": "White Rose",
+  "slug": "white-rose-7uwg",
+  "price": 599,
+  "old_price": 799,
+  "brand": "AstroGifts",
+  "material": "Wood",
+  "color": "White",
+  "colors": "[\"White\"]",
+  "stock_by_color": "{\"White\":2}",
+  "size": "Standard Bouquet (10 Stems)",
+  "dimensions": null,
+  "weight": null,
+  "stock": 3,
+  "sku": "WM-MDHJC6",
+  "image": "http://127.0.0.1:8000/storage/uploads/nvLcKgGs9qNB5yqFDXEVMAHlfXHgdZXrAeMx91HO.webp",
+  "images": "[\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/nvLcKgGs9qNB5yqFDXEVMAHlfXHgdZXrAeMx91HO.webp\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/G9CrKjpc0V5OXpekNc1LHkPk61PAzw7m2w8kKmB2.webp\"]",
+  "description": "Elegant and understated, this arrangement of fresh white roses embodies purity, grace, and quiet sophistication. Revered as a classic token of honor and new beginnings, its clean aesthetic complements formal interiors and refined gifting occasions alike.",
+  "trust_badges": "[{\"title\":\"7 Days Return\",\"description\":\"Easy return process\",\"icon\":\"return\"}]",
+  "is_active": true,
+  "status": "Active",
+  "updated_at": {
+    "$date": "2026-10-01T07:35:22.990Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T07:50:11.708Z"
+  },
+  "in_stock": true
+},
+{
+  "_id": {
+    "$oid": "6abcbfba88082625f5034f08"
+  },
+  "category_id": "6abcb364a32e2b7b8e099305",
+  "category_slug": "flowers",
+  "category_name": "Flowers",
+  "name": "Maroon Rose",
+  "slug": "maroon-rose-zyst",
+  "price": 799,
+  "old_price": 999,
+  "brand": "AstroGifts",
+  "material": "Wood",
+  "color": "Maroon",
+  "colors": "[\"Maroon\"]",
+  "stock_by_color": "{\"Maroon\":1}",
+  "size": null,
+  "dimensions": null,
+  "weight": null,
+  "stock": 1,
+  "sku": "WM-U54MIL",
+  "image": "http://127.0.0.1:8000/storage/uploads/DF07rYuR1wW02pS64O9k33tvFyDYBhyDYEmmslrd.webp",
+  "images": "[\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/DF07rYuR1wW02pS64O9k33tvFyDYBhyDYEmmslrd.webp\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/zgmSlklr31I2aXKlDL4n3JVjZNs6DsSNBcLYBqDl.webp\"]",
+  "description": "Rich in color and texture, this premium red rose arrangement represents enduring affection, elegance, and deep respect. With velvety petals and a balanced bloom profile, it delivers a timeless, sophisticated aesthetic suited for formal celebrations and memorable personal milestones.",
+  "trust_badges": "[{\"title\":\"7 Days Return\",\"description\":\"Easy return process\",\"icon\":\"return\"}]",
+  "is_active": true,
+  "status": "Active",
+  "updated_at": {
+    "$date": "2026-10-01T07:12:55.853Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T07:52:26.329Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcc04b88082625f5034f09"
+  },
+  "category_id": "6abcb364a32e2b7b8e09930d",
+  "category_slug": "rings",
+  "category_name": "Rings",
+  "name": "Astro Yellow Ring",
+  "slug": "astro-yellow-ring-phGw",
+  "price": 999,
+  "old_price": 1999,
+  "brand": "AstroGifts",
+  "material": "Wood",
+  "color": "Yellow",
+  "colors": "[\"Gold\"]",
+  "stock_by_color": "{\"Gold\":4}",
+  "size": "Ring Size 14",
+  "dimensions": null,
+  "weight": null,
+  "stock": 2,
+  "sku": "WM-9SFHUL",
+  "image": "http://127.0.0.1:8000/storage/uploads/jltoCP71V7Ho3QrdNPkzDqKXHpurRO34Vi6XVjcf.webp",
+  "images": "[\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/jltoCP71V7Ho3QrdNPkzDqKXHpurRO34Vi6XVjcf.webp\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/BJf2JvW2K6eBA2m1aWaV7WOgS0gk9NcnXQO02V5p.webp\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/dDruKYBWsCX7gMuALQLpJQrGIapqlLre88wHzIh5.webp\"]",
+  "description": "Showcasing a luminous yellow stone set in a polished band, this ring channels warmth, optimism, and refined luxury. The vibrant golden hue captures light effortlessly, offering a bold yet sophisticated statement for formal evenings, festive occasions, or elevated daily wear.",
+  "trust_badges": "[{\"title\":\"7 Days Return\",\"description\":\"Easy return process\",\"icon\":\"return\"}]",
+  "is_active": true,
+  "status": "Active",
+  "updated_at": {
+    "$date": "2026-09-30T11:38:10.309Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T07:54:51.069Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcc0d088082625f5034f0a"
+  },
+  "category_id": "6abcb364a32e2b7b8e09930d",
+  "category_slug": "rings",
+  "category_name": "Rings",
+  "name": "Natural brown  Astrological Ring",
+  "slug": "natural-brown-astrological-ring-UA51",
+  "price": "699",
+  "old_price": 799,
+  "brand": "AstroGifts",
+  "material": "Wood",
+  "color": "Brown",
+  "colors": "[\"Brown\",\"Green\"]",
+  "stock_by_color": "{\"Brown\":0,\"Green\":4}",
+  "size": "Ring Size 16",
+  "dimensions": null,
+  "weight": null,
+  "stock": 4,
+  "sku": "WM-NWJPA4",
+  "image": "http://127.0.0.1:8000/storage/uploads/D5dcKzuvKI8VJOZOdQjR2zSkSW78Iw2Db0c2NjLh.jpg",
+  "images": "[\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/D5dcKzuvKI8VJOZOdQjR2zSkSW78Iw2Db0c2NjLh.jpg\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/TX0SC6uTENv0IDiVHZiR5Kfkg5di5z0E5NuuEc34.webp\"]",
+  "description": "Set in a refined, open-back metal mount for optimal skin contact, this authentic brown gemstone ring embodies grounded strength and stability. Aligned with traditional astrological practices—often associated with Rahu (Hessonite/Gomed alternatives), Saturn, or earth elements like Smoky Quartz and Tiger Eye—it helps anchor wandering energies, mitigate planetary stress, and promote mental clarity and strategic focus.",
+  "trust_badges": "[{\"title\":\"7 Days Return\",\"description\":\"Easy return process\",\"icon\":\"return\"}]",
+  "is_active": true,
+  "status": "Active",
+  "updated_at": {
+    "$date": "2026-10-01T06:52:12.054Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T07:57:04.484Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcc1f688082625f5034f0b"
+  },
+  "category_id": "6abcb364a32e2b7b8e09930e",
+  "category_slug": "pendants",
+  "category_name": "Pendants",
+  "name": "Black Pendent",
+  "slug": "black-pendent-AgGZ",
+  "price": 1999,
+  "old_price": 2999,
+  "brand": "AstroGifts",
+  "material": "Wood",
+  "color": "Black",
+  "colors": "[\"Black\"]",
+  "stock_by_color": "{\"Black\":3}",
+  "size": "Free Size (Adjustable)",
+  "dimensions": null,
+  "weight": null,
+  "stock": 3,
+  "sku": "WM-G5MVV8",
+  "image": "http://127.0.0.1:8000/storage/uploads/pKJZdE0C2f0cvDz0z5ZIE4WBi3JQxvmjTN8mj1db.webp",
+  "images": "[\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/pKJZdE0C2f0cvDz0z5ZIE4WBi3JQxvmjTN8mj1db.webp\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/UjKKfmeZPWs8UOFDEGjqUsFvoYCFCYr5ATqiR3zU.webp\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/EcBBESZ7dVWVO4rTVWyam10bnz1C3eiuhErgK0K2.webp\"]",
+  "description": "Cast in a sleek, polished setting with an authentic black gemstone (Black Onyx / Obsidian / Black Tourmaline), this pendant balances modern minimalism with deep symbolic grounding. Known for its potent protective properties, the dark stone repels negative environmental energies while instilling mental discipline and emotional poise. A versatile statement piece suitable for both casual and formal wear.",
+  "trust_badges": "[{\"title\":\"7 Days Return\",\"description\":\"Easy return process\",\"icon\":\"return\"}]",
+  "is_active": true,
+  "status": "Active",
+  "updated_at": {
+    "$date": "2026-10-01T12:31:04.867Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T08:01:58.309Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcc25c88082625f5034f0c"
+  },
+  "category_id": "6abcb364a32e2b7b8e09930d",
+  "category_slug": "rings",
+  "category_name": "Rings",
+  "name": "Golden Pyrite Ring",
+  "slug": "golden-pyrite-ring-lIFX",
+  "price": 3999,
+  "old_price": 5999,
+  "brand": "AstroGifts",
+  "material": "Wood",
+  "color": "Gold",
+  "colors": "[\"Gold\"]",
+  "stock_by_color": "{\"Gold\":0}",
+  "size": "Ring Size 12",
+  "dimensions": null,
+  "weight": null,
+  "stock": 0,
+  "sku": "WM-UWXFTJ",
+  "image": "http://127.0.0.1:8000/storage/uploads/Esk6nBn5tElDnQ9QlwNknMjHmhzX0ROxwq24gkAV.jpg",
+  "images": "[\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/Esk6nBn5tElDnQ9QlwNknMjHmhzX0ROxwq24gkAV.jpg\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/cTqqXbxvlNmGBkO61C8oEJXE5M0h0UGxS21p96QX.jpg\"]",
+  "description": "Showcasing a natural, metallic-gold Pyrite stone set in a polished band, this ring effortlessly balances raw geological beauty with refined craftsmanship. Widely recognized as the \"Stone of Wealth,\" Pyrite is revered for attracting financial abundance, sharpening leadership instincts, and shielding the wearer from draining energies. A commanding accessory suitable for executive wear and daily ambition.",
+  "trust_badges": "[{\"title\":\"7 Days Return\",\"description\":\"Easy return process\",\"icon\":\"return\"}]",
+  "is_active": true,
+  "status": "Active",
+  "updated_at": {
+    "$date": "2026-10-01T06:28:31.496Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T08:03:40.720Z"
+  },
+  "in_stock": false
+},
+{
+  "_id": {
+    "$oid": "6abcc2cf88082625f5034f0d"
+  },
+  "category_id": "6abcb364a32e2b7b8e099305",
+  "category_slug": "flowers",
+  "category_name": "Flowers",
+  "name": "Sunflower bouquet",
+  "slug": "sunflower-bouquet-8pyh",
+  "price": 799,
+  "old_price": 899,
+  "brand": "AstroGifts",
+  "material": "Wood",
+  "color": "Yellow",
+  "colors": "[\"Yellow\"]",
+  "stock_by_color": "{\"Yellow\":9}",
+  "size": "Standard Bouquet (10 Stems)",
+  "dimensions": null,
+  "weight": null,
+  "stock": 9,
+  "sku": "WM-QTKEYU",
+  "image": "http://127.0.0.1:8000/storage/uploads/SZUYpC1tFBKgexCaNYttx2EzAc9XNrPjBof4gp1t.webp",
+  "images": "[\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/SZUYpC1tFBKgexCaNYttx2EzAc9XNrPjBof4gp1t.webp\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/j8qNL2p5J8apHEiXgyMGAztrRIeV5AJbNnoY6bqa.webp\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/9LyxgOzNzHNF6AkHyU9SxFdYjPejFSzreD08XBnD.webp\"]",
+  "description": "Characterized by bold golden-yellow petals and structured bloom architecture, this premium sunflower display brings instant warmth, vitality, and refined energy to any setting. Symbolizing unwavering loyalty, longevity, and optimism, it offers a vibrant yet sophisticated alternative for upscale interior styling and professional celebrations.",
+  "trust_badges": "[{\"title\":\"7 Days Return\",\"description\":\"Easy return process\",\"icon\":\"return\"}]",
+  "is_active": true,
+  "status": "Active",
+  "updated_at": {
+    "$date": "2026-10-01T12:31:04.870Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T08:05:35.865Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcc35688082625f5034f0e"
+  },
+  "category_id": "6abcb364a32e2b7b8e09930e",
+  "category_slug": "pendants",
+  "category_name": "Pendants",
+  "name": "Green pendent",
+  "slug": "green-pendent-uVRk",
+  "price": 4999,
+  "old_price": 5999,
+  "brand": "AstroGifts",
+  "material": "Wood",
+  "color": "Green",
+  "colors": "[\"Green\"]",
+  "stock_by_color": "{\"Green\":9}",
+  "size": "Free Size (Adjustable)",
+  "dimensions": null,
+  "weight": null,
+  "stock": 9,
+  "sku": "WM-IEHZWA",
+  "image": "http://127.0.0.1:8000/storage/uploads/9TkCqGaZ9iX0uqy7ijTEFoTIQOTHGU7PVRlrXmUN.jpg",
+  "images": "[\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/9TkCqGaZ9iX0uqy7ijTEFoTIQOTHGU7PVRlrXmUN.jpg\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/IPzSAefV1JgCUXu2UutvN11u8CDFLzSY8yTl80IQ.jpg\"]",
+  "description": "Centered around a rich green gemstone (such as Emerald, Green Aventurine, or Jade) set in a refined metal mount, this pendant embodies rejuvenation, balance, and quiet luxury. Symbolizing growth, vitality, and prosperity, its timeless green tone adds a polished touch of color to both corporate tailoring and elegant evening wear.",
+  "trust_badges": "[{\"title\":\"7 Days Return\",\"description\":\"Easy return process\",\"icon\":\"return\"}]",
+  "is_active": true,
+  "status": "Active",
+  "updated_at": {
+    "$date": "2026-10-01T06:41:14.566Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T08:07:50.376Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcc45688082625f5034f0f"
+  },
+  "category_id": "6abcb364a32e2b7b8e099302",
+  "category_slug": "diwali-gifts",
+  "category_name": "Diwali Gifts",
+  "name": "Smoked Glass Luminary",
+  "slug": "smoked-glass-luminary-nUg8",
+  "price": 399,
+  "old_price": 499,
+  "brand": "AstroGifts",
+  "material": "Wood",
+  "color": "Natural",
+  "colors": "[\"Black\"]",
+  "stock_by_color": "{\"Black\":9}",
+  "size": null,
+  "dimensions": null,
+  "weight": null,
+  "stock": 8,
+  "sku": "WM-GDXTFG",
+  "image": "http://127.0.0.1:8000/storage/uploads/VUHQcSjyxGSXwpiFsKtsLSSWX6j6ZUu0KkWE4iTi.webp",
+  "images": "[\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/VUHQcSjyxGSXwpiFsKtsLSSWX6j6ZUu0KkWE4iTi.webp\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/qcS3ldtXGZJFPkCKh5Bfl721FPSaw3S0LICqhAop.webp\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/finm1RIfr90CObGpNzKrix3k7nbIWjEaxSUzJ9GW.webp\"]",
+  "description": "Encased in a fluted, smoked-charcoal glass vessel, this premium candle brings modern elegance to traditional festive decor. Poured with a clean-burning wax blend, it emits a soft, ambient radiance that complements temple setups, festive tablescapes, and contemporary living spaces. A refined blend of architectural texture and understated festive warmth.",
+  "trust_badges": "[{\"title\":\"7 Days Return\",\"description\":\"Easy return process\",\"icon\":\"return\"}]",
+  "is_active": true,
+  "status": "Active",
+  "updated_at": {
+    "$date": "2026-10-01T11:24:49.765Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T08:12:06.321Z"
+  },
+  "in_stock": false
+},
+{
+  "_id": {
+    "$oid": "6abcc4b288082625f5034f10"
+  },
+  "category_id": "6abcb364a32e2b7b8e099302",
+  "category_slug": "diwali-gifts",
+  "category_name": "Diwali Gifts",
+  "name": "The Royal Purple Votive",
+  "slug": "the-royal-purple-votive-SxMz",
+  "price": 499,
+  "old_price": 599,
+  "brand": "AstroGifts",
+  "material": "Wood",
+  "color": "Natural",
+  "colors": "[\"Purple\"]",
+  "stock_by_color": "{\"Purple\":8}",
+  "size": null,
+  "dimensions": null,
+  "weight": null,
+  "stock": 7,
+  "sku": "WM-ERPAAH",
+  "image": "http://127.0.0.1:8000/storage/uploads/TDoJPgIlo0IbJJZiBQUlixWMrxBiH6xVgmtu1JCT.webp",
+  "images": "[\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/TDoJPgIlo0IbJJZiBQUlixWMrxBiH6xVgmtu1JCT.webp\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/WhrN0lrNoKXLvCSLEXRMU10RJSGEOT7zV3h0YvyS.webp\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/uXadz3NBdLjv1Ve22UgJRwBANQMrlCxy0rQv9clv.webp\"]",
+  "description": "Encased in a fluted, deep-purple glass vessel, this artisanal candle infuses traditional festive decor with regal sophistication. Poured with a clean-burning wax blend, it emits a soft, ambient radiance that elevates temple setups, festive table styling, and contemporary interiors. A harmonious blend of rich color and warm illumination.",
+  "trust_badges": "[{\"title\":\"7 Days Return\",\"description\":\"Easy return process\",\"icon\":\"return\"}]",
+  "is_active": true,
+  "status": "Active",
+  "updated_at": {
+    "$date": "2026-10-01T11:24:49.760Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T08:13:38.349Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcd44a88082625f5034f11"
+  },
+  "category_id": "6abcb364a32e2b7b8e099302",
+  "category_slug": "diwali-gifts",
+  "category_name": "Diwali Gifts",
+  "name": "The Rangoli Ribbed Luminary",
+  "slug": "the-rangoli-ribbed-luminary-9y2b",
+  "price": 399,
+  "old_price": 599,
+  "brand": "AstroGifts",
+  "material": "Wood",
+  "color": "Natural",
+  "colors": "[\"Multicolor\"]",
+  "stock_by_color": "{\"Multicolor\":7}",
+  "size": null,
+  "dimensions": null,
+  "weight": null,
+  "stock": 7,
+  "sku": "WM-DJH0MY",
+  "image": "http://127.0.0.1:8000/storage/uploads/nesBwfl66hyzxYwv6obt05RGAlLbx91171xlFIuz.webp",
+  "images": "[\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/nesBwfl66hyzxYwv6obt05RGAlLbx91171xlFIuz.webp\"]",
+  "description": "Crafted in a vibrant, multi-hued fluted glass vessel, this artisanal candle brings dynamic energy and celebratory charm to any space. Filled with a clean-burning wax blend, it casts a radiant, colorful glow that enhances festive altars, modern living rooms, and celebratory dining tables. A striking balance of textured design and joyful ambiance.",
+  "trust_badges": "[{\"title\":\"7 Days Return\",\"description\":\"Easy return process\",\"icon\":\"return\"}]",
+  "is_active": true,
+  "status": "Active",
+  "updated_at": {
+    "$date": "2026-10-01T10:51:23.614Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T09:20:10.794Z"
+  },
+  "in_stock": false
+},
+{
+  "_id": {
+    "$oid": "6abcd4b588082625f5034f12"
+  },
+  "category_id": "6abcb364a32e2b7b8e099308",
+  "category_slug": "birthday-gifts",
+  "category_name": "Birthday Gifts",
+  "name": "Birthdar Balloon",
+  "slug": "birthdar-balloon-yuMm",
+  "price": 249,
+  "old_price": 399,
+  "brand": "AstroGifts",
+  "material": "Wood",
+  "color": "Multi Color",
+  "colors": "[\"Blue\"]",
+  "stock_by_color": "{\"Blue\":2}",
+  "size": "Free Size (Adjustable)",
+  "dimensions": null,
+  "weight": null,
+  "stock": 2,
+  "sku": "WM-FWPWLK",
+  "image": "http://127.0.0.1:8000/storage/uploads/Q1ODiQj1uD5VU314OL53h1sO6LoNmCAtOgVTOni4.webp",
+  "images": "[\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/Q1ODiQj1uD5VU314OL53h1sO6LoNmCAtOgVTOni4.webp\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/3y6P0Gqe03YTP9w9WI9hNaAm0WXjxq6uQBCujRQ5.webp\"]",
+  "description": "Designed to create an eye-catching celebratory backdrop, these high-grade blue latex and metallic balloons bring vibrant elegance to birthday festivities. Featuring rich pigmentation and a high-luster finish, they pair effortlessly with silver, gold, and white party themes. A versatile essential for balloon arches, photo walls, and table centerpieces.",
+  "trust_badges": "[{\"title\":\"7 Days Return\",\"description\":\"Easy return process\",\"icon\":\"return\"}]",
+  "is_active": true,
+  "status": "Active",
+  "updated_at": {
+    "$date": "2026-09-30T10:54:49.035Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T09:21:57.868Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcd52388082625f5034f13"
+  },
+  "category_id": "6abcb364a32e2b7b8e099302",
+  "category_slug": "birthday-gifts",
+  "category_name": "Birthday Gifts",
+  "name": "Pink Balloon",
+  "slug": "pink-balloon-YygW",
+  "price": 299,
+  "old_price": 349,
+  "brand": "AstroGifts",
+  "material": "Wood",
+  "color": "Pink",
+  "colors": "[\"Pink\"]",
+  "stock_by_color": "{\"Pink\":4}",
+  "size": null,
+  "dimensions": null,
+  "weight": null,
+  "stock": 4,
+  "sku": "WM-2TX9VW",
+  "image": "http://127.0.0.1:8000/storage/uploads/WFOP5NFNvYGVToUyyALeJuD79ywWtSe64u5huLmU.webp",
+  "images": "[\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/WFOP5NFNvYGVToUyyALeJuD79ywWtSe64u5huLmU.webp\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/A7rxDYEsm2SFYgNtfZ1dzxkmrhufC9zH2D4oTXnM.webp\"]",
+  "description": "Designed to bring graceful warmth and celebratory charm to birthday festivities, these high-grade pink latex and foil balloons create an eye-catching party backdrop. Featuring rich, uniform pigmentation with a subtle sheen, they complement white, metallic gold, and rose gold accents effortlessly. Ideal for creating stunning arches, table bouquets, and memorable photo backdrops.",
+  "trust_badges": "[{\"title\":\"7 Days Return\",\"description\":\"Easy return process\",\"icon\":\"return\"}]",
+  "is_active": true,
+  "status": "Active",
+  "updated_at": {
+    "$date": "2026-09-30T10:54:49.039Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T09:23:47.725Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcd5ad88082625f5034f14"
+  },
+  "category_id": "6abcb364a32e2b7b8e099309",
+  "category_slug": "anniversary-gifts",
+  "category_name": "Anniversary Gifts",
+  "name": "Vibrant Utsav Gift Casket",
+  "slug": "vibrant-utsav-gift-casket-5u44",
+  "price": 1999,
+  "old_price": 1299,
+  "brand": "AstroGifts",
+  "material": "Wood",
+  "color": "Natural",
+  "colors": "[\"Multicolor\"]",
+  "stock_by_color": "{\"Multicolor\":2}",
+  "size": null,
+  "dimensions": null,
+  "weight": null,
+  "stock": 2,
+  "sku": "WM-OGTDAS",
+  "image": "http://127.0.0.1:8000/storage/uploads/puA7vkPgefI8kztl7A4ag5NWeRMLEDemWlIzz24O.webp",
+  "images": "[\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/puA7vkPgefI8kztl7A4ag5NWeRMLEDemWlIzz24O.webp\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/k15jU0DSbZlACGfUJD6VpnZ0uPiU5nOnhMp9D80q.jpg\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/1wv9QTnsRdtplZvZeNEAZpCOs2Aglb6a5H0N8SRq.jpg\"]",
+  "description": "Curated with a lively palette of rich, celebratory tones, this premium gift hamper brings together curated festive essentials and gourmet delights in one elegant presentation. Designed to make a vibrant impression, it effortlessly balances traditional warmth with modern aesthetic packaging—making it an ideal choice for corporate felicitations, weddings, and festive milestones.",
+  "trust_badges": "[{\"title\":\"7 Days Return\",\"description\":\"Easy return process\",\"icon\":\"return\"}]",
+  "is_active": true,
+  "status": "Active",
+  "updated_at": {
+    "$date": "2026-09-30T09:26:05.167Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T09:26:05.167Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcd65888082625f5034f15"
+  },
+  "category_id": "6abcb364a32e2b7b8e099309",
+  "category_slug": "anniversary-gifts",
+  "category_name": "Anniversary Gifts",
+  "name": "The Signature Hamper",
+  "slug": "the-signature-hamper-PT4X",
+  "price": 1999,
+  "old_price": 2999,
+  "brand": "AstroGifts",
+  "material": "Wood",
+  "color": "Natural",
+  "colors": "[\"Gold\"]",
+  "stock_by_color": "{\"Gold\":3}",
+  "size": null,
+  "dimensions": null,
+  "weight": null,
+  "stock": 3,
+  "sku": "WM-6OXBFL",
+  "image": "http://127.0.0.1:8000/storage/uploads/bOj77Aoe7hNhUjQbHBZat6uMR0cb3TwWFQ2TvlD4.webp",
+  "images": "[\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/bOj77Aoe7hNhUjQbHBZat6uMR0cb3TwWFQ2TvlD4.webp\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/uS87QAnXRFZsbXEkS72SbKovnEIuuOgJhSZDqWq5.jpg\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/zdGcuU07WO0rid8VrUdxLd59m9lO9H1hr3NwrhoG.jpg\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/vd4pOTAV8o0JxFW4LLnxItDGeo6TIBroyHvmByuV.jpg\"]",
+  "description": "Dressed in a sophisticated neutral beige palette, this premium gift hamper exudes quiet luxury, modern minimalism, and timeless warmth. Designed to present curated artisanal keepsakes, gourmet indulgences, or executive gifts with effortless grace, its textured earthy tone complements upscale weddings, corporate milestones, and intimate celebratory moments.",
+  "trust_badges": "[{\"title\":\"7 Days Return\",\"description\":\"Easy return process\",\"icon\":\"return\"}]",
+  "is_active": true,
+  "status": "Active",
+  "updated_at": {
+    "$date": "2026-09-30T09:28:56.188Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T09:28:56.188Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcd6fe88082625f5034f16"
+  },
+  "category_id": "6abcb364a32e2b7b8e09930a",
+  "category_slug": "soft-toys",
+  "category_name": "Soft Toys",
+  "name": "Bunny",
+  "slug": "bunny-Y0Z9",
+  "price": 699,
+  "old_price": 799,
+  "brand": "AstroGifts",
+  "material": "Wood",
+  "color": "Natural",
+  "colors": "[\"Grey\"]",
+  "stock_by_color": "{\"Grey\":9}",
+  "size": null,
+  "dimensions": null,
+  "weight": null,
+  "stock": 9,
+  "sku": "WM-VIMJBQ",
+  "image": "http://127.0.0.1:8000/storage/uploads/numbmJYjG4BvR3PsRAGAoXrtSO8RVyor15KwaVs1.jpg",
+  "images": "[\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/numbmJYjG4BvR3PsRAGAoXrtSO8RVyor15KwaVs1.jpg\"]",
+  "description": "Crafted with cloud-soft micro-plush fabric and gentle hand-stitched detailing, this adorable bunny soft toy provides instant comfort and sensory warmth. Designed with long floppy ears, child-safe embroidered features, and hypoallergenic filling, it makes a safe and cozy companion for newborns, toddlers, and plushie collectors alike.",
+  "trust_badges": "[{\"title\":\"7 Days Return\",\"description\":\"Easy return process\",\"icon\":\"return\"}]",
+  "is_active": true,
+  "status": "Active",
+  "updated_at": {
+    "$date": "2026-09-30T09:31:42.322Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T09:31:42.322Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcd7e788082625f5034f17"
+  },
+  "category_id": "6abcb364a32e2b7b8e09930a",
+  "category_slug": "soft-toys",
+  "category_name": "Soft Toys",
+  "name": "Fluffy Butter Puff Toy",
+  "slug": "fluffy-butter-puff-toy-DSnP",
+  "price": 799,
+  "old_price": 999,
+  "brand": "AstroGifts",
+  "material": "Wood",
+  "color": "Natural",
+  "colors": "[\"Light Brown\"]",
+  "stock_by_color": "{\"Light Brown\":5}",
+  "size": null,
+  "dimensions": null,
+  "weight": null,
+  "stock": 3,
+  "sku": "WM-XOIGDI",
+  "image": "http://127.0.0.1:8000/storage/uploads/iPwmQB1Y0TC977tiLplCVjhy8yAIYuuBXr5YpbBv.jpg",
+  "images": "[\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/iPwmQB1Y0TC977tiLplCVjhy8yAIYuuBXr5YpbBv.jpg\"]",
+  "description": "Inspired by French patisserie charm, this golden-brown croissant soft toy features a sweet embroidered smile and dangling corduroy boots. Crafted from ultra-soft, huggable fleece with fluffy plush filling, it adds a warm, whimsical touch to bedside tables, nursery shelves, or work desks. A charming gift for foodies, plushie enthusiasts, and kids alike.",
+  "trust_badges": "[{\"title\":\"7 Days Return\",\"description\":\"Easy return process\",\"icon\":\"return\"}]",
+  "is_active": true,
+  "status": "Active",
+  "updated_at": {
+    "$date": "2026-09-30T12:05:49.183Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T09:35:35.550Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcda9788082625f5034f18"
+  },
+  "category_id": "6abcb364a32e2b7b8e099302",
+  "category_slug": "soft-toys",
+  "category_name": "Soft Toys",
+  "name": "Smartots",
+  "slug": "smartots-qvGz",
+  "price": 609,
+  "old_price": 1000,
+  "brand": "AstroGifts",
+  "material": "Wood",
+  "color": "Natural",
+  "colors": "[\"Green\"]",
+  "stock_by_color": "{\"Green\":3}",
+  "size": null,
+  "dimensions": null,
+  "weight": null,
+  "stock": 3,
+  "sku": "WM-JBWTA7",
+  "image": "http://127.0.0.1:8000/storage/uploads/7RvIAGH50Q5YUT6ErOEMD72T2sOzy2rR3xckK3Kn.jpg",
+  "images": "[\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/7RvIAGH50Q5YUT6ErOEMD72T2sOzy2rR3xckK3Kn.jpg\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/TghZpZrwDRwVswJH5teNd7QHEphhXGfJr1faRxFE.jpg\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/ExnatsKz53vK3rwkHlUxvkFgNMx0oI8fmmLHFmqr.jpg\"]",
+  "description": "Specially crafted for delicate little hands, this plush companion features cloud-soft, hypoallergenic fabric and child-safe stitched details. Its lightweight build and comforting tactile texture make it ideal for soothing cuddles, nursery play, and milestone photo shoots. A gentle and essential cuddle buddy for newborns and toddlers.",
+  "trust_badges": "[{\"title\":\"7 Days Return\",\"description\":\"Easy return process\",\"icon\":\"return\"}]",
+  "is_active": true,
+  "status": "Active",
+  "updated_at": {
+    "$date": "2026-10-01T10:48:47.857Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T09:47:03.093Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcdb0e88082625f5034f19"
+  },
+  "category_id": "6abcb364a32e2b7b8e099302",
+  "category_slug": "soft-toys",
+  "category_name": "Soft Toys",
+  "name": "Sky Cuddle Elephan",
+  "slug": "sky-cuddle-elephan-QHkW",
+  "price": 909,
+  "old_price": 2000,
+  "brand": "AstroGifts",
+  "material": "Wood",
+  "color": "Natural",
+  "colors": "[\"Blue\"]",
+  "stock_by_color": "{\"Blue\":5}",
+  "size": null,
+  "dimensions": null,
+  "weight": null,
+  "stock": 5,
+  "sku": "WM-HA8PYB",
+  "image": "http://127.0.0.1:8000/storage/uploads/jHB55dwp34Do38XGH5pWZ82WfkgzKknoTOQjyFIq.jpg",
+  "images": "[\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/jHB55dwp34Do38XGH5pWZ82WfkgzKknoTOQjyFIq.jpg\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/zahifmOeYaXeUarHsvbRBt7shyw5vpbJeG9QU5eA.jpg\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/V1PP1E1egjELmuN5gNimSG7LsGRXDg74UCdjeTwB.jpg\"]",
+  "description": "Dressed in a soothing sky-blue shade, this cuddly elephant soft toy features oversized floppy ears, stitched baby-safe eyes, and an ultra-soft velvety finish. Filled with lightweight, hypoallergenic stuffing, it provides gentle comfort and companion cuddles for newborns, toddlers, and nursery decor setups.",
+  "trust_badges": "[{\"title\":\"7 Days Return\",\"description\":\"Easy return process\",\"icon\":\"return\"}]",
+  "is_active": true,
+  "status": "Active",
+  "updated_at": {
+    "$date": "2026-10-01T10:48:34.362Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T09:49:02.564Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abce05688082625f5034f1a"
+  },
+  "category_id": "6abcb364a32e2b7b8e09930c",
+  "category_slug": "board-games",
+  "category_name": "Board Games",
+  "name": "Kids Chess Board Game",
+  "slug": "kids-chess-board-game-umhI",
+  "price": 550,
+  "old_price": 999,
+  "brand": "AstroGifts",
+  "material": "Wood",
+  "color": "Natural",
+  "colors": "[\"Brown\"]",
+  "stock_by_color": "{\"Brown\":4}",
+  "size": null,
+  "dimensions": null,
+  "weight": null,
+  "stock": 4,
+  "sku": "WM-6TEN5Q",
+  "image": "http://127.0.0.1:8000/storage/uploads/szWHEE91TljeJDMV1hpoypce9C8xqieDfrertA8b.jpg",
+  "images": "[\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/szWHEE91TljeJDMV1hpoypce9C8xqieDfrertA8b.jpg\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/rIuvJMlVdmBYXAqhFYQBXNkQc3Fy2k3lIm4Ata5n.jpg\"]",
+  "description": "Premium furniture item.",
+  "trust_badges": "[{\"title\":\"7 Days Return\",\"description\":\"Easy return process\",\"icon\":\"return\"}]",
+  "is_active": true,
+  "status": "Active",
+  "updated_at": {
+    "$date": "2026-09-30T10:11:34.022Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T10:11:34.022Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abce11088082625f5034f1b"
+  },
+  "category_id": "6abcb364a32e2b7b8e09930c",
+  "category_slug": "board-games",
+  "category_name": "Board Games",
+  "name": "Board Game Activity Toys and Games",
+  "slug": "board-game-activity-toys-and-games-pw1k",
+  "price": 690,
+  "old_price": 1000,
+  "brand": "AstroGifts",
+  "material": "Wood",
+  "color": "Natural",
+  "colors": "[\"Light Brown\"]",
+  "stock_by_color": "{\"Light Brown\":5}",
+  "size": null,
+  "dimensions": null,
+  "weight": null,
+  "stock": 5,
+  "sku": "WM-KE1LER",
+  "image": "http://127.0.0.1:8000/storage/uploads/w2h0SKxmYtvXkiFmjQzF7ZUuSsyP8W6BhqJtDRYU.jpg",
+  "images": "[\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/w2h0SKxmYtvXkiFmjQzF7ZUuSsyP8W6BhqJtDRYU.jpg\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/WaO3ky2GYJHuMD7Sos9oCtDK62qpVUEEsDoTx0Qg.jpg\"]",
+  "description": "Premium furniture item.",
+  "trust_badges": "[{\"title\":\"7 Days Return\",\"description\":\"Easy return process\",\"icon\":\"return\"}]",
+  "is_active": true,
+  "status": "Active",
+  "updated_at": {
+    "$date": "2026-09-30T10:15:11.690Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T10:14:40.396Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abce1b288082625f5034f1c"
+  },
+  "category_id": "6abcb364a32e2b7b8e09930f",
+  "category_slug": "bracelets",
+  "category_name": "Bracelets",
+  "name": "Tula Band",
+  "slug": "tula-band-8UU5",
+  "price": 1000,
+  "old_price": 2000,
+  "brand": "AstroGifts",
+  "material": "Wood",
+  "color": "Natural",
+  "colors": "[\"Navy Blue\"]",
+  "stock_by_color": "{\"Navy Blue\":4}",
+  "size": null,
+  "dimensions": null,
+  "weight": null,
+  "stock": 4,
+  "sku": "WM-VMFFY0",
+  "image": "http://127.0.0.1:8000/storage/uploads/s3j1bu1k8TGEv5TvuLfuwH7KBxw7yO7uHh806eCl.webp",
+  "images": "[\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/s3j1bu1k8TGEv5TvuLfuwH7KBxw7yO7uHh806eCl.webp\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/bpTXr9G0KPVJImYo375HtxJx9lux8te9VlJja272.webp\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/FleCZRTx5icLoR1LAWjuaNSYd8d1j5i8z9L9gwjp.webp\"]",
+  "description": "Calibrated for the Libra zodiac sign (Tula Rashi), this authentic gemstone bracelet—featuring balancing stones such as Rose Quartz, Lapis Lazuli, or White Howlite—channels harmony, diplomacy, and inner calm. Strung on a durable stretch cord for daily wear, it helps balance emotional dualities while adding an elevated, meaningful touch to everyday attire.",
+  "trust_badges": "[{\"title\":\"7 Days Return\",\"description\":\"Easy return process\",\"icon\":\"return\"}]",
+  "is_active": true,
+  "status": "Active",
+  "updated_at": {
+    "$date": "2026-09-30T10:17:22.228Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T10:17:22.228Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abce23888082625f5034f1d"
+  },
+  "category_id": "6abcb364a32e2b7b8e09930f",
+  "category_slug": "bracelets",
+  "category_name": "Bracelets",
+  "name": "Surya Energy Bracelet",
+  "slug": "surya-energy-bracelet-mTds",
+  "price": 895,
+  "old_price": 1000,
+  "brand": "AstroGifts",
+  "material": "Wood",
+  "color": "Natural",
+  "colors": "[\"Brown\"]",
+  "stock_by_color": "{\"Brown\":4}",
+  "size": null,
+  "dimensions": null,
+  "weight": null,
+  "stock": 4,
+  "sku": "WM-7OUEML",
+  "image": "http://127.0.0.1:8000/storage/uploads/X6wvMxWT9Y7FP9m4yAs08ZRCEcvSgSjWP7OlhEbR.webp",
+  "images": "[\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/X6wvMxWT9Y7FP9m4yAs08ZRCEcvSgSjWP7OlhEbR.webp\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/Nz1WKJIWpjTAwwRJyZmjDk6KhFtDAiJkaqnFGset.webp\",\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/SCzJHQ8Gt56ShsKz7fG89es5zy8FUKFRHVrGcL6Z.webp\"]",
+  "description": "Tailored for the fiery Leo sign (Simha Rashi), this natural gemstone bracelet—featuring potent solar stones such as Tiger Eye, Pyrite, or Sunstone—amplifies vitality, commanding presence, and confidence. Crafted on a reinforced stretch band for daily comfort, it aligns with solar fire energy while delivering a bold, executive aesthetic",
+  "trust_badges": "[{\"title\":\"7 Days Return\",\"description\":\"Easy return process\",\"icon\":\"return\"}]",
+  "is_active": true,
+  "status": "Active",
+  "updated_at": {
+    "$date": "2026-09-30T10:19:36.104Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T10:19:36.104Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abce2b488082625f5034f1e"
+  },
+  "category_id": "6abcb364a32e2b7b8e099310",
+  "category_slug": "gemstones-crystals",
+  "category_name": "Gemstones & Crystals",
+  "name": "Golden Pyrite Stone",
+  "slug": "golden-pyrite-stone-GIkC",
+  "price": "1",
+  "old_price": "5",
+  "brand": "AstroGifts",
+  "material": "Wood",
+  "color": "Gold",
+  "colors": "[\"Gold\"]",
+  "stock_by_color": "{\"Gold\":4}",
+  "size": null,
+  "dimensions": null,
+  "weight": null,
+  "stock": 4,
+  "sku": "WM-YKOW7W",
+  "image": "http://127.0.0.1:8000/storage/uploads/LJH2cO8vfmaYifvlHU2SmFrsdT1beLfeE4DN6tH9.webp",
+  "images": "[\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/LJH2cO8vfmaYifvlHU2SmFrsdT1beLfeE4DN6tH9.webp\"]",
+  "description": "Featuring raw metallic-gold crystal formations straight from nature, this authentic Pyrite stone serves as a powerful focal point for attracting financial abundance, mental clarity, and energetic protection. Kept on executive workstations, cash counters, or living spaces, its golden reflective luster energizes the environment while dispelling lethargy and negative influences.",
+  "trust_badges": "[{\"title\":\"7 Days Return\",\"description\":\"Easy return process\",\"icon\":\"return\"}]",
+  "is_active": true,
+  "status": "Active",
+  "updated_at": {
+    "$date": "2026-10-01T12:43:50.618Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T10:21:40.066Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abce31988082625f5034f1f"
+  },
+  "category_id": "6abcb364a32e2b7b8e099310",
+  "category_slug": "gemstones-crystals",
+  "category_name": "Gemstones & Crystals",
+  "name": "Rose Quartz Healing Crystal",
+  "slug": "rose-quartz-healing-crystal-qkmD",
+  "price": 5999,
+  "old_price": 9999,
+  "brand": "AstroGifts",
+  "material": "Wood",
+  "color": "Pink",
+  "colors": "[\"Pink\"]",
+  "stock_by_color": "{\"Pink\":8}",
+  "size": null,
+  "dimensions": null,
+  "weight": null,
+  "stock": 8,
+  "sku": "WM-EYDAUC",
+  "image": "http://127.0.0.1:8000/storage/uploads/U4S7d2G0gmfzOvUMW7bKUZAwtQRDKgf2ZFghwAmb.webp",
+  "images": "[\"http:\\/\\/127.0.0.1:8000\\/storage\\/uploads\\/U4S7d2G0gmfzOvUMW7bKUZAwtQRDKgf2ZFghwAmb.webp\"]",
+  "description": "Known as the \"Stone of Unconditional Love,\" this authentic pale-pink Rose Quartz crystal radiates gentle, calming energy. Ideal for activating the Heart Chakra, it promotes self-love, emotional healing, and relationship harmony. A timeless mineral accent suitable for bedside tables, meditation corners, or jewelry settings.",
+  "trust_badges": "[{\"title\":\"7 Days Return\",\"description\":\"Easy return process\",\"icon\":\"return\"}]",
+  "is_active": true,
+  "status": "Active",
+  "updated_at": {
+    "$date": "2026-09-30T10:54:49.044Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T10:23:21.119Z"
+  }
+}]

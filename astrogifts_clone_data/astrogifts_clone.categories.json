@@ -1,0 +1,238 @@
+[{
+  "_id": {
+    "$oid": "6abcb364a32e2b7b8e099303"
+  },
+  "slug": "toys",
+  "name": "Toys",
+  "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2\"/><path d=\"M12 20v2\"/><path d=\"M2 12h2\"/><path d=\"M20 12h2\"/></svg>",
+  "sort_order": 2,
+  "is_active": true,
+  "updated_at": {
+    "$date": "2026-09-30T06:59:48.903Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T06:59:48.903Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcb364a32e2b7b8e099304"
+  },
+  "slug": "astrology",
+  "name": "Astrology",
+  "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polygon points=\"12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2\"/></svg>",
+  "sort_order": 3,
+  "is_active": true,
+  "updated_at": {
+    "$date": "2026-09-30T06:59:48.904Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T06:59:48.904Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcb364a32e2b7b8e099305"
+  },
+  "slug": "flowers",
+  "name": "Flowers",
+  "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 2a4 4 0 0 0-4 4c0 2 2 4 4 6 2-2 4-4 4-6a4 4 0 0 0-4-4z\"/><path d=\"M12 22v-8\"/><path d=\"M12 14c-4 0-6-2-6-4s2-4 6-4\"/><path d=\"M12 14c4 0 6-2 6-4s-2-4-6-4\"/></svg>",
+  "sort_order": 4,
+  "is_active": true,
+  "updated_at": {
+    "$date": "2026-09-30T06:59:48.905Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T06:59:48.905Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcb364a32e2b7b8e099307"
+  },
+  "slug": "diwali-gifts",
+  "name": "Diwali Gifts",
+  "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polyline points=\"20 12 20 22 4 22 4 12\"/><rect x=\"2\" y=\"7\" width=\"20\" height=\"5\"/><path d=\"M12 22V7\"/><path d=\"M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z\"/><path d=\"M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z\"/></svg>",
+  "sort_order": 6,
+  "is_active": true,
+  "parent_category": "gifts",
+  "updated_at": {
+    "$date": "2026-10-02T08:37:02.918Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T06:59:48.907Z"
+  },
+  "parent_id": "6abf6d2e99b867b1df04f432"
+},
+{
+  "_id": {
+    "$oid": "6abcb364a32e2b7b8e099308"
+  },
+  "slug": "birthday-gifts",
+  "name": "Birthday Gifts",
+  "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polyline points=\"20 12 20 22 4 22 4 12\"/><rect x=\"2\" y=\"7\" width=\"20\" height=\"5\"/><path d=\"M12 22V7\"/><path d=\"M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z\"/><path d=\"M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z\"/></svg>",
+  "sort_order": 7,
+  "is_active": true,
+  "parent_category": "gifts",
+  "updated_at": {
+    "$date": "2026-10-02T08:37:02.918Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T06:59:48.908Z"
+  },
+  "parent_id": "6abf6d2e99b867b1df04f432"
+},
+{
+  "_id": {
+    "$oid": "6abcb364a32e2b7b8e099309"
+  },
+  "slug": "anniversary-gifts",
+  "name": "Anniversary Gifts",
+  "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polyline points=\"20 12 20 22 4 22 4 12\"/><rect x=\"2\" y=\"7\" width=\"20\" height=\"5\"/><path d=\"M12 22V7\"/><path d=\"M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z\"/><path d=\"M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z\"/></svg>",
+  "sort_order": 8,
+  "is_active": true,
+  "parent_category": "gifts",
+  "updated_at": {
+    "$date": "2026-10-02T08:37:02.918Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T06:59:48.909Z"
+  },
+  "parent_id": "6abf6d2e99b867b1df04f432"
+},
+{
+  "_id": {
+    "$oid": "6abcb364a32e2b7b8e09930a"
+  },
+  "slug": "soft-toys",
+  "name": "Soft Toys",
+  "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2\"/><path d=\"M12 20v2\"/><path d=\"M2 12h2\"/><path d=\"M20 12h2\"/></svg>",
+  "sort_order": 9,
+  "is_active": true,
+  "parent_category": "toys",
+  "updated_at": {
+    "$date": "2026-09-30T06:59:48.910Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T06:59:48.910Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcb364a32e2b7b8e09930b"
+  },
+  "slug": "baby-toys",
+  "name": "Baby Toys",
+  "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2\"/><path d=\"M12 20v2\"/><path d=\"M2 12h2\"/><path d=\"M20 12h2\"/></svg>",
+  "sort_order": 10,
+  "is_active": true,
+  "parent_category": "toys",
+  "updated_at": {
+    "$date": "2026-09-30T06:59:48.911Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T06:59:48.911Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcb364a32e2b7b8e09930c"
+  },
+  "slug": "board-games",
+  "name": "Board Games",
+  "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2\"/><path d=\"M12 20v2\"/><path d=\"M2 12h2\"/><path d=\"M20 12h2\"/></svg>",
+  "sort_order": 11,
+  "is_active": true,
+  "parent_category": "toys",
+  "updated_at": {
+    "$date": "2026-09-30T06:59:48.912Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T06:59:48.912Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcb364a32e2b7b8e09930d"
+  },
+  "slug": "rings",
+  "name": "Rings",
+  "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polygon points=\"12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2\"/></svg>",
+  "sort_order": 12,
+  "is_active": true,
+  "parent_category": "astrology",
+  "updated_at": {
+    "$date": "2026-09-30T06:59:48.913Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T06:59:48.913Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcb364a32e2b7b8e09930e"
+  },
+  "slug": "pendants",
+  "name": "Pendants",
+  "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polygon points=\"12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2\"/></svg>",
+  "sort_order": 13,
+  "is_active": true,
+  "parent_category": "astrology",
+  "updated_at": {
+    "$date": "2026-09-30T06:59:48.914Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T06:59:48.914Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcb364a32e2b7b8e09930f"
+  },
+  "slug": "bracelets",
+  "name": "Bracelets",
+  "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polygon points=\"12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2\"/></svg>",
+  "sort_order": 14,
+  "is_active": true,
+  "parent_category": "astrology",
+  "updated_at": {
+    "$date": "2026-09-30T06:59:48.915Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T06:59:48.915Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcb364a32e2b7b8e099310"
+  },
+  "slug": "gemstones-crystals",
+  "name": "Gemstones & Crystals",
+  "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polygon points=\"12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2\"/></svg>",
+  "sort_order": 15,
+  "is_active": true,
+  "parent_category": "astrology",
+  "updated_at": {
+    "$date": "2026-09-30T06:59:48.916Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T06:59:48.916Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abf6d2e99b867b1df04f432"
+  },
+  "name": "Gifts",
+  "slug": "gifts",
+  "description": "Premium gifts",
+  "status": "active",
+  "updated_at": {
+    "$date": "2026-10-02T08:52:06.480Z"
+  },
+  "created_at": {
+    "$date": "2026-10-02T08:37:02.591Z"
+  },
+  "is_active": true,
+  "sort_order": 1
+}]

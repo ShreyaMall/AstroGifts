@@ -1,0 +1,76 @@
+[{
+  "_id": {
+    "$oid": "6abcb364a32e2b7b8e099311"
+  },
+  "slug": "choosing-safe-and-educational-toys-for-kids",
+  "title": "Choosing Safe & Educational Toys for Kids",
+  "category": "Toys Guide",
+  "excerpt": "Explore wooden toys, soft plushies, and cognitive board games designed for growing minds.",
+  "content": "Tips on selecting non-toxic, age-appropriate toys that foster creativity and problem-solving skills.",
+  "status": "Published",
+  "date_label": "Sep 22, 2026",
+  "image": "/article_toys.png",
+  "updated_at": {
+    "$date": "2026-09-30T06:59:48.923Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T06:59:48.923Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcb364a32e2b7b8e099312"
+  },
+  "slug": "healing-power-of-gemstones-and-crystals",
+  "title": "Healing Power of Gemstones & Crystals",
+  "category": "Astrology",
+  "excerpt": "Learn how Rose Quartz, Amethyst, and Pyrite bring positive energy, wealth, and peace into your home.",
+  "content": "A comprehensive guide to crystal chakra balancing, wearing birthstones, and cleansing energy.",
+  "status": "Published",
+  "date_label": "Sep 20, 2026",
+  "image": "/article_astrology.png",
+  "updated_at": {
+    "$date": "2026-09-30T06:59:48.924Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T06:59:48.924Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcb364a32e2b7b8e099313"
+  },
+  "slug": "top-10-gifting-ideas-for-birthdays-and-anniversaries",
+  "title": "Top 10 Gifting Ideas for Birthdays & Anniversaries",
+  "category": "Gifting Guide",
+  "excerpt": "Discover how to choose meaningful, personalized gifts that make every celebration unforgettable.",
+  "content": "Full article on luxury hampers, custom gift boxes, photo frames, and heartfelt surprises.",
+  "status": "Published",
+  "date_label": "Sep 15, 2026",
+  "image": "/article_gifting.png",
+  "updated_at": {
+    "$date": "2026-09-30T06:59:48.925Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T06:59:48.925Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6abcb364a32e2b7b8e099314"
+  },
+  "slug": "spiritual-home-decor-and-fresh-flower-bouquets",
+  "title": "Spiritual Home Decor & Fresh Flower Bouquets",
+  "category": "Home & Decor",
+  "excerpt": "Elevate your living space with handcrafted brass idols, aromatic candles, and fresh floral decor.",
+  "content": "Complete guide on arranging fresh flowers, placing feng shui home decor, and creating a peaceful ambiance.",
+  "status": "Published",
+  "date_label": "Sep 10, 2026",
+  "image": "/article_wood.png",
+  "updated_at": {
+    "$date": "2026-09-30T06:59:48.926Z"
+  },
+  "created_at": {
+    "$date": "2026-09-30T06:59:48.926Z"
+  }
+}]

@@ -1,0 +1,66 @@
+[{
+  "_id": {
+    "$oid": "6ab4c94b3034c2b79e04a9a8"
+  },
+  "title": "Exclusive Gift Sets & Hampers",
+  "subtitle": "by AstroGifts Studio",
+  "price": "₹499",
+  "image": "/gifts.png",
+  "cta_text": "Shop Gifts",
+  "link": "/category/gifts",
+  "badge_text": "Discover Premium Gifts",
+  "badge_category": "gifts",
+  "status": "Active",
+  "sort_order": 1,
+  "updated_at": {
+    "$date": "2026-09-30T06:49:59.239Z"
+  },
+  "created_at": {
+    "$date": "2026-09-24T06:55:07.265Z"
+  },
+  "designer": "AstroGifts Studio"
+},
+{
+  "_id": {
+    "$oid": "6ab4c94b3034c2b79e04a9a9"
+  },
+  "title": "Interactive Toys & Educational Games",
+  "subtitle": "by AstroGifts Kids",
+  "price": "₹299",
+  "image": "/hero slider 3.png",
+  "cta_text": "Shop Toys",
+  "link": "/category/toys",
+  "badge_text": "Explore Fun Toys",
+  "badge_category": "toys",
+  "status": "Active",
+  "sort_order": 2,
+  "updated_at": {
+    "$date": "2026-09-24T12:16:54.402Z"
+  },
+  "created_at": {
+    "$date": "2026-09-24T06:55:07.278Z"
+  },
+  "designer": "AstroGifts Kids"
+},
+{
+  "_id": {
+    "$oid": "6ab4c94b3034c2b79e04a9aa"
+  },
+  "title": "Natural Gemstones & Healing Crystals",
+  "subtitle": "by AstroGifts Astro",
+  "price": "₹799",
+  "image": "/hero slider1.png",
+  "cta_text": "Shop Astrology",
+  "link": "/category/astrology",
+  "badge_text": "Sacred Astrology",
+  "badge_category": "astrology",
+  "status": "Active",
+  "sort_order": 3,
+  "updated_at": {
+    "$date": "2026-09-30T06:49:59.242Z"
+  },
+  "created_at": {
+    "$date": "2026-09-24T06:55:07.278Z"
+  },
+  "designer": "AstroGifts Astro"
+}]

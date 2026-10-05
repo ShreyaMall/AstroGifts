@@ -1,0 +1,64 @@
+[{
+  "_id": {
+    "$oid": "6ab4cc6e67cce2a3c80b3ac3"
+  },
+  "name": "Small (S)",
+  "code": "S",
+  "dimensions": "Compact / Standard",
+  "status": "Active",
+  "order": 1,
+  "updated_at": {
+    "$date": "2026-09-24T07:08:30.751Z"
+  },
+  "created_at": {
+    "$date": "2026-09-24T07:08:30.751Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ab4cc6e67cce2a3c80b3ac4"
+  },
+  "name": "Medium (M)",
+  "code": "M",
+  "dimensions": "Standard Comfort",
+  "status": "Active",
+  "order": 2,
+  "updated_at": {
+    "$date": "2026-09-24T07:08:30.770Z"
+  },
+  "created_at": {
+    "$date": "2026-09-24T07:08:30.770Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ab4cc6e67cce2a3c80b3ac5"
+  },
+  "name": "Large (L)",
+  "code": "L",
+  "dimensions": "Spacious / Executive",
+  "status": "Active",
+  "order": 3,
+  "updated_at": {
+    "$date": "2026-09-24T07:08:30.771Z"
+  },
+  "created_at": {
+    "$date": "2026-09-24T07:08:30.771Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ab4cc6e67cce2a3c80b3ac6"
+  },
+  "name": "Extra Large",
+  "code": "XL",
+  "dimensions": "Oversized Lounge",
+  "status": "Active",
+  "order": 4,
+  "updated_at": {
+    "$date": "2026-09-24T07:08:30.771Z"
+  },
+  "created_at": {
+    "$date": "2026-09-24T07:08:30.771Z"
+  }
+}]

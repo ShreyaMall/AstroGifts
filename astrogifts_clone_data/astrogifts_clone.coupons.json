@@ -1,0 +1,60 @@
+[{
+  "_id": {
+    "$oid": "6ab4c94b3034c2b79e04a9b0"
+  },
+  "code": "ASTROGIFTS15",
+  "discount_percent": 15,
+  "min_spend": 100,
+  "is_active": true,
+  "updated_at": {
+    "$date": "2026-09-24T06:55:07.298Z"
+  },
+  "created_at": {
+    "$date": "2026-09-24T06:55:07.298Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ab4c94b3034c2b79e04a9b1"
+  },
+  "code": "ASTROGIFTS20",
+  "discount_percent": 20,
+  "min_spend": 250,
+  "is_active": true,
+  "updated_at": {
+    "$date": "2026-09-24T06:55:07.310Z"
+  },
+  "created_at": {
+    "$date": "2026-09-24T06:55:07.310Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ab4c94b3034c2b79e04a9b2"
+  },
+  "code": "SAVE15",
+  "discount_percent": 15,
+  "min_spend": 50,
+  "is_active": true,
+  "updated_at": {
+    "$date": "2026-09-24T06:55:07.311Z"
+  },
+  "created_at": {
+    "$date": "2026-09-24T06:55:07.311Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ab4c94b3034c2b79e04a9b3"
+  },
+  "code": "SAVE10",
+  "discount_percent": 10,
+  "min_spend": 0,
+  "is_active": true,
+  "updated_at": {
+    "$date": "2026-09-24T06:55:07.312Z"
+  },
+  "created_at": {
+    "$date": "2026-09-24T06:55:07.312Z"
+  }
+}]
