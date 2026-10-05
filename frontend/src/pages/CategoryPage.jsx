@@ -1324,7 +1324,18 @@ export default function CategoryPage({ categorySlug }) {
             </div>
 
             {/* ── GRID ── */}
-            {displayedProds.length > 0 ? (
+            {loading ? (
+              <div className="cp-loading" style={{ textAlign: "center", padding: "50px", width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <div className="spinner" style={{ width: "40px", height: "40px", border: "4px solid #f3f3f3", borderTop: "4px solid #333", borderRadius: "50%", animation: "spin 1s linear infinite", marginBottom: "15px" }}></div>
+                <style>{`
+                  @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                  }
+                `}</style>
+                <p>Loading products...</p>
+              </div>
+            ) : displayedProds.length > 0 ? (
               <div className={`cp-grid cp-grid--${viewMode}`}>
                 {displayedProds.map(p => (
                   <ProductCard key={p.id} product={p} viewMode={viewMode} />
@@ -1418,3 +1429,5 @@ export default function CategoryPage({ categorySlug }) {
       </div>
   );
 }
+
+
