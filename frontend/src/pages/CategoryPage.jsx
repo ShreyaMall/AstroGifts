@@ -673,13 +673,7 @@ export default function CategoryPage({ categorySlug }) {
 
       // 4. Route Match Filter (Always enforce intersection)
         if (activeSlug && activeSlug !== 'all' && activeSlug !== 'shop' && activeSlug !== 'astrogifts') {
-          let matchesRoute = checkProductMatchesCategory(p, activeSlug);
-          if (!matchesRoute) {
-            if (['diwali-gifts', 'birthday-gifts', 'anniversary-gifts'].includes(activeSlug)) {
-               matchesRoute = checkProductMatchesCategory(p, 'gifts');
-            }
-          }
-          if (!matchesRoute) return false;
+          let matchesRoute = checkProductMatchesCategory(p, activeSlug); if (!matchesRoute) return false;
         }
 
         // 5. Sidebar Checkbox Category Filter
@@ -1421,6 +1415,8 @@ export default function CategoryPage({ categorySlug }) {
       </div>
   );
 }
+
+
 
 
 
