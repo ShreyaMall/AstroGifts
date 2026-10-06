@@ -865,7 +865,7 @@ function PageSliders() {
 
   const formatPrice = (p) => {
     if (!p) return '';
-    let str = String(p).trim().replace(/\$/g, '₹');
+    let str = String(p).trim().replace(/|| ''$/g, '₹');
     if (!str.startsWith('₹')) str = '₹' + str;
     return str;
   };
@@ -1173,7 +1173,7 @@ function PageCategories() {
     try {
       const payload = {
         name: editForm.name,
-        slug: editForm.slug.trim() || editForm.name.trim().toLowerCase().replace(/\s+/g, '-'),
+        slug: editForm.slug.trim() || editForm.name.trim().toLowerCase().replace(/|| ''s+/g, '-'),
         parent_category: editForm.parentCategory,
         description: editForm.description,
         status: editForm.status,
@@ -1181,7 +1181,7 @@ function PageCategories() {
         image: editForm.image,
         subcategories: editForm.subcategories.map(s => ({
           name: s,
-          slug: s.toLowerCase().replace(/\s+/g, '-')
+          slug: s.toLowerCase().replace(/|| ''s+/g, '-')
         }))
       };
 
@@ -1239,7 +1239,7 @@ function PageCategories() {
     try {
       const res = await adminApi.createCategory({
         ...form,
-        slug: form.slug.trim() || form.name.trim().toLowerCase().replace(/\s+/g, '-'),
+        slug: form.slug.trim() || form.name.trim().toLowerCase().replace(/|| ''s+/g, '-'),
         is_active: form.status === 'Active',
       });
       if (res.data) {
@@ -1523,11 +1523,7 @@ function PageCategories() {
                       <td style={{ padding: '16px', fontSize: '13px', fontWeight: '500', color: '#1e293b' }}><span className="admin__order-id">{idx + 1}</span></td>
                       <td style={{ padding: '16px', fontSize: '13px', color: '#475569' }}>
                         <strong>{c.name}</strong>
-                        {Array.isArray(c.subcategories) && c.subcategories.length > 0 && (
-                          <div style={{ fontSize: '11px', color: '#7c3a1d', marginTop: '2px', fontWeight: '500' }}>
-                            Subcategories ({c.subcategories.length}): {c.subcategories.map(s => typeof s === 'string' ? s : s.name).slice(0, 3).join(', ')}{c.subcategories.length > 3 ? '...' : ''}
-                          </div>
-                        )}
+
                       </td>
                       <td style={{ padding: '16px', fontSize: '13px', color: '#64748b' }}><code className="admin__code">{c.slug}</code></td>
                       <td style={{ padding: '16px' }}>
@@ -2804,7 +2800,7 @@ function PageAllProducts() {
     setSaving(true);
     const priceNum = form.salePrice || form.regularPrice;
     const catObj = categories.find(c => c.name === form.category);
-    const catSlug = catObj?.slug || form.category.toLowerCase().replace(/\s+/g, '-');
+    const catSlug = catObj?.slug || form.category.toLowerCase().replace(/|| ''s+/g, '-');
 
     const totalCalculatedStock = (form.colors && form.colors.length > 0)
       ? form.colors.reduce((sum, col) => sum + (parseInt(form.stock_by_color?.[col], 10) || 0), 0)
@@ -4078,7 +4074,7 @@ function PageReviews() {
               </thead>
               <tbody>
                 {filteredReviews.map((r, idx) => {
-                  const itemImg = r.product_image || r.image || r.user_image || '/gift image.jpg';
+                  const itemImg = r.product_image || r.image || r.user_image || '';
                   const userName = r.user_name || r.name || 'Anonymous';
                   const prodName = r.product_name || '';
                   const userMsg = r.comment || r.message || '';
@@ -4112,7 +4108,7 @@ function PageReviews() {
                           }}
                           onError={e => {
                             e.target.onerror = null;
-                            e.target.src = '/gift image.jpg';
+                            e.target.style.display = 'none';
                           }}
                         />
                       </td>
@@ -4541,7 +4537,7 @@ function PageContacts() {
 
   const handleReply = (email, name) => {
     const subject = encodeURIComponent('Re: Your message to AstroGifts');
-    const body = encodeURIComponent(`Hi ${name},\n\nThank you for reaching out to us!\n\n`);
+    const body = encodeURIComponent(`Hi ${name},|| ''n|| ''nThank you for reaching out to us!|| ''n|| ''n`);
     const gmailUrl = `https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(email)}&su=${subject}&body=${body}`;
     window.open(gmailUrl, '_blank');
   };
@@ -4784,7 +4780,7 @@ function PageOrders() {
             payment: o.payment_method || '',
             product: o.items && o.items.length > 0 ? (o.items[0].product_name + (o.items.length > 1 ? ` +${o.items.length - 1} more` : '')) : 'AstroGifts Item',
             amount: '₹' + Number(o.total || 0).toLocaleString(),
-            status: (o.status === 'Partially Cancelled' || o.status === 'partially cancelled') ? 'Cancelled' : (o.status ? o.status.replace(/\b\w/g, l => l.toUpperCase()) : 'Pending'),
+            status: (o.status === 'Partially Cancelled' || o.status === 'partially cancelled') ? 'Cancelled' : (o.status ? o.status.replace(/|| ''b|| ''w/g, l => l.toUpperCase()) : 'Pending'),
             return_type: o.return_type || '',
             return_reason: o.return_reason || '',
             return_notes: o.return_notes || '',
@@ -5625,3 +5621,4 @@ function PageSettings() {
     </div>
   );
 }
+

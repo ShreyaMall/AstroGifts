@@ -284,7 +284,7 @@ export default function ProductDetailPage() {
         rating: Number(reviewForm.rating),
         comment: reviewForm.comment.trim(),
         product_name: product?.name || 'Chair',
-        product_image: product?.image || product?.img || '/gift image.jpg',
+        product_image: product?.image || product?.img || '',
         status: 'Pending'
       });
     } catch (err) {
@@ -319,8 +319,8 @@ export default function ProductDetailPage() {
 
   const isOutOfStock = availableStock <= 0;
 
-  const baseId = product ? (product.id || String(product.name).toLowerCase().replace(/\s+/g, '-')) : null;
-  const colorSuffix = selectedColor ? `-${selectedColor.toLowerCase().replace(/\s+/g, '-')}` : '';
+  const baseId = product ? (product.id || String(product.name).toLowerCase().replace(/|| ''s+/g, '-')) : null;
+  const colorSuffix = selectedColor ? `-${selectedColor.toLowerCase().replace(/|| ''s+/g, '-')}` : '';
   const cartItemId = baseId ? `${baseId}${colorSuffix}` : null;
   const cartItem = cartItemId ? cartItems.find(i => i.id === cartItemId) : null;
   const displayQuantity = cartItem ? cartItem.quantity : quantity;
@@ -391,9 +391,9 @@ export default function ProductDetailPage() {
     
     let w = 'N/A', h = 'N/A', d = 'N/A';
     
-    const wMatch = dimStr.match(/W:\s*([^xX,]+)/i);
-    const dMatch = dimStr.match(/D:\s*([^xX,]+)/i);
-    const hMatch = dimStr.match(/H:\s*([^xX,]+)/i);
+    const wMatch = dimStr.match(/W:|| ''s*([^xX,]+)/i);
+    const dMatch = dimStr.match(/D:|| ''s*([^xX,]+)/i);
+    const hMatch = dimStr.match(/H:|| ''s*([^xX,]+)/i);
     
     if (wMatch) w = wMatch[1].trim();
     if (hMatch) h = hMatch[1].trim();
@@ -772,7 +772,7 @@ export default function ProductDetailPage() {
           <span className="pdp-sep">/</span>
           <Link to={`/category/${product.category?.toLowerCase() || 'gifts'}`}>{product.category || 'Category'}</Link>
           <span className="pdp-sep">/</span>
-          <Link to={`/product/${product.id || String(product.name).toLowerCase().replace(/\s+/g, '-')}`} className="pdp-breadcrumb-current">{product.name}</Link>
+          <Link to={`/product/${product.id || String(product.name).toLowerCase().replace(/|| ''s+/g, '-')}`} className="pdp-breadcrumb-current">{product.name}</Link>
         </div>
 
         {/* Main Product Grid */}
@@ -797,7 +797,7 @@ export default function ProductDetailPage() {
                       alt={`${product.name} view ${i+1}`}
                       onError={(e) => {
                         e.target.onerror = null;
-                        e.target.src = fallbackGift1;
+                        e.target.style.display = 'none';
                       }}
                     />
                   </button>
@@ -856,7 +856,7 @@ export default function ProductDetailPage() {
                 className="pdp-main-img" 
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src = fallbackGift1;
+                  e.target.style.display = 'none';
                 }}
               />
             </div>
@@ -966,7 +966,7 @@ export default function ProductDetailPage() {
                             style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px', opacity: isColOutOfStock ? 0.4 : 1 }} 
                             onError={(e) => {
                               e.target.onerror = null;
-                              e.target.src = fallbackGift1;
+                              e.target.style.display = 'none';
                             }}
                           />
                           {isColOutOfStock && (
@@ -1132,7 +1132,7 @@ export default function ProductDetailPage() {
                   type="text" 
                   placeholder="Enter 6-digit Pincode" 
                   value={tempPincode}
-                  onChange={(e) => setTempPincode(e.target.value.replace(/\D/g, ''))}
+                  onChange={(e) => setTempPincode(e.target.value.replace(/|| ''D/g, ''))}
                   maxLength={6}
                   style={{ flex: 1, padding: '8px 12px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '13px', outline: 'none' }}
                 />
@@ -1298,7 +1298,7 @@ export default function ProductDetailPage() {
                         style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} 
                         onError={(e) => {
                           e.target.onerror = null;
-                          e.target.src = fallbackGift1;
+                          e.target.style.display = 'none';
                         }}
                       />
                     </div>
@@ -1586,7 +1586,7 @@ export default function ProductDetailPage() {
                         className="pdp-rel-img" 
                         onError={(e) => {
                           e.target.onerror = null;
-                          e.target.src = fallbackGift1;
+                          e.target.style.display = 'none';
                         }}
                       />
                     </Link>
@@ -1663,7 +1663,7 @@ export default function ProductDetailPage() {
                   <form onSubmit={handleAddNewAddress} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     <input type="text" placeholder="Full Name" required value={newAddressForm.name} onChange={e => setNewAddressForm({...newAddressForm, name: e.target.value})} style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '13px', outline: 'none' }} />
                     <input type="text" placeholder="Phone Number" required value={newAddressForm.phone} onChange={e => setNewAddressForm({...newAddressForm, phone: e.target.value})} style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '13px', outline: 'none' }} />
-                    <input type="text" placeholder="Pincode" required maxLength="6" value={newAddressForm.pincode} onChange={e => setNewAddressForm({...newAddressForm, pincode: e.target.value.replace(/\D/g,'')})} style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '13px', outline: 'none' }} />
+                    <input type="text" placeholder="Pincode" required maxLength="6" value={newAddressForm.pincode} onChange={e => setNewAddressForm({...newAddressForm, pincode: e.target.value.replace(/|| ''D/g,'')})} style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '13px', outline: 'none' }} />
                     <input type="text" placeholder="Address Line (House No, Building, Street)" required value={newAddressForm.address_line} onChange={e => setNewAddressForm({...newAddressForm, address_line: e.target.value})} style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '13px', outline: 'none' }} />
                     <input type="text" placeholder="Locality / Area" value={newAddressForm.locality} onChange={e => setNewAddressForm({...newAddressForm, locality: e.target.value})} style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '13px', outline: 'none' }} />
                     <div style={{ display: 'flex', gap: '10px' }}>
@@ -1858,3 +1858,5 @@ export default function ProductDetailPage() {
     </div>
   );
 }
+
+

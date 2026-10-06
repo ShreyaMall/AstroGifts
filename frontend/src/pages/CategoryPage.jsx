@@ -411,7 +411,7 @@ export default function CategoryPage({ categorySlug }) {
       const found = defaultList.find(c => c.name.toLowerCase() === name.toLowerCase());
       return {
         name,
-        color: found?.color || name.toLowerCase().replace(/\s+/g, '') || '#ccc',
+        color: found?.color || name.toLowerCase().replace(/|| ''s+/g, '') || '#ccc',
         border: found?.border
       };
     });
@@ -524,7 +524,7 @@ export default function CategoryPage({ categorySlug }) {
   };
 
   const checkRingSizeMatch = (p, sizeName) => {
-    const sLower = sizeName.toLowerCase().replace(/size\s*/i, '').trim();
+    const sLower = sizeName.toLowerCase().replace(/size|| ''s*/i, '').trim();
     const pTitle = (p.name || '').toLowerCase();
     const pDesc = (p.description || '').toLowerCase();
     const pSize = String(p.ring_sizes || p.size || p.sizes || p.raw?.size || p.raw?.ring_sizes || '').toLowerCase();
@@ -557,7 +557,7 @@ export default function CategoryPage({ categorySlug }) {
       return fullText.includes('brass') || fullText.includes('panchdhatu') || fullText.includes('panch') || fullText.includes('copper') || fullText.includes('bronze') || fullText.includes('#b87333');
     }
 
-    const baseWord = plClean.split(/[\s/]+/)[0];
+    const baseWord = plClean.split(/[|| ''s/]+/)[0];
     return fullText.includes(baseWord);
   };
 
@@ -1447,6 +1447,8 @@ export default function CategoryPage({ categorySlug }) {
       </div>
   );
 }
+
+
 
 
 

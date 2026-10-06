@@ -9,7 +9,7 @@ import giftItemImg from '../../assets/gift image.jpg';
 
 const getFormattedImageUrl = (rawUrl) => {
   if (!rawUrl || typeof rawUrl !== 'string' || !rawUrl.trim()) {
-    return giftItemImg;
+    return '';
   }
   const t = rawUrl.trim();
   if (t.startsWith('http://') || t.startsWith('https://') || t.startsWith('data:')) {
@@ -57,7 +57,7 @@ function ProductCard({ product, onQuickView }) {
 
   // Dynamic Image resolution for selected color variant
   const cardImage = React.useMemo(() => {
-    if (!product) return giftItemImg;
+    if (!product) return '';
 
     // Collect all raw product images
     let allImgs = [];
@@ -153,7 +153,7 @@ function ProductCard({ product, onQuickView }) {
             className="wb-card__img wb-card__img--main"
             onError={(e) => {
               e.target.onerror = null;
-              e.target.src = giftItemImg;
+              e.target.style.display = 'none';
             }}
           />
         </Link>
@@ -182,6 +182,35 @@ function ProductCard({ product, onQuickView }) {
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
               <circle cx="12" cy="12" r="3" />
+            </svg>
+          </button>
+          <button
+            className="wb-card__view-btn"
+            style={{ marginLeft: '8px' }}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              const url = window.location.origin + productUrl;
+              if (navigator.share) {
+                navigator.share({
+                  title: product.name,
+                  text: 'Check out this product!',
+                  url: url,
+                }).catch(err => console.error('Share failed', err));
+              } else {
+                navigator.clipboard.writeText(url);
+                alert('Link copied to clipboard!');
+              }
+            }}
+            title="Share"
+            aria-label="Share"
+          >
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="18" cy="5" r="3" />
+              <circle cx="6" cy="12" r="3" />
+              <circle cx="18" cy="19" r="3" />
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
             </svg>
           </button>
         </div>

@@ -484,7 +484,30 @@ class AdminController extends Controller
     public function categories(): JsonResponse
     {
         $categories = Category::withCount('products')->get();
-        return response()->json(['status' => 'success', 'data' => $categories]);
+
+        $result = $categories->map(function ($cat) use ($categories) {
+            $catSlug = strtolower(trim((string)$cat->slug));
+            $catName = strtolower(trim((string)$cat->name));
+            
+            // Find all subcategories for this category
+            $subs = $categories->filter(function ($c) use ($catSlug, $catName) {
+                $p = strtolower(trim((string)($c->parent_category ?? '')));
+                return $p !== '' && $p !== 'none' && $p !== 'null' && ($p === $catSlug || $p === $catName);
+            });
+            
+            // Add subcategory products count to the main category
+            $subProductsCount = $subs->sum('products_count');
+            $cat->products_count += $subProductsCount;
+            
+            // Append subcategories array for the frontend edit modal
+            $cat->subcategories = $subs->map(function ($sub) {
+                return ['name' => $sub->name, 'slug' => $sub->slug];
+            })->values()->toArray();
+            
+            return $cat;
+        });
+
+        return response()->json(['status' => 'success', 'data' => $result]);
     }
 
     /**

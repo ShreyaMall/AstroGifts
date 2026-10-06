@@ -60,7 +60,7 @@ export const ProductCard = ({ product, viewMode = 'grid-3' }) => {
           <img 
             src={(() => {
               const raw = product.image || product.image_url || product.img;
-              if (!raw || typeof raw !== 'string' || !raw.trim()) return '/gift image.jpg';
+              if (!raw || typeof raw !== 'string' || !raw.trim()) return '';
               const t = raw.trim();
               if (t.startsWith('http://') || t.startsWith('https://') || t.startsWith('data:')) return t;
               if (t.startsWith('storage/') || t.startsWith('/storage/')) return `http://127.0.0.1:8000/${t.replace(/^\//, '')}`;
@@ -72,7 +72,7 @@ export const ProductCard = ({ product, viewMode = 'grid-3' }) => {
             loading="lazy" 
             onError={(e) => {
               e.target.onerror = null;
-              e.target.src = '/gift image.jpg';
+              e.target.style.display = 'none';
             }}
           />
         </Link>
@@ -152,3 +152,5 @@ export const ProductCard = ({ product, viewMode = 'grid-3' }) => {
 };
 
 export default ProductCard;
+
+

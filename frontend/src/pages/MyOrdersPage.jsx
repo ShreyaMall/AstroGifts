@@ -243,7 +243,7 @@ function OrderTrackStepper({ order }) {
 
 const resolveItemImage = (item) => {
   const img = item?.image || item?.product_image;
-  if (!img) return '/gift image.jpg';
+  if (!img) return '';
   if (img.startsWith('http://') || img.startsWith('https://') || img.startsWith('data:')) {
     return img;
   }
@@ -795,7 +795,7 @@ export default function MyOrdersPage() {
                                 src={resolveItemImage(item)}
                                 alt={item.name || item.product_name}
                                 style={{ width: '72px', height: '72px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #eee', flexShrink: 0, filter: isItemCancelled ? 'grayscale(80%)' : 'none', cursor: 'pointer' }}
-                                onError={e => { e.target.src = '/gift image.jpg'; }}
+                                onError={e => { e.target.style.display = 'none'; }}
                               />
                             </Link>
                             <div style={{ flex: 1 }}>
@@ -1055,7 +1055,7 @@ export default function MyOrdersPage() {
                       borderBottom: idx < selectedOrder.items.length - 1 ? '1px solid #eee' : 'none'
                     }}>
                       <Link to={`/product/${pParam}`} style={{ textDecoration: 'none', display: 'block' }}>
-                        <img src={resolveItemImage(item)} alt={item.name || item.product_name} style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover', cursor: 'pointer' }} onError={e=>e.target.src='/gift image.jpg'} />
+                        <img src={resolveItemImage(item)} alt={item.name || item.product_name} style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover', cursor: 'pointer' }} onError={e=>e.target.style.display='none'} />
                       </Link>
                       <div style={{ flex: 1, marginLeft: '16px' }}>
                         <Link to={`/product/${pParam}`} style={{ fontWeight: '600', color: '#222', fontSize: '14px', textDecoration: 'none', cursor: 'pointer' }}>
@@ -1382,7 +1382,7 @@ export default function MyOrdersPage() {
                     src={resolveItemImage(cancelTarget.item)}
                     alt={cancelTarget.item?.name || cancelTarget.item?.product_name}
                     style={{ width: '54px', height: '54px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e5e7eb' }}
-                    onError={e => { e.target.src = '/gift image.jpg'; }}
+                    onError={e => { e.target.style.display = 'none'; }}
                   />
                   <div>
                     <div style={{ fontWeight: '600', fontSize: '14px', color: '#111827' }}>
@@ -1474,3 +1474,5 @@ export default function MyOrdersPage() {
     </>
   );
 }
+
+
