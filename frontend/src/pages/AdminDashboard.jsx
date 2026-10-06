@@ -865,9 +865,11 @@ function PageSliders() {
 
   const formatPrice = (p) => {
     if (!p) return '';
-    let str = String(p).trim().replace(/|| ''$/g, '₹');
-    if (!str.startsWith('₹')) str = '₹' + str;
-    return str;
+    let str = String(p).trim().replace(/₹/g, '').trim();
+    if (str) {
+      return '₹' + str;
+    }
+    return '';
   };
 
   const deleteSlide = async (id) => {
@@ -945,7 +947,10 @@ function PageSliders() {
   const resolveImg = (img) => {
     if (!img) return null;
     if (img.startsWith('http')) return img;
-    return `${API_BASE}/storage/${img}`;
+    if (img.startsWith('/storage/') || img.startsWith('storage/')) {
+      return `${API_BASE}/${img.replace(/^\//, '')}`;
+    }
+    return img;
   };
 
   return (
@@ -1008,7 +1013,7 @@ function PageSliders() {
                   />
                   {form.image && (
                     <div style={{ marginTop: '10px' }}>
-                      <img src={form.image.startsWith('http') ? form.image : `${API_BASE}/storage/${form.image}`} alt="Preview" style={{ height: '80px', borderRadius: '8px', objectFit: 'cover' }} />
+                      <img src={resolveImg(form.image)} alt="Preview" style={{ height: '80px', borderRadius: '8px', objectFit: 'cover' }} />
                     </div>
                   )}
                 </div>
