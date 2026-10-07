@@ -8,47 +8,8 @@ import giftsBanner from '../../assets/hero_slider4.jpg';
 import toysBanner from '../../assets/hero_slider3.jpg';
 import astroBanner from '../../assets/hero_slider1.jpg';
 
-/* =====================================================
-   STATIC FALLBACK DATA (jab API nahi chal rahi)
-   ===================================================== */
-const FALLBACK_SLIDES = [
-  {
-    id: 1,
-    bgImg: giftsBanner,
-    badge_text: 'Discover Premium Gifts',
-    badge_category: 'gifts',
-    title: 'Exclusive Gift Sets & Hampers',
-    designer: 'AstroGifts Studio',
 
-    price: '₹499',
-    cta_text: 'Shop Gifts',
-    link: '/category/gifts',
-  },
-  {
-    id: 2,
-    bgImg: toysBanner,
-    badge_text: 'Explore Fun Toys',
-    badge_category: 'toys',
-    title: 'Interactive Toys & Educational Games',
-    designer: 'AstroGifts Kids',
 
-    price: '₹299',
-    cta_text: 'Shop Toys',
-    link: '/category/toys',
-  },
-  {
-    id: 3,
-    bgImg: astroBanner,
-    badge_text: 'Sacred Astrology',
-    badge_category: 'astrology',
-    title: 'Natural Gemstones & Healing Crystals',
-    designer: 'AstroGifts Astro',
-
-    price: '₹799',
-    cta_text: 'Shop Astrology',
-    link: '/category/astrology',
-  },
-];
 
 function getSlideTargetLink(slide) {
   if (slide?.link) {
@@ -119,7 +80,7 @@ const formatSlidePrice = (p) => {
 export default function HeroSlider() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  const [slides, setSlides] = useState(FALLBACK_SLIDES);
+  const [slides, setSlides] = useState([]);
   const [loading, setLoading] = useState(true);
   const [current, setCurrent] = useState(0);
   const [prevSlide, setPrevSlide] = useState(null);
