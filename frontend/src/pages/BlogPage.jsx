@@ -50,7 +50,8 @@ export default function BlogPage() {
                     if (!raw || typeof raw !== 'string' || !raw.trim()) return '/article_gifting.png';
                     const t = raw.trim();
                     if (t.startsWith('http://') || t.startsWith('https://') || t.startsWith('data:')) return t;
-                    if (t.startsWith('storage/') || t.startsWith('/storage/')) return `http://127.0.0.1:8000/${t.replace(/^\//, '')}`;
+                    const backendBase = import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace(/\/api\/?$/, '') : 'http://127.0.0.1:8000';
+                    if (t.startsWith('storage/') || t.startsWith('/storage/')) return `${backendBase}/${t.replace(/^\//, '')}`;
                     if (t.startsWith('/')) return t;
                     return `/${t}`;
                   })()} 

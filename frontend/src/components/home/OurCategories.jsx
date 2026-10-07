@@ -11,12 +11,12 @@ import decorImg from '../../assets/decor1.jpg';
 import crystalImg from '../../assets/Rose_Quartz.webp';
 
 const STATIC_FALLBACK_CATEGORIES = [
-  { name: 'Gifts',     slug: 'gifts',              img: giftsImg },
-  { name: 'Toys',      slug: 'toys',               img: toysImg },
-  { name: 'Astrology', slug: 'astrology',          img: astroImg },
-  { name: 'Flowers',   slug: 'flowers',            img: flowersImg },
-  { name: 'Decor',     slug: 'decor',              img: decorImg },
-  { name: 'Crystals',  slug: 'gemstones-crystals', img: crystalImg },
+  { name: 'Gifts', slug: 'gifts', img: giftsImg },
+  { name: 'Toys', slug: 'toys', img: toysImg },
+  { name: 'Astrology', slug: 'astrology', img: astroImg },
+  { name: 'Flowers', slug: 'flowers', img: flowersImg },
+  { name: 'Decor', slug: 'decor', img: decorImg },
+  { name: 'Crystals', slug: 'gemstones-crystals', img: crystalImg },
 ];
 
 export default function OurCategories() {
@@ -29,7 +29,8 @@ export default function OurCategories() {
           const mapped = res.data.map(c => {
             let imgSrc = c.image;
             if (imgSrc && !imgSrc.startsWith('http') && !imgSrc.startsWith('data:')) {
-              imgSrc = `http://127.0.0.1:8000${imgSrc.startsWith('/') ? '' : '/'}${imgSrc}`;
+              const backendBase = import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace(/\/api\/?$/, '') : 'http://127.0.0.1:8000';
+              imgSrc = `${backendBase}${imgSrc.startsWith('/') ? '' : '/'}${imgSrc}`;
             }
             const staticMatch = STATIC_FALLBACK_CATEGORIES.find(s => s.slug === c.slug || s.name.toLowerCase() === c.name.toLowerCase());
             return {

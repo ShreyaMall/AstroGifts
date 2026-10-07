@@ -15,8 +15,8 @@ const getFormattedImageUrl = (rawUrl) => {
   if (t.startsWith('http://') || t.startsWith('https://') || t.startsWith('data:')) {
     return t;
   }
-  const backendBase = import.meta.env.VITE_API_BASE_URL 
-    ? import.meta.env.VITE_API_BASE_URL.replace(/\/api\/?$/, '') 
+  const backendBase = import.meta.env.VITE_API_BASE_URL
+    ? import.meta.env.VITE_API_BASE_URL.replace(/\/api\/?$/, '')
     : 'http://127.0.0.1:8000';
 
   if (t.startsWith('storage/') || t.startsWith('/storage/') || t.startsWith('uploads/') || t.startsWith('/uploads/')) {

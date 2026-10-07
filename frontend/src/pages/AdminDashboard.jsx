@@ -2610,7 +2610,7 @@ function PageAllProducts() {
           let imgSrc = p.image || p.image_url;
           if (imgSrc && !imgSrc.startsWith('http') && !imgSrc.startsWith('data:') && !imgSrc.startsWith('/assets/')) {
             if (imgSrc.startsWith('/uploads/')) {
-              imgSrc = `http://127.0.0.1:8000${imgSrc}`;
+              imgSrc = `${API_BASE}${imgSrc}`;
             }
           }
           return {
