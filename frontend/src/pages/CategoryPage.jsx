@@ -21,24 +21,24 @@ import img_crystal from '../assets/Rose_Quartz.webp';
    ────────────────────────────────────────────── */
 const HERO_CONFIG = {
   // Main categories
-  gifts:       { label: 'Gifts',               img: img_gifts_banner,     bg: 'linear-gradient(135deg,#7c3a1d 0%,#a04f29 50%,#2c1510 100%)' },
-  toys:        { label: 'Toys',                img: img_toys_banner,      bg: 'linear-gradient(135deg,#2e7d32 0%,#4caf50 100%)' },
-  astrology:   { label: 'Astrology',           img: img_astrology_banner, bg: 'linear-gradient(135deg,#4a148c 0%,#7b1fa2 100%)' },
-  flowers:     { label: 'Flowers',             img: img_flowers_banner,   bg: 'linear-gradient(135deg,#ad1457 0%,#f06292 100%)' },
-  decor:       { label: 'Decor',               img: img_gift_box,         bg: 'linear-gradient(135deg,#7c3a1d 0%,#b85d32 100%)' },
+  gifts: { label: 'Gifts', img: img_gifts_banner, bg: 'linear-gradient(135deg,#7c3a1d 0%,#a04f29 50%,#2c1510 100%)' },
+  toys: { label: 'Toys', img: img_toys_banner, bg: 'linear-gradient(135deg,#2e7d32 0%,#4caf50 100%)' },
+  astrology: { label: 'Astrology', img: img_astrology_banner, bg: 'linear-gradient(135deg,#4a148c 0%,#7b1fa2 100%)' },
+  flowers: { label: 'Flowers', img: img_flowers_banner, bg: 'linear-gradient(135deg,#ad1457 0%,#f06292 100%)' },
+  decor: { label: 'Decor', img: img_gift_box, bg: 'linear-gradient(135deg,#7c3a1d 0%,#b85d32 100%)' },
   // Gift subcategories
-  'diwali-gifts':      { label: 'Diwali Gifts',      img: img_gifts_banner,   bg: 'linear-gradient(135deg,#7c3a1d 0%,#d4af37 100%)' },
-  'birthday-gifts':    { label: 'Birthday Gifts',    img: img_gift_box,       bg: 'linear-gradient(135deg,#880e4f 0%,#ec407a 100%)' },
-  'anniversary-gifts': { label: 'Anniversary Gifts', img: img_gifts_banner,   bg: 'linear-gradient(135deg,#7c3a1d 0%,#c2185b 100%)' },
+  'diwali-gifts': { label: 'Diwali Gifts', img: img_gifts_banner, bg: 'linear-gradient(135deg,#7c3a1d 0%,#d4af37 100%)' },
+  'birthday-gifts': { label: 'Birthday Gifts', img: img_gift_box, bg: 'linear-gradient(135deg,#880e4f 0%,#ec407a 100%)' },
+  'anniversary-gifts': { label: 'Anniversary Gifts', img: img_gifts_banner, bg: 'linear-gradient(135deg,#7c3a1d 0%,#c2185b 100%)' },
   // Toy subcategories
-  'soft-toys':   { label: 'Soft Toys',   img: img_toys_banner, bg: 'linear-gradient(135deg,#e65100 0%,#ff9800 100%)' },
-  'baby-toys':   { label: 'Baby Toys',   img: img_toys_banner, bg: 'linear-gradient(135deg,#0277bd 0%,#29b6f6 100%)' },
+  'soft-toys': { label: 'Soft Toys', img: img_toys_banner, bg: 'linear-gradient(135deg,#e65100 0%,#ff9800 100%)' },
+  'baby-toys': { label: 'Baby Toys', img: img_toys_banner, bg: 'linear-gradient(135deg,#0277bd 0%,#29b6f6 100%)' },
   'board-games': { label: 'Board Games', img: img_toys_banner, bg: 'linear-gradient(135deg,#2e7d32 0%,#66bb6a 100%)' },
   // Astrology subcategories
-  'rings':              { label: 'Rings',                img: img_astro_item,       bg: 'linear-gradient(135deg,#4a148c 0%,#8e2de2 100%)' },
-  'pendants':           { label: 'Pendants',             img: img_astrology_banner, bg: 'linear-gradient(135deg,#4a148c 0%,#ab47bc 100%)' },
-  'bracelets':          { label: 'Bracelets',            img: img_crystal,          bg: 'linear-gradient(135deg,#311b92 0%,#673ab7 100%)' },
-  'gemstones-crystals': { label: 'Gemstones & Crystals', img: img_crystal,          bg: 'linear-gradient(135deg,#1a237e 0%,#3f51b5 100%)' },
+  'rings': { label: 'Rings', img: img_astro_item, bg: 'linear-gradient(135deg,#4a148c 0%,#8e2de2 100%)' },
+  'pendants': { label: 'Pendants', img: img_astrology_banner, bg: 'linear-gradient(135deg,#4a148c 0%,#ab47bc 100%)' },
+  'bracelets': { label: 'Bracelets', img: img_crystal, bg: 'linear-gradient(135deg,#311b92 0%,#673ab7 100%)' },
+  'gemstones-crystals': { label: 'Gemstones & Crystals', img: img_crystal, bg: 'linear-gradient(135deg,#1a237e 0%,#3f51b5 100%)' },
   // Legacy fallback
   'astrogifts': { label: 'All Products', img: img_gifts_banner, bg: 'linear-gradient(135deg,#7c3a1d 0%,#4a2511 100%)' },
 };
@@ -94,7 +94,7 @@ export default function CategoryPage({ categorySlug }) {
   const rawSlug = (categorySlug || slug || 'gifts').toLowerCase();
   const activeSlug = rawSlug.replace(/_/g, '-');
 
-  const hero     = HERO_CONFIG[activeSlug] || HERO_CONFIG.gifts;
+  const hero = HERO_CONFIG[activeSlug] || HERO_CONFIG.gifts;
   const [allProds, setAllProds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [categoriesTree, setCategoriesTree] = useState(DEFAULT_CATEGORIES_TREE);
@@ -108,16 +108,16 @@ export default function CategoryPage({ categorySlug }) {
     // 1. Fetch all products so multi-category & cross-category combinations work instantly
     productsApi.getAll({ per_page: 1000 })
       .then(res => {
-         if (res && res.data) {
-             setAllProds(res.data);
-         }
+        if (res && res.data) {
+          setAllProds(res.data);
+        }
       })
       .catch(err => {
-         console.error("Failed to load products for category page", err);
-         setAllProds([]);
+        console.error("Failed to load products for category page", err);
+        setAllProds([]);
       })
       .finally(() => {
-         setLoading(false);
+        setLoading(false);
       });
 
     // 2. Fetch dynamic categories from backend API
@@ -133,7 +133,7 @@ export default function CategoryPage({ categorySlug }) {
       setExpandedCategories(['Toys', 'Gifts']);
     } else {
       // Find whether activeSlug is a parent category or a subcategory
-      let foundParent = DEFAULT_CATEGORIES_TREE.find(cat => 
+      let foundParent = DEFAULT_CATEGORIES_TREE.find(cat =>
         cat.slug.toLowerCase() === activeSlug || cat.name.toLowerCase() === activeSlug
       );
       let foundSub = null;
@@ -165,29 +165,47 @@ export default function CategoryPage({ categorySlug }) {
   const searchParams = new URLSearchParams(location.search);
   const searchQuery = searchParams.get('search')?.toLowerCase() || '';
 
-  const [priceMax, setPriceMax]           = useState(null);
-  const [priceMin, setPriceMin]           = useState(null);
-  const [tempPriceMax, setTempPriceMax]   = useState(null);
-  const [tempPriceMin, setTempPriceMin]   = useState(null);
-  const [selectedBrands, setSelectedBrands]         = useState([]);
-  const [selectedColors, setSelectedColors]         = useState([]);
-  const [selectedMats, setSelectedMats]             = useState([]);
-  const [minDiscount, setMinDiscount]               = useState(null);
-  const [onSale, setOnSale]               = useState(false);
-  const [inStock, setInStock]             = useState(false);
-  const [onBackorder, setOnBackorder]     = useState(false);
-  const [sortBy, setSortBy]               = useState('rating');
-  const [perPage, setPerPage]             = useState(6);
-  const [currentPage, setCurrentPage]     = useState(1);
-  const [viewMode, setViewMode]           = useState('grid-3');
+  const [priceMax, setPriceMax] = useState(null);
+  const [priceMin, setPriceMin] = useState(null);
+  const [tempPriceMax, setTempPriceMax] = useState(null);
+  const [tempPriceMin, setTempPriceMin] = useState(null);
+  const [selectedBrands, setSelectedBrands] = useState([]);
+  const [selectedColors, setSelectedColors] = useState([]);
+  const [selectedMats, setSelectedMats] = useState([]);
+  const [minDiscount, setMinDiscount] = useState(null);
+  const [onSale, setOnSale] = useState(false);
+  const [inStock, setInStock] = useState(false);
+  const [onBackorder, setOnBackorder] = useState(false);
+  const [sortBy, setSortBy] = useState('rating');
+  const [perPage, setPerPage] = useState(6);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [viewMode, setViewMode] = useState('grid-3');
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [mobileFilterSection, setMobileFilterSection] = useState('categories');
 
-  const [showCatSearch, setShowCatSearch]     = useState(false);
-  const [catQuery, setCatQuery]               = useState('');
+  useEffect(() => {
+    setSelectedGender(null);
+    setPriceMax(null);
+    setPriceMin(null);
+    setTempPriceMax(null);
+    setTempPriceMin(null);
+    setSelectedBrands([]);
+    setSelectedColors([]);
+    setSelectedMats([]);
+    setSelectedRingSizes([]);
+    setSelectedPlatings([]);
+    setMinDiscount(null);
+    setOnSale(false);
+    setInStock(false);
+    setOnBackorder(false);
+    setCurrentPage(1);
+  }, [activeSlug]);
+
+  const [showCatSearch, setShowCatSearch] = useState(false);
+  const [catQuery, setCatQuery] = useState('');
 
   const toggleExpandCategory = (catName) => {
-    setExpandedCategories(prev => 
+    setExpandedCategories(prev =>
       prev.includes(catName) ? prev.filter(c => c !== catName) : [...prev, catName]
     );
   };
@@ -221,11 +239,11 @@ export default function CategoryPage({ categorySlug }) {
   };
 
   const [showBrandSearch, setShowBrandSearch] = useState(false);
-  const [brandQuery, setBrandQuery]           = useState('');
-  const [showAllBrands, setShowAllBrands]     = useState(false);
+  const [brandQuery, setBrandQuery] = useState('');
+  const [showAllBrands, setShowAllBrands] = useState(false);
   const [showColorSearch, setShowColorSearch] = useState(false);
-  const [colorQuery, setColorQuery]           = useState('');
-  const [showAllColors, setShowAllColors]     = useState(false);
+  const [colorQuery, setColorQuery] = useState('');
+  const [showAllColors, setShowAllColors] = useState(false);
   const [showAllDiscounts, setShowAllDiscounts] = useState(false);
 
   const openMobileFilter = (section = 'all') => {
@@ -233,9 +251,9 @@ export default function CategoryPage({ categorySlug }) {
     setIsMobileFilterOpen(true);
   };
 
-  const [selectedGender, setSelectedGender]         = useState(null);
+  const [selectedGender, setSelectedGender] = useState(null);
   const [selectedRingSizes, setSelectedRingSizes] = useState([]);
-  const [selectedPlatings, setSelectedPlatings]   = useState([]);
+  const [selectedPlatings, setSelectedPlatings] = useState([]);
 
   /* Myntra-style Default Options & Dynamic Fallbacks */
   const DEFAULT_RING_SIZES = [
@@ -370,13 +388,13 @@ export default function CategoryPage({ categorySlug }) {
     'Clocks'
   ];
 
-  const isToysCategory        = activeSlug.includes('toy') || activeSlug.includes('game');
-  const isAstroCategory       = activeSlug.includes('astro') || activeSlug.includes('ring') || activeSlug.includes('gem') || activeSlug.includes('pendant') || activeSlug.includes('crystal') || activeSlug.includes('bracelet');
-  const isBirthdayCategory    = activeSlug === 'birthday-gifts';
-  const isDiwaliCategory      = activeSlug === 'diwali-gifts';
+  const isToysCategory = activeSlug.includes('toy') || activeSlug.includes('game');
+  const isAstroCategory = activeSlug.includes('astro') || activeSlug.includes('ring') || activeSlug.includes('gem') || activeSlug.includes('pendant') || activeSlug.includes('crystal') || activeSlug.includes('bracelet');
+  const isBirthdayCategory = activeSlug === 'birthday-gifts';
+  const isDiwaliCategory = activeSlug === 'diwali-gifts';
   const isAnniversaryCategory = activeSlug === 'anniversary-gifts';
-  const isShopAllPage         = activeSlug === 'all' || activeSlug === 'shop' || activeSlug === 'astrogifts';
-  const isFlatCategoryPage    = !isShopAllPage;
+  const isShopAllPage = activeSlug === 'all' || activeSlug === 'shop' || activeSlug === 'astrogifts';
+  const isFlatCategoryPage = !isShopAllPage;
 
   /* Derived filter options */
   const categoriesList = useMemo(() => {
@@ -403,8 +421,8 @@ export default function CategoryPage({ categorySlug }) {
     return list.filter(c => c.name.toLowerCase().includes(colorQuery.toLowerCase()));
   }, [allProds, colorQuery]);
 
-  const maxPrice  = useMemo(() => isToysCategory ? 10000 : Math.ceil(Math.max(...allProds.map(p => p.price), 3000) / 100) * 100, [allProds, isToysCategory]);
-  const minPrice  = useMemo(() => 0, []);
+  const maxPrice = useMemo(() => isToysCategory ? 10000 : Math.ceil(Math.max(...allProds.map(p => p.price), 3000) / 100) * 100, [allProds, isToysCategory]);
+  const minPrice = useMemo(() => 0, []);
   const appliedPriceMax = priceMax ?? maxPrice;
   const appliedPriceMin = priceMin ?? minPrice;
   const sliderMax = tempPriceMax ?? appliedPriceMax;
@@ -414,15 +432,15 @@ export default function CategoryPage({ categorySlug }) {
   const getCategoryCount = (catName) => {
     const scLower = catName.toLowerCase().trim();
     const scSlug = scLower.replace(/[^a-z0-9]+/g, '-');
-  
-      const matched = allProds.filter(p => {
-        // Enforce route match for counts too!
-        if (activeSlug && activeSlug !== 'all' && activeSlug !== 'shop' && activeSlug !== 'astrogifts') {
-          let matchesRoute = checkProductMatchesCategory(p, activeSlug);
-          if (!matchesRoute) return false;
-        }
 
-        const pSlug = (p.category_slug || '').toLowerCase().trim();
+    const matched = allProds.filter(p => {
+      // Enforce route match for counts too!
+      if (activeSlug && activeSlug !== 'all' && activeSlug !== 'shop' && activeSlug !== 'astrogifts') {
+        let matchesRoute = checkProductMatchesCategory(p, activeSlug);
+        if (!matchesRoute) return false;
+      }
+
+      const pSlug = (p.category_slug || '').toLowerCase().trim();
       const pName = (p.category_name || p.category || '').toLowerCase().trim();
       const pTitle = (p.name || '').toLowerCase().trim();
       const pDesc = (p.description || '').toLowerCase().trim();
@@ -430,19 +448,19 @@ export default function CategoryPage({ categorySlug }) {
       // Page-level strict exclusion guards
       if (activeSlug === 'anniversary-gifts') {
         if (pSlug.includes('toy') || pName.includes('toy') || pTitle.includes('toy') || pTitle.includes('train') || pTitle.includes('puzzle') || pTitle.includes('doll') || pTitle.includes('game') ||
-            pSlug.includes('astro') || pSlug.includes('crystal') || pSlug.includes('gem') || pTitle.includes('crystal') || pTitle.includes('quartz') || pTitle.includes('amethyst') || pTitle.includes('rudraksha') || pTitle.includes('yantra') ||
-            pTitle.includes('birthday') || pTitle.includes('bday') || pTitle.includes('baby') || pTitle.includes('diwali') || pTitle.includes('diya')) {
+          pSlug.includes('astro') || pSlug.includes('crystal') || pSlug.includes('gem') || pTitle.includes('crystal') || pTitle.includes('quartz') || pTitle.includes('amethyst') || pTitle.includes('rudraksha') || pTitle.includes('yantra') ||
+          pTitle.includes('birthday') || pTitle.includes('bday') || pTitle.includes('baby') || pTitle.includes('diwali') || pTitle.includes('diya')) {
           return false;
         }
       } else if (activeSlug === 'birthday-gifts') {
-        if (pTitle.includes('diwali') || pTitle.includes('diya') || pTitle.includes('pooja') || pTitle.includes('puja') || 
-            pSlug.includes('crystal') || pSlug.includes('gem') || pTitle.includes('quartz') || pTitle.includes('amethyst') ||
-            pTitle.includes('anniversary') || pTitle.includes('couple frame')) {
+        if (pTitle.includes('diwali') || pTitle.includes('diya') || pTitle.includes('pooja') || pTitle.includes('puja') ||
+          pSlug.includes('crystal') || pSlug.includes('gem') || pTitle.includes('quartz') || pTitle.includes('amethyst') ||
+          pTitle.includes('anniversary') || pTitle.includes('couple frame')) {
           return false;
         }
       } else if (activeSlug === 'diwali-gifts') {
         if (pTitle.includes('birthday') || pTitle.includes('bday') || pTitle.includes('anniversary') || pTitle.includes('baby') ||
-            pSlug.includes('toy') || pTitle.includes('toy') || pTitle.includes('train') || pTitle.includes('puzzle')) {
+          pSlug.includes('toy') || pTitle.includes('toy') || pTitle.includes('train') || pTitle.includes('puzzle')) {
           return false;
         }
       } else if (isToysCategory) {
@@ -474,8 +492,8 @@ export default function CategoryPage({ categorySlug }) {
         return pTitle.includes('perfume') || pTitle.includes('fragrance') || pTitle.includes('scent') || pSlug.includes('fragrance');
       }
       if (scLower.includes('candle')) return pTitle.includes('candle') || pDesc.includes('candle') || pSlug.includes('candle');
-        if (scLower.includes('diya') || scLower.includes('lamp')) return pTitle.includes('diya') || pTitle.includes('lamp') || pTitle.includes('votive') || pTitle.includes('luminary');
-        if (scLower.includes('light')) return pTitle.includes('light') || pTitle.includes('lantern') || pTitle.includes('led');
+      if (scLower.includes('diya') || scLower.includes('lamp')) return pTitle.includes('diya') || pTitle.includes('lamp') || pTitle.includes('votive') || pTitle.includes('luminary');
+      if (scLower.includes('light')) return pTitle.includes('light') || pTitle.includes('lantern') || pTitle.includes('led');
       if (scLower.includes('photo frame') || scLower.includes('frame')) return pTitle.includes('frame');
       if (scLower.includes('sweet') || scLower.includes('dry fruit')) return pTitle.includes('sweet') || pTitle.includes('dry fruit');
       if (scLower.includes('skin')) return pTitle.includes('skin') || pTitle.includes('lotion');
@@ -555,10 +573,10 @@ export default function CategoryPage({ categorySlug }) {
     const targetLower = target.toLowerCase().trim();
     const targetSlug = targetLower.replace(/_/g, '-').replace(/[^a-z0-9-]+/g, '');
 
-    const pSlug  = (p.category_slug || '').toLowerCase().trim();
-    const pName  = (p.category_name || p.category || '').toLowerCase().trim();
+    const pSlug = (p.category_slug || '').toLowerCase().trim();
+    const pName = (p.category_name || p.category || '').toLowerCase().trim();
     const pTitle = (p.name || '').toLowerCase().trim();
-    const pDesc  = (p.description || '').toLowerCase().trim();
+    const pDesc = (p.description || '').toLowerCase().trim();
 
     // 1. Direct slug or name match
     if (pSlug === targetSlug || pSlug === targetLower || pName === targetLower || pName === targetSlug) {
@@ -568,49 +586,49 @@ export default function CategoryPage({ categorySlug }) {
     // 2. Parent-child hierarchy matching (e.g. 'gifts' matches 'diwali-gifts', 'birthday-gifts', 'anniversary-gifts')
     if (targetSlug === 'gifts' || targetLower === 'gifts') {
       return pSlug === 'gifts' || pSlug === 'diwali-gifts' || pSlug === 'birthday-gifts' || pSlug === 'anniversary-gifts' ||
-             pName.includes('gift') || pTitle.includes('gift') || pTitle.includes('hamper') || pTitle.includes('luminary') || pTitle.includes('votive') || pTitle.includes('casket') || pTitle.includes('balloon') || pTitle.includes('smartots');
+        pName.includes('gift') || pTitle.includes('gift') || pTitle.includes('hamper') || pTitle.includes('luminary') || pTitle.includes('votive') || pTitle.includes('casket') || pTitle.includes('balloon') || pTitle.includes('smartots');
     }
 
     if (targetSlug === 'toys' || targetLower === 'toys') {
       return pSlug === 'toys' || pSlug === 'soft-toys' || pSlug === 'baby-toys' || pSlug === 'board-games' ||
-             pName.includes('toy') || pTitle.includes('toy') || pTitle.includes('game') || pTitle.includes('bunny') || pTitle.includes('chess');
+        pName.includes('toy') || pTitle.includes('toy') || pTitle.includes('game') || pTitle.includes('bunny') || pTitle.includes('chess');
     }
 
     if (targetSlug === 'astrology' || targetLower === 'astrology') {
       return pSlug === 'astrology' || pSlug === 'rings' || pSlug === 'pendants' || pSlug === 'bracelets' || pSlug === 'gemstones-crystals' ||
-             pName.includes('astro') || pTitle.includes('ring') || pTitle.includes('pendant') || pTitle.includes('pendent') || pTitle.includes('bracelet') || pTitle.includes('crystal') || pTitle.includes('gemstone') || pTitle.includes('stone') || pTitle.includes('pyrite') || pTitle.includes('quartz');
+        pName.includes('astro') || pTitle.includes('ring') || pTitle.includes('pendant') || pTitle.includes('pendent') || pTitle.includes('bracelet') || pTitle.includes('crystal') || pTitle.includes('gemstone') || pTitle.includes('stone') || pTitle.includes('pyrite') || pTitle.includes('quartz');
     }
 
     // Subcategory specific matching rules
     if (targetSlug === 'diwali-gifts' || targetLower === 'diwali gifts') {
-        return pSlug === 'diwali-gifts' || pName.includes('diwali') || pTitle.includes('diwali') || pTitle.includes('diya') || pTitle.includes('light') || pTitle.includes('candle') || pTitle.includes('lamp') || pTitle.includes('luminary') || pTitle.includes('votive') || pTitle.includes('utsav') || pTitle.includes('rangoli') || pTitle.includes('brass') || pDesc.includes('diwali');
-      }
+      return pSlug === 'diwali-gifts' || pName.includes('diwali') || pTitle.includes('diwali') || pTitle.includes('diya') || pTitle.includes('light') || pTitle.includes('candle') || pTitle.includes('lamp') || pTitle.includes('luminary') || pTitle.includes('votive') || pTitle.includes('utsav') || pTitle.includes('rangoli') || pTitle.includes('brass') || pDesc.includes('diwali');
+    }
 
-      // Diwali Subcategories Exact Matching
-      if (targetLower.includes('diyas') || targetLower.includes('lamps')) {
-        return pTitle.includes('diya') || pTitle.includes('lamp') || pTitle.includes('votive') || pTitle.includes('luminary') || pSlug.includes('diya') || pSlug.includes('lamp');
-      }
-      if (targetLower.includes('candle')) {
-        return pTitle.includes('candle') || pDesc.includes('candle') || pSlug.includes('candle');
-      }
-      if (targetLower.includes('light')) {
-        return pTitle.includes('light') || pTitle.includes('lantern') || pTitle.includes('led') || pTitle.includes('string');
-      }
-      if (targetLower.includes('hamper')) {
-        return pTitle.includes('hamper') || pTitle.includes('gift box') || pTitle.includes('casket') || pDesc.includes('hamper');
-      }
-      if (targetLower.includes('idol') || targetLower.includes('laxmi') || targetLower.includes('ganesh')) {
-        return pTitle.includes('idol') || pTitle.includes('statue') || pTitle.includes('murti') || pTitle.includes('laxmi') || pTitle.includes('ganesh');
-      }
-      if (targetLower.includes('sweet') || targetLower.includes('dry fruit')) {
-        return pTitle.includes('sweet') || pTitle.includes('dry fruit') || pTitle.includes('chocolate') || pTitle.includes('mithai');
-      }
-      if (targetLower.includes('toran') || targetLower.includes('door')) {
-        return pTitle.includes('toran') || pTitle.includes('bandhanwar') || pTitle.includes('hanging');
-      }
-      if (targetLower.includes('puja thali') || targetLower.includes('brass')) {
-        return pTitle.includes('thali') || pTitle.includes('brass') || pTitle.includes('puja') || pTitle.includes('pooja');
-      }
+    // Diwali Subcategories Exact Matching
+    if (targetLower.includes('diyas') || targetLower.includes('lamps')) {
+      return pTitle.includes('diya') || pTitle.includes('lamp') || pTitle.includes('votive') || pTitle.includes('luminary') || pSlug.includes('diya') || pSlug.includes('lamp');
+    }
+    if (targetLower.includes('candle')) {
+      return pTitle.includes('candle') || pDesc.includes('candle') || pSlug.includes('candle');
+    }
+    if (targetLower.includes('light')) {
+      return pTitle.includes('light') || pTitle.includes('lantern') || pTitle.includes('led') || pTitle.includes('string');
+    }
+    if (targetLower.includes('hamper')) {
+      return pTitle.includes('hamper') || pTitle.includes('gift box') || pTitle.includes('casket') || pDesc.includes('hamper');
+    }
+    if (targetLower.includes('idol') || targetLower.includes('laxmi') || targetLower.includes('ganesh')) {
+      return pTitle.includes('idol') || pTitle.includes('statue') || pTitle.includes('murti') || pTitle.includes('laxmi') || pTitle.includes('ganesh');
+    }
+    if (targetLower.includes('sweet') || targetLower.includes('dry fruit')) {
+      return pTitle.includes('sweet') || pTitle.includes('dry fruit') || pTitle.includes('chocolate') || pTitle.includes('mithai');
+    }
+    if (targetLower.includes('toran') || targetLower.includes('door')) {
+      return pTitle.includes('toran') || pTitle.includes('bandhanwar') || pTitle.includes('hanging');
+    }
+    if (targetLower.includes('puja thali') || targetLower.includes('brass')) {
+      return pTitle.includes('thali') || pTitle.includes('brass') || pTitle.includes('puja') || pTitle.includes('pooja');
+    }
 
     if (targetSlug === 'birthday-gifts' || targetLower === 'birthday gifts') {
       return pSlug === 'birthday-gifts' || pName.includes('birthday') || pTitle.includes('birthday') || pTitle.includes('bday') || pTitle.includes('balloon');
@@ -672,8 +690,8 @@ export default function CategoryPage({ categorySlug }) {
       // 1. Search Query filter
       if (searchQuery) {
         const matchName = (p.name || '').toLowerCase().includes(searchQuery);
-        const matchCat  = (p.category && p.category.toLowerCase().includes(searchQuery)) || 
-                          (p.category_name && p.category_name.toLowerCase().includes(searchQuery));
+        const matchCat = (p.category && p.category.toLowerCase().includes(searchQuery)) ||
+          (p.category_name && p.category_name.toLowerCase().includes(searchQuery));
         if (!matchName && !matchCat) return false;
       }
 
@@ -688,15 +706,15 @@ export default function CategoryPage({ categorySlug }) {
       if (p.price > appliedPriceMax) return false;
 
       // 4. Route Match Filter (Always enforce intersection)
-        if (activeSlug && activeSlug !== 'all' && activeSlug !== 'shop' && activeSlug !== 'astrogifts') {
-          let matchesRoute = checkProductMatchesCategory(p, activeSlug); if (!matchesRoute) return false;
-        }
+      if (activeSlug && activeSlug !== 'all' && activeSlug !== 'shop' && activeSlug !== 'astrogifts') {
+        let matchesRoute = checkProductMatchesCategory(p, activeSlug); if (!matchesRoute) return false;
+      }
 
-        // 5. Sidebar Checkbox Category Filter
-        if (selectedCategories.length > 0) {
-          const matchesAnySelected = selectedCategories.some(sc => checkProductMatchesCategory(p, sc));
-          if (!matchesAnySelected) return false;
-        }
+      // 5. Sidebar Checkbox Category Filter
+      if (selectedCategories.length > 0) {
+        const matchesAnySelected = selectedCategories.some(sc => checkProductMatchesCategory(p, sc));
+        if (!matchesAnySelected) return false;
+      }
 
       // 5. Brands, Colors, Sizes, Platings, Discounts, Stock
       if (selectedBrands.length > 0 && !selectedBrands.some(sb => (p.brand || '').toLowerCase() === sb.toLowerCase())) return false;
@@ -723,9 +741,9 @@ export default function CategoryPage({ categorySlug }) {
       return true;
     });
 
-    if (sortBy === 'price-asc')  list = [...list].sort((a, b) => a.price - b.price);
+    if (sortBy === 'price-asc') list = [...list].sort((a, b) => a.price - b.price);
     if (sortBy === 'price-desc') list = [...list].sort((a, b) => b.price - a.price);
-    if (sortBy === 'rating')     list = [...list].sort((a, b) => (b.rating || 5) - (a.rating || 5));
+    if (sortBy === 'rating') list = [...list].sort((a, b) => (b.rating || 5) - (a.rating || 5));
     return list;
   }, [allProds, appliedPriceMin, appliedPriceMax, selectedCategories, activeSlug, selectedBrands, selectedColors, selectedRingSizes, selectedPlatings, minDiscount, onSale, inStock, sortBy, searchQuery]);
 
@@ -773,7 +791,7 @@ export default function CategoryPage({ categorySlug }) {
     <div className="cp-page">
       {/* HEADER */}
       <Header />
-      
+
       {/* MOBILE STICKY HEADER */}
       <div className="cp-mobile-header">
         <button className="cp-mobile-back-btn" onClick={() => navigate('/')}>
@@ -798,8 +816,8 @@ export default function CategoryPage({ categorySlug }) {
 
           {/* ════ MYNTRA-STYLE SIDEBAR ════ */}
           {isMobileFilterOpen && (
-            <div 
-              className="cp-mobile-overlay" 
+            <div
+              className="cp-mobile-overlay"
               onClick={() => setIsMobileFilterOpen(false)}
               style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 99999 }}
             />
@@ -820,7 +838,7 @@ export default function CategoryPage({ categorySlug }) {
               )}
             </div>
 
-            
+
             <div className="cp-sidebar-layout-mobile">
               <div className="cp-mobile-tabs">
                 <button type="button" className={mobileFilterSection === 'categories' ? 'active' : ''} onClick={() => setMobileFilterSection('categories')}>Category</button>
@@ -833,404 +851,404 @@ export default function CategoryPage({ categorySlug }) {
                 <button type="button" className={mobileFilterSection === 'discount' ? 'active' : ''} onClick={() => setMobileFilterSection('discount')}>Discount</button>
               </div>
               <div className="cp-sidebar-content">
-{/* 0. GENDER / TARGET (Toys & General) */}
-            <div className={`myntra-widget myntra-widget--gender ${mobileFilterSection === "gender" ? "active" : ""}`}>
-              <ul className="myntra-checklist">
-                {genderOptions.map(g => (
-                  <li key={g}>
-                    <label className="myntra-check-label">
-                      <input 
-                        type="radio" 
-                        name="genderFilter"
-                        className="myntra-radio" 
-                        checked={selectedGender === g} 
-                        onChange={() => setSelectedGender(prev => prev === g ? null : g)} 
-                      />
-                      <span className="myntra-check-text myntra-check-text--bold">{g}</span>
-                    </label>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* 1. CATEGORIES ACCORDION TREE */}
-            <div className={`myntra-widget ${mobileFilterSection === "categories" ? "active" : ""}`}>
-              <div className="myntra-widget__header">
-                <h4 className="myntra-widget__title">CATEGORIES</h4>
-                <button 
-                  className="myntra-search-toggle" 
-                  onClick={() => setShowCatSearch(!showCatSearch)}
-                  title="Search Category"
-                >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                </button>
-              </div>
-
-              {showCatSearch && (
-                <div className="myntra-search-box">
-                  <input 
-                    type="text" 
-                    placeholder="Search for Category" 
-                    value={catQuery} 
-                    onChange={e => setCatQuery(e.target.value)} 
-                    className="myntra-search-input"
-                  />
+                {/* 0. GENDER / TARGET (Toys & General) */}
+                <div className={`myntra-widget myntra-widget--gender ${mobileFilterSection === "gender" ? "active" : ""}`}>
+                  <ul className="myntra-checklist">
+                    {genderOptions.map(g => (
+                      <li key={g}>
+                        <label className="myntra-check-label">
+                          <input
+                            type="radio"
+                            name="genderFilter"
+                            className="myntra-radio"
+                            checked={selectedGender === g}
+                            onChange={() => setSelectedGender(prev => prev === g ? null : g)}
+                          />
+                          <span className="myntra-check-text myntra-check-text--bold">{g}</span>
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              )}
 
-              
-                <div className="myntra-category-tree">
-                  {categoriesTree.map(parentCat => {
-                    const isParentExpanded = expandedCategories.includes(parentCat.name) || expandedCategories.includes(parentCat.slug);
-                    const isParentChecked = selectedCategories.includes(parentCat.name) || selectedCategories.includes(parentCat.slug);
-                    
-                    const subcats = parentCat.subcategories || [];
-                    const visibleSubcategories = catQuery
-                      ? subcats.filter(s => s.name.toLowerCase().includes(catQuery.toLowerCase()))
-                      : subcats;
+                {/* 1. CATEGORIES ACCORDION TREE */}
+                <div className={`myntra-widget ${mobileFilterSection === "categories" ? "active" : ""}`}>
+                  <div className="myntra-widget__header">
+                    <h4 className="myntra-widget__title">CATEGORIES</h4>
+                    <button
+                      className="myntra-search-toggle"
+                      onClick={() => setShowCatSearch(!showCatSearch)}
+                      title="Search Category"
+                    >
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </button>
+                  </div>
 
-                    const parentMatchesQuery = !catQuery || 
-                      parentCat.name.toLowerCase().includes(catQuery.toLowerCase()) || 
-                      visibleSubcategories.length > 0;
+                  {showCatSearch && (
+                    <div className="myntra-search-box">
+                      <input
+                        type="text"
+                        placeholder="Search for Category"
+                        value={catQuery}
+                        onChange={e => setCatQuery(e.target.value)}
+                        className="myntra-search-input"
+                      />
+                    </div>
+                  )}
 
-                    if (!parentMatchesQuery) return null;
 
-                    const parentCount = getCategoryCount(parentCat.name);
+                  <div className="myntra-category-tree">
+                    {categoriesTree.map(parentCat => {
+                      const isParentExpanded = expandedCategories.includes(parentCat.name) || expandedCategories.includes(parentCat.slug);
+                      const isParentChecked = selectedCategories.includes(parentCat.name) || selectedCategories.includes(parentCat.slug);
 
-                    return (
-                      <div key={parentCat.name} className="myntra-cat-group">
-                        <div className="myntra-cat-parent-row">
-                          <label 
-                            className="myntra-check-label myntra-cat-parent-title"
-                            style={{ cursor: 'pointer', flex: 1, margin: 0 }}
-                          >
-                            <input 
-                              type="checkbox" 
-                              className="myntra-check" 
-                              checked={isParentChecked} 
-                              onChange={() => toggleParentCategory(parentCat)} 
-                            />
-                            <span className="myntra-check-text font-bold">
-                              {parentCat.name}
-                              {parentCount > 0 && (
-                                <span className="myntra-check-count">({parentCount})</span>
-                              )}
-                            </span>
-                          </label>
+                      const subcats = parentCat.subcategories || [];
+                      const visibleSubcategories = catQuery
+                        ? subcats.filter(s => s.name.toLowerCase().includes(catQuery.toLowerCase()))
+                        : subcats;
 
-                          {subcats.length > 0 && (
-                            <button 
-                              type="button"
-                              className="myntra-cat-arrow-btn" 
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                toggleExpandCategory(parentCat.name);
-                              }}
-                              aria-label={`Toggle ${parentCat.name}`}
+                      const parentMatchesQuery = !catQuery ||
+                        parentCat.name.toLowerCase().includes(catQuery.toLowerCase()) ||
+                        visibleSubcategories.length > 0;
+
+                      if (!parentMatchesQuery) return null;
+
+                      const parentCount = getCategoryCount(parentCat.name);
+
+                      return (
+                        <div key={parentCat.name} className="myntra-cat-group">
+                          <div className="myntra-cat-parent-row">
+                            <label
+                              className="myntra-check-label myntra-cat-parent-title"
+                              style={{ cursor: 'pointer', flex: 1, margin: 0 }}
                             >
-                              <svg 
-                                className={`myntra-cat-arrow ${isParentExpanded ? 'is-expanded' : ''}`}
-                                width="12" 
-                                height="12" 
-                                viewBox="0 0 24 24" 
-                                fill="none" 
-                                stroke="currentColor" 
-                                strokeWidth="2.5"
+                              <input
+                                type="checkbox"
+                                className="myntra-check"
+                                checked={isParentChecked}
+                                onChange={() => toggleParentCategory(parentCat)}
+                              />
+                              <span className="myntra-check-text font-bold">
+                                {parentCat.name}
+                                {parentCount > 0 && (
+                                  <span className="myntra-check-count">({parentCount})</span>
+                                )}
+                              </span>
+                            </label>
+
+                            {subcats.length > 0 && (
+                              <button
+                                type="button"
+                                className="myntra-cat-arrow-btn"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  toggleExpandCategory(parentCat.name);
+                                }}
+                                aria-label={`Toggle ${parentCat.name}`}
                               >
-                                <polyline points="6 9 12 15 18 9"></polyline>
-                              </svg>
-                            </button>
+                                <svg
+                                  className={`myntra-cat-arrow ${isParentExpanded ? 'is-expanded' : ''}`}
+                                  width="12"
+                                  height="12"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2.5"
+                                >
+                                  <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                              </button>
+                            )}
+                          </div>
+
+                          {isParentExpanded && visibleSubcategories.length > 0 && (
+                            <ul className="myntra-subcategories-list">
+                              {visibleSubcategories.map(sub => {
+                                const isSubChecked = selectedCategories.includes(sub.name) || selectedCategories.includes(sub.slug);
+                                const subCount = getCategoryCount(sub.name);
+
+                                return (
+                                  <li key={sub.name}>
+                                    <label className="myntra-check-label myntra-subcheck-label">
+                                      <input
+                                        type="checkbox"
+                                        className="myntra-check"
+                                        checked={isSubChecked}
+                                        onChange={() => toggleSubCategory(sub, parentCat)}
+                                      />
+                                      <span className="myntra-check-text">
+                                        {sub.name}
+                                        {subCount > 0 && (
+                                          <span className="myntra-check-count">({subCount})</span>
+                                        )}
+                                      </span>
+                                    </label>
+                                  </li>
+                                );
+                              })}
+                            </ul>
                           )}
                         </div>
+                      );
+                    })}
+                  </div>
 
-                        {isParentExpanded && visibleSubcategories.length > 0 && (
-                          <ul className="myntra-subcategories-list">
-                            {visibleSubcategories.map(sub => {
-                              const isSubChecked = selectedCategories.includes(sub.name) || selectedCategories.includes(sub.slug);
-                              const subCount = getCategoryCount(sub.name);
-
-                              return (
-                                <li key={sub.name}>
-                                  <label className="myntra-check-label myntra-subcheck-label">
-                                    <input
-                                      type="checkbox"
-                                      className="myntra-check"
-                                      checked={isSubChecked}
-                                      onChange={() => toggleSubCategory(sub, parentCat)}
-                                    />
-                                    <span className="myntra-check-text">
-                                      {sub.name}
-                                      {subCount > 0 && (
-                                        <span className="myntra-check-count">({subCount})</span>
-                                      )}
-                                    </span>
-                                  </label>
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        )}
-                      </div>
-                    );
-                  })}
                 </div>
-              )}
-            </div>
 
-            {/* RING SIZE (Shown when viewing astrology or ring categories or with ring items) */}
-            {(isAstroCategory || activeSlug === 'all' || activeSlug === 'shop') && (
-              <div className="myntra-widget">
-                <h4 className="myntra-widget__title">RING SIZE</h4>
-                <ul className="myntra-checklist">
-                  {DEFAULT_RING_SIZES.map(size => {
-                    const cnt = getRingSizeCount(size);
-                    return (
-                      <li key={size}>
-                        <label className="myntra-check-label">
-                          <input 
-                            type="checkbox" 
-                            className="myntra-check" 
-                            checked={selectedRingSizes.includes(size)} 
-                            onChange={() => toggle(selectedRingSizes, setSelectedRingSizes, size)} 
-                          />
-                          <span className="myntra-check-text">
-                            {size}
-                            {cnt > 0 && <span className="myntra-check-count"> ({cnt})</span>}
-                          </span>
-                        </label>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            )}
-
-            {/* PLATING / METAL FINISH */}
-            {(isAstroCategory || activeSlug === 'all' || activeSlug === 'shop') && (
-              <div className="myntra-widget">
-                <h4 className="myntra-widget__title">PLATING / METAL FINISH</h4>
-                <ul className="myntra-checklist">
-                  {DEFAULT_PLATING_OPTIONS.map(p => {
-                    const cnt = getPlatingCount(p.name);
-                    return (
-                      <li key={p.name}>
-                        <label className="myntra-check-label">
-                          <input 
-                            type="checkbox" 
-                            className="myntra-check" 
-                            checked={selectedPlatings.includes(p.name)} 
-                            onChange={() => toggle(selectedPlatings, setSelectedPlatings, p.name)} 
-                          />
-                          <span 
-                            className="myntra-swatch-circle" 
-                            style={{ background: p.color, border: p.border ? `1px solid ${p.border}` : '1px solid rgba(0,0,0,0.12)' }} 
-                          />
-                          <span className="myntra-check-text">
-                            {p.name}
-                            {cnt > 0 && <span className="myntra-check-count"> ({cnt})</span>}
-                          </span>
-                        </label>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            )}
-
-            {/* 2. BRAND */}
-            <div className="myntra-widget">
-              <div className="myntra-widget__header">
-                <h4 className="myntra-widget__title">BRAND</h4>
-                <button 
-                  className="myntra-search-toggle" 
-                  onClick={() => setShowBrandSearch(!showBrandSearch)}
-                  title="Search Brand"
-                >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                </button>
-              </div>
-
-              {showBrandSearch && (
-                <div className="myntra-search-box">
-                  <input 
-                    type="text" 
-                    placeholder="Search for Brand" 
-                    value={brandQuery} 
-                    onChange={e => setBrandQuery(e.target.value)} 
-                    className="myntra-search-input"
-                  />
-                </div>
-              )}
-
-              <ul className="myntra-checklist">
-                {(showAllBrands || brandQuery ? brandsList : brandsList.slice(0, 4)).map(b => (
-                  <li key={b}>
-                    <label className="myntra-check-label">
-                      <input 
-                        type="checkbox" 
-                        className="myntra-check" 
-                        checked={selectedBrands.includes(b)} 
-                        onChange={() => toggle(selectedBrands, setSelectedBrands, b)} 
-                      />
-                      <span className="myntra-check-text">{b}</span>
-                    </label>
-                  </li>
-                ))}
-              </ul>
-              {brandsList.length > 4 && !brandQuery && (
-                <div 
-                  className="myntra-more-link"
-                  onClick={() => setShowAllBrands(!showAllBrands)}
-                >
-                  {showAllBrands ? '- Show Less' : `+ ${brandsList.length - 4} More`}
-                </div>
-              )}
-            </div>
-
-            {/* 3. PRICE */}
-            <div className="myntra-widget">
-              <h4 className="myntra-widget__title">PRICE</h4>
-              <div className="myntra-price-wrap">
-                <div className="cp-dual-range-wrap">
-                  <div className="cp-range-track-bg" />
-                  <div
-                    className="cp-range-track-fill myntra-range-fill"
-                    style={{
-                      left:  `${((sliderMin - minPrice) / (maxPrice - minPrice || 1)) * 100}%`,
-                      right: `${100 - ((sliderMax - minPrice) / (maxPrice - minPrice || 1)) * 100}%`,
-                    }}
-                  />
-                  <input
-                    type="range" min={minPrice} max={maxPrice} step={10}
-                    value={sliderMin}
-                    onChange={e => {
-                      const val = Math.min(+e.target.value, sliderMax - 10);
-                      setTempPriceMin(val);
-                      setPriceMin(val);
-                    }}
-                    className="cp-range myntra-range-thumb"
-                  />
-                  <input
-                    type="range" min={minPrice} max={maxPrice} step={10}
-                    value={sliderMax}
-                    onChange={e => {
-                      const val = Math.max(+e.target.value, sliderMin + 10);
-                      setTempPriceMax(val);
-                      setPriceMax(val);
-                    }}
-                    className="cp-range myntra-range-thumb"
-                  />
-                </div>
-                <div className="myntra-price-display">
-                  ₹{sliderMin} - ₹{sliderMax}+
-                </div>
-              </div>
-            </div>
-
-            {/* 4. COLOR */}
-            <div className="myntra-widget">
-              <div className="myntra-widget__header">
-                <h4 className="myntra-widget__title">COLOR</h4>
-                <button 
-                  className="myntra-search-toggle" 
-                  onClick={() => setShowColorSearch(!showColorSearch)}
-                  title="Search Color"
-                >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                </button>
-              </div>
-
-              {showColorSearch && (
-                <div className="myntra-search-box">
-                  <input 
-                    type="text" 
-                    placeholder="Search for Color" 
-                    value={colorQuery} 
-                    onChange={e => setColorQuery(e.target.value)} 
-                    className="myntra-search-input"
-                  />
-                </div>
-              )}
-
-              <ul className="myntra-checklist">
-                {(showAllColors || colorQuery ? colorsList : colorsList.slice(0, 4)).map(c => (
-                  <li key={c.name}>
-                    <label className="myntra-check-label">
-                      <input 
-                        type="checkbox" 
-                        className="myntra-check" 
-                        checked={selectedColors.includes(c.name)} 
-                        onChange={() => toggle(selectedColors, setSelectedColors, c.name)} 
-                      />
-                      <span 
-                        className="myntra-swatch-circle" 
-                        style={{ background: c.color, border: c.border ? `1px solid ${c.border}` : '1px solid rgba(0,0,0,0.12)' }} 
-                      />
-                      <span className="myntra-check-text">{c.name}</span>
-                    </label>
-                  </li>
-                ))}
-              </ul>
-              {colorsList.length > 4 && !colorQuery && (
-                <div 
-                  className="myntra-more-link"
-                  onClick={() => setShowAllColors(!showAllColors)}
-                >
-                  {showAllColors ? '- Show Less' : `+ ${colorsList.length - 4} More`}
-                </div>
-              )}
-            </div>
-
-            {/* 5. DISCOUNT RANGE */}
-            <div className={`myntra-widget ${mobileFilterSection === "discount" ? "active" : ""}`}>
-              <h4 className="myntra-widget__title">DISCOUNT RANGE</h4>
-              {(() => {
-                const discountItems = [
-                  { label: '10% and above', val: 10 },
-                  { label: '20% and above', val: 20 },
-                  { label: '30% and above', val: 30 },
-                  { label: '40% and above', val: 40 },
-                  { label: '50% and above', val: 50 },
-                  { label: '60% and above', val: 60 },
-                  { label: '70% and above', val: 70 },
-                ];
-                const visibleDiscounts = showAllDiscounts ? discountItems : discountItems.slice(0, 4);
-                return (
-                  <>
+                {/* RING SIZE (Shown when viewing astrology or ring categories or with ring items) */}
+                {(isAstroCategory || activeSlug === 'all' || activeSlug === 'shop') && (
+                  <div className={`myntra-widget ${mobileFilterSection === "ringSize" ? "active" : ""}`}>
+                    <h4 className="myntra-widget__title">RING SIZE</h4>
                     <ul className="myntra-checklist">
-                      {visibleDiscounts.map(item => (
-                        <li key={item.val}>
-                          <label className="myntra-check-label">
-                            <input 
-                              type="radio" 
-                              name="discountRange"
-                              className="myntra-radio" 
-                              checked={minDiscount === item.val} 
-                              onChange={() => {
-                                setCurrentPage(1);
-                                setMinDiscount(prev => prev === item.val ? null : item.val);
-                              }} 
-                            />
-                            <span className="myntra-check-text">{item.label}</span>
-                          </label>
-                        </li>
-                      ))}
+                      {DEFAULT_RING_SIZES.map(size => {
+                        const cnt = getRingSizeCount(size);
+                        return (
+                          <li key={size}>
+                            <label className="myntra-check-label">
+                              <input
+                                type="checkbox"
+                                className="myntra-check"
+                                checked={selectedRingSizes.includes(size)}
+                                onChange={() => toggle(selectedRingSizes, setSelectedRingSizes, size)}
+                              />
+                              <span className="myntra-check-text">
+                                {size}
+                                {cnt > 0 && <span className="myntra-check-count"> ({cnt})</span>}
+                              </span>
+                            </label>
+                          </li>
+                        );
+                      })}
                     </ul>
-                    {discountItems.length > 4 && (
-                      <div 
-                        className="myntra-more-link"
-                        onClick={() => setShowAllDiscounts(!showAllDiscounts)}
-                      >
-                        {showAllDiscounts ? '- Show Less' : `+ ${discountItems.length - 4} More`}
-                      </div>
-                    )}
-                  </>
-                );
-              })()}
-            </div>
+                  </div>
+                )}
 
-                        </div>
+                {/* PLATING / METAL FINISH */}
+                {(isAstroCategory || activeSlug === 'all' || activeSlug === 'shop') && (
+                  <div className={`myntra-widget ${mobileFilterSection === "plating" ? "active" : ""}`}>
+                    <h4 className="myntra-widget__title">PLATING / METAL FINISH</h4>
+                    <ul className="myntra-checklist">
+                      {DEFAULT_PLATING_OPTIONS.map(p => {
+                        const cnt = getPlatingCount(p.name);
+                        return (
+                          <li key={p.name}>
+                            <label className="myntra-check-label">
+                              <input
+                                type="checkbox"
+                                className="myntra-check"
+                                checked={selectedPlatings.includes(p.name)}
+                                onChange={() => toggle(selectedPlatings, setSelectedPlatings, p.name)}
+                              />
+                              <span
+                                className="myntra-swatch-circle"
+                                style={{ background: p.color, border: p.border ? `1px solid ${p.border}` : '1px solid rgba(0,0,0,0.12)' }}
+                              />
+                              <span className="myntra-check-text">
+                                {p.name}
+                                {cnt > 0 && <span className="myntra-check-count"> ({cnt})</span>}
+                              </span>
+                            </label>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )}
+
+                {/* 2. BRAND */}
+                <div className={`myntra-widget ${mobileFilterSection === "brand" ? "active" : ""}`}>
+                  <div className="myntra-widget__header">
+                    <h4 className="myntra-widget__title">BRAND</h4>
+                    <button
+                      className="myntra-search-toggle"
+                      onClick={() => setShowBrandSearch(!showBrandSearch)}
+                      title="Search Brand"
+                    >
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </button>
+                  </div>
+
+                  {showBrandSearch && (
+                    <div className="myntra-search-box">
+                      <input
+                        type="text"
+                        placeholder="Search for Brand"
+                        value={brandQuery}
+                        onChange={e => setBrandQuery(e.target.value)}
+                        className="myntra-search-input"
+                      />
+                    </div>
+                  )}
+
+                  <ul className="myntra-checklist">
+                    {(showAllBrands || brandQuery ? brandsList : brandsList.slice(0, 4)).map(b => (
+                      <li key={b}>
+                        <label className="myntra-check-label">
+                          <input
+                            type="checkbox"
+                            className="myntra-check"
+                            checked={selectedBrands.includes(b)}
+                            onChange={() => toggle(selectedBrands, setSelectedBrands, b)}
+                          />
+                          <span className="myntra-check-text">{b}</span>
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                  {brandsList.length > 4 && !brandQuery && (
+                    <div
+                      className="myntra-more-link"
+                      onClick={() => setShowAllBrands(!showAllBrands)}
+                    >
+                      {showAllBrands ? '- Show Less' : `+ ${brandsList.length - 4} More`}
+                    </div>
+                  )}
+                </div>
+
+                {/* 3. PRICE */}
+                <div className={`myntra-widget ${mobileFilterSection === "price" ? "active" : ""}`}>
+                  <h4 className="myntra-widget__title">PRICE</h4>
+                  <div className="myntra-price-wrap">
+                    <div className="cp-dual-range-wrap">
+                      <div className="cp-range-track-bg" />
+                      <div
+                        className="cp-range-track-fill myntra-range-fill"
+                        style={{
+                          left: `${((sliderMin - minPrice) / (maxPrice - minPrice || 1)) * 100}%`,
+                          right: `${100 - ((sliderMax - minPrice) / (maxPrice - minPrice || 1)) * 100}%`,
+                        }}
+                      />
+                      <input
+                        type="range" min={minPrice} max={maxPrice} step={10}
+                        value={sliderMin}
+                        onChange={e => {
+                          const val = Math.min(+e.target.value, sliderMax - 10);
+                          setTempPriceMin(val);
+                          setPriceMin(val);
+                        }}
+                        className="cp-range myntra-range-thumb"
+                      />
+                      <input
+                        type="range" min={minPrice} max={maxPrice} step={10}
+                        value={sliderMax}
+                        onChange={e => {
+                          const val = Math.max(+e.target.value, sliderMin + 10);
+                          setTempPriceMax(val);
+                          setPriceMax(val);
+                        }}
+                        className="cp-range myntra-range-thumb"
+                      />
+                    </div>
+                    <div className="myntra-price-display">
+                      ₹{sliderMin} - ₹{sliderMax}+
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. COLOR */}
+                <div className={`myntra-widget ${mobileFilterSection === "color" ? "active" : ""}`}>
+                  <div className="myntra-widget__header">
+                    <h4 className="myntra-widget__title">COLOR</h4>
+                    <button
+                      className="myntra-search-toggle"
+                      onClick={() => setShowColorSearch(!showColorSearch)}
+                      title="Search Color"
+                    >
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </button>
+                  </div>
+
+                  {showColorSearch && (
+                    <div className="myntra-search-box">
+                      <input
+                        type="text"
+                        placeholder="Search for Color"
+                        value={colorQuery}
+                        onChange={e => setColorQuery(e.target.value)}
+                        className="myntra-search-input"
+                      />
+                    </div>
+                  )}
+
+                  <ul className="myntra-checklist">
+                    {(showAllColors || colorQuery ? colorsList : colorsList.slice(0, 4)).map(c => (
+                      <li key={c.name}>
+                        <label className="myntra-check-label">
+                          <input
+                            type="checkbox"
+                            className="myntra-check"
+                            checked={selectedColors.includes(c.name)}
+                            onChange={() => toggle(selectedColors, setSelectedColors, c.name)}
+                          />
+                          <span
+                            className="myntra-swatch-circle"
+                            style={{ background: c.color, border: c.border ? `1px solid ${c.border}` : '1px solid rgba(0,0,0,0.12)' }}
+                          />
+                          <span className="myntra-check-text">{c.name}</span>
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                  {colorsList.length > 4 && !colorQuery && (
+                    <div
+                      className="myntra-more-link"
+                      onClick={() => setShowAllColors(!showAllColors)}
+                    >
+                      {showAllColors ? '- Show Less' : `+ ${colorsList.length - 4} More`}
+                    </div>
+                  )}
+                </div>
+
+                {/* 5. DISCOUNT RANGE */}
+                <div className={`myntra-widget ${mobileFilterSection === "discount" ? "active" : ""}`}>
+                  <h4 className="myntra-widget__title">DISCOUNT RANGE</h4>
+                  {(() => {
+                    const discountItems = [
+                      { label: '10% and above', val: 10 },
+                      { label: '20% and above', val: 20 },
+                      { label: '30% and above', val: 30 },
+                      { label: '40% and above', val: 40 },
+                      { label: '50% and above', val: 50 },
+                      { label: '60% and above', val: 60 },
+                      { label: '70% and above', val: 70 },
+                    ];
+                    const visibleDiscounts = showAllDiscounts ? discountItems : discountItems.slice(0, 4);
+                    return (
+                      <>
+                        <ul className="myntra-checklist">
+                          {visibleDiscounts.map(item => (
+                            <li key={item.val}>
+                              <label className="myntra-check-label">
+                                <input
+                                  type="radio"
+                                  name="discountRange"
+                                  className="myntra-radio"
+                                  checked={minDiscount === item.val}
+                                  onChange={() => {
+                                    setCurrentPage(1);
+                                    setMinDiscount(prev => prev === item.val ? null : item.val);
+                                  }}
+                                />
+                                <span className="myntra-check-text">{item.label}</span>
+                              </label>
+                            </li>
+                          ))}
+                        </ul>
+                        {discountItems.length > 4 && (
+                          <div
+                            className="myntra-more-link"
+                            onClick={() => setShowAllDiscounts(!showAllDiscounts)}
+                          >
+                            {showAllDiscounts ? '- Show Less' : `+ ${discountItems.length - 4} More`}
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+
+              </div>
             </div>
 
             {/* MOBILE FOOTER */}
@@ -1240,7 +1258,7 @@ export default function CategoryPage({ categorySlug }) {
                 Show {filtered.length} products
               </button>
             </div>
-</aside>
+          </aside>
 
           {/* ════ MAIN AREA ════ */}
           <main className="cp-main">
@@ -1271,57 +1289,57 @@ export default function CategoryPage({ categorySlug }) {
                 <span className="cp-toolbar__count">
                   Showing {filtered.length === 0 ? 0 : startIdx + 1}–{Math.min(startIdx + perPage, filtered.length)} of {filtered.length} results
                 </span>
-              <div className="cp-toolbar__right">
-                <span className="cp-toolbar__show">Show :</span>
-                {[2, 4, 6, 12].map(n => (
-                  <button
-                    key={n}
-                    className={`cp-toolbar__n${perPage === n ? ' active' : ''}`}
-                    onClick={() => {
-                      setPerPage(n);
+                <div className="cp-toolbar__right">
+                  <span className="cp-toolbar__show">Show :</span>
+                  {[2, 4, 6, 12].map(n => (
+                    <button
+                      key={n}
+                      className={`cp-toolbar__n${perPage === n ? ' active' : ''}`}
+                      onClick={() => {
+                        setPerPage(n);
+                        setCurrentPage(1);
+                      }}
+                    >{n}</button>
+                  ))}
+                  <div className="cp-toolbar__views">
+                    <button
+                      className={`cp-view-btn${viewMode === 'list' ? ' active' : ''}`}
+                      onClick={() => setViewMode('list')}
+                      title="List View"
+                      aria-label="List View"
+                    >
+                      ☰
+                    </button>
+                    <button
+                      className={`cp-view-btn${viewMode === 'grid-3' ? ' active' : ''}`}
+                      onClick={() => setViewMode('grid-3')}
+                      title="Grid (3 columns)"
+                      aria-label="Grid 3 columns"
+                    >
+                      ⊞
+                    </button>
+                    <button
+                      className={`cp-view-btn${viewMode === 'grid-2' ? ' active' : ''}`}
+                      onClick={() => setViewMode('grid-2')}
+                      title="Grid (2 columns)"
+                      aria-label="Grid 2 columns"
+                    >
+                      ⊟
+                    </button>
+                  </div>
+                  <select
+                    className="cp-sort-select"
+                    value={sortBy}
+                    onChange={e => {
+                      setSortBy(e.target.value);
                       setCurrentPage(1);
                     }}
-                  >{n}</button>
-                ))}
-                <div className="cp-toolbar__views">
-                  <button
-                    className={`cp-view-btn${viewMode === 'list' ? ' active' : ''}`}
-                    onClick={() => setViewMode('list')}
-                    title="List View"
-                    aria-label="List View"
                   >
-                    ☰
-                  </button>
-                  <button
-                    className={`cp-view-btn${viewMode === 'grid-3' ? ' active' : ''}`}
-                    onClick={() => setViewMode('grid-3')}
-                    title="Grid (3 columns)"
-                    aria-label="Grid 3 columns"
-                  >
-                    ⊞
-                  </button>
-                  <button
-                    className={`cp-view-btn${viewMode === 'grid-2' ? ' active' : ''}`}
-                    onClick={() => setViewMode('grid-2')}
-                    title="Grid (2 columns)"
-                    aria-label="Grid 2 columns"
-                  >
-                    ⊟
-                  </button>
+                    <option value="rating">Sort by average rating</option>
+                    <option value="price-asc">Price: low to high</option>
+                    <option value="price-desc">Price: high to low</option>
+                  </select>
                 </div>
-                <select
-                  className="cp-sort-select"
-                  value={sortBy}
-                  onChange={e => {
-                    setSortBy(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                >
-                  <option value="rating">Sort by average rating</option>
-                  <option value="price-asc">Price: low to high</option>
-                  <option value="price-desc">Price: high to low</option>
-                </select>
-              </div>
               </div>
             </div>
 
@@ -1414,7 +1432,7 @@ export default function CategoryPage({ categorySlug }) {
             <div className="cp-seo">
               <h2 className="cp-seo__h">Online store with a wide selection of gifts, toys & astro decor</h2>
               <p className="cp-seo__p">
-                AstroGifts offers curated gift boxes, zodiac crystal gemstone sets, educational toys, and handcrafted spiritual decor. 
+                AstroGifts offers curated gift boxes, zodiac crystal gemstone sets, educational toys, and handcrafted spiritual decor.
                 Whether you are looking for anniversary gifts, birthday hampers, or positive energy crystals, our collection brings joy and harmony to your loved ones.
               </p>
               <h2 className="cp-seo__h">Handcrafted with Love & Quality Guaranteed</h2>
@@ -1428,7 +1446,7 @@ export default function CategoryPage({ categorySlug }) {
       </div>
 
       <Footer />
-      </div>
+    </div>
   );
 }
 
