@@ -181,7 +181,7 @@ export default function CategoryPage({ categorySlug }) {
   const [currentPage, setCurrentPage]     = useState(1);
   const [viewMode, setViewMode]           = useState('grid-3');
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-  const [mobileFilterSection, setMobileFilterSection] = useState('all');
+  const [mobileFilterSection, setMobileFilterSection] = useState('categories');
 
   const [showCatSearch, setShowCatSearch]     = useState(false);
   const [catQuery, setCatQuery]               = useState('');
@@ -380,44 +380,28 @@ export default function CategoryPage({ categorySlug }) {
 
   /* Derived filter options */
   const categoriesList = useMemo(() => {
-    let defaultList = DEFAULT_GIFT_CATEGORIES;
-    if (isBirthdayCategory) defaultList = DEFAULT_BIRTHDAY_CATEGORIES;
-    else if (isDiwaliCategory) defaultList = DEFAULT_DIWALI_CATEGORIES;
-    else if (isAnniversaryCategory) defaultList = DEFAULT_ANNIVERSARY_CATEGORIES;
-    else if (isToysCategory) defaultList = DEFAULT_TOYS_CATEGORIES;
-    else if (isAstroCategory) defaultList = DEFAULT_ASTROLOGY_CATEGORIES;
-    else if (activeSlug === 'flowers') defaultList = DEFAULT_FLOWERS_CATEGORIES;
-    else if (activeSlug === 'decor') defaultList = DEFAULT_DECOR_CATEGORIES;
-    else if (activeSlug === 'gifts') defaultList = DEFAULT_GIFT_CATEGORIES;
-
-    if (!catQuery) return defaultList;
-    return defaultList.filter(c => c.toLowerCase().includes(catQuery.toLowerCase()));
-  }, [isBirthdayCategory, isDiwaliCategory, isAnniversaryCategory, isToysCategory, isAstroCategory, activeSlug, catQuery]);
+    let dynamicCats = [...new Set(allProds.map(p => p.category || p.category_name).filter(Boolean))];
+    if (!catQuery) return dynamicCats;
+    return dynamicCats.filter(c => c.toLowerCase().includes(catQuery.toLowerCase()));
+  }, [allProds, catQuery]);
 
   const brandsList = useMemo(() => {
-    const defaultList = isToysCategory ? DEFAULT_TOYS_BRANDS : DEFAULT_GIFT_BRANDS;
     const dynamicBrands = [...new Set(allProds.map(p => p.brand).filter(Boolean))];
-    const all = Array.from(new Set([...defaultList, ...dynamicBrands]));
-    if (!brandQuery) return all;
-    return all.filter(b => b.toLowerCase().includes(brandQuery.toLowerCase()));
-  }, [allProds, brandQuery, isToysCategory]);
+    if (!brandQuery) return dynamicBrands;
+    return dynamicBrands.filter(b => b.toLowerCase().includes(brandQuery.toLowerCase()));
+  }, [allProds, brandQuery]);
 
   const colorsList = useMemo(() => {
-    const defaultList = isToysCategory ? DEFAULT_TOYS_COLORS : DEFAULT_GIFT_COLORS;
     const dynamicColors = [...new Set(allProds.map(p => p.color).filter(Boolean))];
-    const defaultNames = defaultList.map(c => c.name);
-    const combinedNames = Array.from(new Set([...defaultNames, ...dynamicColors]));
-    const list = combinedNames.map(name => {
-      const found = defaultList.find(c => c.name.toLowerCase() === name.toLowerCase());
+    const list = dynamicColors.map(name => {
       return {
         name,
-        color: found?.color || name.toLowerCase().replace(/|| ''s+/g, '') || '#ccc',
-        border: found?.border
+        color: name.toLowerCase().replace(/\s+/g, '') || '#ccc'
       };
     });
     if (!colorQuery) return list;
     return list.filter(c => c.name.toLowerCase().includes(colorQuery.toLowerCase()));
-  }, [allProds, colorQuery, isToysCategory]);
+  }, [allProds, colorQuery]);
 
   const maxPrice  = useMemo(() => isToysCategory ? 10000 : Math.ceil(Math.max(...allProds.map(p => p.price), 3000) / 100) * 100, [allProds, isToysCategory]);
   const minPrice  = useMemo(() => 0, []);
@@ -836,8 +820,21 @@ export default function CategoryPage({ categorySlug }) {
               )}
             </div>
 
-            {/* 0. GENDER / TARGET (Toys & General) */}
-            <div className="myntra-widget myntra-widget--gender">
+            
+            <div className="cp-sidebar-layout-mobile">
+              <div className="cp-mobile-tabs">
+                <button type="button" className={mobileFilterSection === 'categories' ? 'active' : ''} onClick={() => setMobileFilterSection('categories')}>Category</button>
+                <button type="button" className={mobileFilterSection === 'price' ? 'active' : ''} onClick={() => setMobileFilterSection('price')}>Price</button>
+                {!isFlatCategoryPage && <button type="button" className={mobileFilterSection === 'gender' ? 'active' : ''} onClick={() => setMobileFilterSection('gender')}>Gender</button>}
+                <button type="button" className={mobileFilterSection === 'brand' ? 'active' : ''} onClick={() => setMobileFilterSection('brand')}>Brand</button>
+                <button type="button" className={mobileFilterSection === 'color' ? 'active' : ''} onClick={() => setMobileFilterSection('color')}>Color</button>
+                {!isFlatCategoryPage && <button type="button" className={mobileFilterSection === 'ringSize' ? 'active' : ''} onClick={() => setMobileFilterSection('ringSize')}>Ring Size</button>}
+                {!isFlatCategoryPage && <button type="button" className={mobileFilterSection === 'plating' ? 'active' : ''} onClick={() => setMobileFilterSection('plating')}>Plating</button>}
+                <button type="button" className={mobileFilterSection === 'discount' ? 'active' : ''} onClick={() => setMobileFilterSection('discount')}>Discount</button>
+              </div>
+              <div className="cp-sidebar-content">
+{/* 0. GENDER / TARGET (Toys & General) */}
+            <div className={`myntra-widget myntra-widget--gender ${mobileFilterSection === "gender" ? "active" : ""}`}>
               <ul className="myntra-checklist">
                 {genderOptions.map(g => (
                   <li key={g}>
@@ -857,7 +854,7 @@ export default function CategoryPage({ categorySlug }) {
             </div>
 
             {/* 1. CATEGORIES ACCORDION TREE */}
-            <div className="myntra-widget">
+            <div className={`myntra-widget ${mobileFilterSection === "categories" ? "active" : ""}`}>
               <div className="myntra-widget__header">
                 <h4 className="myntra-widget__title">CATEGORIES</h4>
                 <button 
@@ -881,30 +878,7 @@ export default function CategoryPage({ categorySlug }) {
                 </div>
               )}
 
-              {isFlatCategoryPage ? (
-                <ul className="myntra-checklist">
-                  {categoriesList.map(catName => {
-                    const isChecked = selectedCategories.includes(catName);
-                    const count = getCategoryCount(catName);
-                    return (
-                      <li key={catName}>
-                        <label className="myntra-check-label">
-                          <input
-                            type="checkbox"
-                            className="myntra-check"
-                            checked={isChecked}
-                            onChange={() => toggle(selectedCategories, setSelectedCategories, catName)}
-                          />
-                          <span className="myntra-check-text">
-                            {catName}
-                            <span className="myntra-check-count">({count})</span>
-                          </span>
-                        </label>
-                      </li>
-                    );
-                  })}
-                </ul>
-              ) : (
+              
                 <div className="myntra-category-tree">
                   {categoriesTree.map(parentCat => {
                     const isParentExpanded = expandedCategories.includes(parentCat.name) || expandedCategories.includes(parentCat.slug);
@@ -1209,7 +1183,7 @@ export default function CategoryPage({ categorySlug }) {
             </div>
 
             {/* 5. DISCOUNT RANGE */}
-            <div className="myntra-widget">
+            <div className={`myntra-widget ${mobileFilterSection === "discount" ? "active" : ""}`}>
               <h4 className="myntra-widget__title">DISCOUNT RANGE</h4>
               {(() => {
                 const discountItems = [
@@ -1256,7 +1230,17 @@ export default function CategoryPage({ categorySlug }) {
               })()}
             </div>
 
-          </aside>
+                        </div>
+            </div>
+
+            {/* MOBILE FOOTER */}
+            <div className="cp-mobile-footer">
+              <button type="button" className="clear-btn" onClick={clearFilters}>Clear all</button>
+              <button type="button" className="apply-btn" onClick={() => setIsMobileFilterOpen(false)}>
+                Show {filtered.length} products
+              </button>
+            </div>
+</aside>
 
           {/* ════ MAIN AREA ════ */}
           <main className="cp-main">

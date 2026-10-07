@@ -163,9 +163,9 @@ export default function UserLoginPage() {
               padding: '14px 0',
               background: 'none',
               border: 'none',
-              borderBottom: mode === 'login' ? '3px solid #d96b27' : '3px solid transparent',
+              borderBottom: mode === 'login' ? '3px solid #704832' : '3px solid transparent',
               fontWeight: mode === 'login' ? '700' : '500',
-              color: mode === 'login' ? '#d96b27' : '#777',
+              color: mode === 'login' ? '#704832' : '#777',
               cursor: 'pointer',
               fontSize: '15px',
               transition: 'all 0.15s'
@@ -181,9 +181,9 @@ export default function UserLoginPage() {
               padding: '14px 0',
               background: 'none',
               border: 'none',
-              borderBottom: mode === 'register' ? '3px solid #d96b27' : '3px solid transparent',
+              borderBottom: mode === 'register' ? '3px solid #704832' : '3px solid transparent',
               fontWeight: mode === 'register' ? '700' : '500',
-              color: mode === 'register' ? '#d96b27' : '#777',
+              color: mode === 'register' ? '#704832' : '#777',
               cursor: 'pointer',
               fontSize: '15px',
               transition: 'all 0.15s'
@@ -262,11 +262,7 @@ export default function UserLoginPage() {
                   {showPass ? 'Hide' : 'Show'}
                 </button>
               </div>
-              {mode === 'login' && (
-                <small style={{ fontSize: '11px', color: '#888', marginTop: '4px', display: 'block' }}>
-                  Demo credentials: <strong>user@astrogifts.com</strong> / <strong>user123</strong>
-                </small>
-              )}
+
             </div>
 
             {error && (
@@ -282,7 +278,7 @@ export default function UserLoginPage() {
                     style={{
                       display: 'block',
                       marginTop: '6px',
-                      background: '#d96b27',
+                      background: '#704832',
                       color: '#fff',
                       border: 'none',
                       padding: '5px 12px',
@@ -326,7 +322,7 @@ export default function UserLoginPage() {
                 <button
                   type="button"
                   className="astrogifts-login-drawer__lost-btn"
-                  onClick={() => alert('Lost password flow: Please click Register if creating a new account.')}
+                  onClick={() => setError('Lost password flow: Please click Register if creating a new account.')}
                 >
                   Lost your password?
                 </button>
@@ -340,7 +336,7 @@ export default function UserLoginPage() {
                   <button
                     type="button"
                     onClick={() => { setMode('register'); setError(''); }}
-                    style={{ background: 'none', border: 'none', color: '#d96b27', fontWeight: '700', cursor: 'pointer', padding: 0 }}
+                    style={{ background: 'none', border: 'none', color: '#704832', fontWeight: '700', cursor: 'pointer', padding: 0 }}
                   >
                     Register now
                   </button>
@@ -351,7 +347,7 @@ export default function UserLoginPage() {
                   <button
                     type="button"
                     onClick={() => { setMode('login'); setError(''); }}
-                    style={{ background: 'none', border: 'none', color: '#d96b27', fontWeight: '700', cursor: 'pointer', padding: 0 }}
+                    style={{ background: 'none', border: 'none', color: '#704832', fontWeight: '700', cursor: 'pointer', padding: 0 }}
                   >
                     Sign In
                   </button>
@@ -359,11 +355,7 @@ export default function UserLoginPage() {
               )}
             </div>
             
-            <div className="astrogifts-login-drawer__admin-link-wrapper" style={{ textAlign: 'center', marginTop: '20px' }}>
-              <Link to="/admin/login" className="astrogifts-login-drawer__admin-link" style={{ fontSize: '13px', color: '#e55d28', fontWeight: '600', textDecoration: 'none' }}>
-                Go to Admin Login Portal →
-              </Link>
-            </div>
+
           </form>
         </div>
       </aside>

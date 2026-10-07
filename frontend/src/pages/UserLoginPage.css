@@ -193,7 +193,7 @@
   width: 100%;
   height: 46px;
   border-radius: 30px;
-  background-color: #f39250;
+  background-color: #704832;
   color: #ffffff;
   font-size: 15px;
   font-weight: 700;
@@ -208,7 +208,7 @@
 }
 
 .astrogifts-login-drawer__submit-btn:hover:not(:disabled) {
-  background-color: #e5823e;
+  background-color: #543221;
   box-shadow: 0 6px 18px rgba(243, 146, 80, 0.45);
   transform: translateY(-1px);
 }
@@ -252,20 +252,20 @@
 .astrogifts-login-drawer__checkbox {
   width: 16px;
   height: 16px;
-  accent-color: #f39250;
+  accent-color: #704832;
   cursor: pointer;
 }
 
 .astrogifts-login-drawer__forgot-link {
   font-size: 13px;
-  color: #f39250;
+  color: #704832;
   font-weight: 500;
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .astrogifts-login-drawer__forgot-link:hover {
-  color: #d96b27;
+  color: #704832;
   text-decoration: underline;
 }
 
@@ -310,7 +310,7 @@
 }
 
 .astrogifts-login-drawer__create-link:hover {
-  color: #f39250;
+  color: #704832;
 }
 
 /* ── DEMO & ADMIN HELPER ── */
