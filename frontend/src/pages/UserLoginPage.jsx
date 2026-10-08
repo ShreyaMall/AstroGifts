@@ -83,7 +83,8 @@ export default function UserLoginPage() {
         login('user', res.token, res.user, remember);
 
         const from = location.state?.from?.pathname;
-        navigate(from && from !== '/login' ? from : '/profile', { replace: true });
+        const defaultPath = res.user?.role === 'admin' ? '/admin' : '/profile';
+        navigate(from && from !== '/login' ? from : defaultPath, { replace: true });
       } catch (err) {
         const cleanEmail = email.trim().toLowerCase();
         if ((cleanEmail === 'user@astrogifts.com' || cleanEmail === 'user@woodmart.com' || cleanEmail === 'user') && password === 'user123') {
