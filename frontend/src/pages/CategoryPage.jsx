@@ -114,7 +114,15 @@ export default function CategoryPage({ categorySlug }) {
         }
       }
     }
+    
+    // Show flat subcategories if they exist, otherwise fallback to the whole tree or [parent]
+    if (parent && parent.subcategories && parent.subcategories.length > 0) {
+      // By returning the subcategories as the array, they render as flat top-level checkboxes
+      return parent.subcategories;
+    }
+    
     if (parent) return [parent];
+    
     return categoriesTree;
   }, [categoriesTree, activeSlug]);
 
