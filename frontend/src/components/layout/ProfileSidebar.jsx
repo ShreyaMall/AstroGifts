@@ -33,7 +33,7 @@ export default function ProfileSidebar({ activeTab }) {
         }
         
         .profile-nav-item.active {
-          font-weight: 600; color: #d96b27; background: #fff7f0; border-left-color: #d96b27;
+          font-weight: 600; color: #7c3a1d; background: #fcf6f3; border-left-color: #7c3a1d;
         }
 
         .profile-logout-btn {
@@ -56,7 +56,7 @@ export default function ProfileSidebar({ activeTab }) {
              border-top: none; border-right: none;
           }
           .profile-nav-item.active {
-             border-bottom-color: #d96b27;
+             border-bottom-color: #7c3a1d;
           }
         }
       `}</style>
