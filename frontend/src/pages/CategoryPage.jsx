@@ -87,6 +87,87 @@ const DEFAULT_CATEGORIES_TREE = [
 /* ══════════════════════════════════════════════════
    MAIN CATEGORY PAGE
    ══════════════════════════════════════════════════ */
+  const DEFAULT_DIWALI_CATEGORIES = [
+    'Diyas & Lamps',
+    'Candles & Candle Sets',
+    'Decorative Lights',
+    'Diwali Gift Hampers',
+    'Laxmi Ganesh Idols',
+    'Sweets & Dry Fruits',
+    'Toran & Door Decor',
+    'Puja Thali & Brass Sets'
+  ];
+
+  const DEFAULT_ANNIVERSARY_CATEGORIES = [
+    'Watches',
+    'Hamper Gifts',
+    'Perfumes'
+  ];
+
+  const DEFAULT_BIRTHDAY_CATEGORIES = [
+    'Accessory Gift Set',
+    'Home Gift Sets',
+    'Rakhi Gift Set',
+    'Watch Gift Set',
+    'Baby Apparel Gift Set',
+    'Makeup Gift Set',
+    'Skin Care Gift Set',
+    'Fragrance Gift Set',
+  ];
+  const DEFAULT_GIFT_BRANDS = [
+    'AstroGifts',
+    'AstroToys',
+    'AstroSacred',
+    'AstroFlora',
+    'AstroDecor'
+  ];
+  const DEFAULT_GIFT_COLORS = [
+    { name: 'White', color: '#ffffff', border: '#d0cdc7' },
+    { name: 'Black', color: '#1a1a1a' },
+    { name: 'Blue', color: '#0066cc' },
+    { name: 'Red', color: '#d93838' },
+    { name: 'Gold', color: '#d4af37' },
+    { name: 'Multi', color: 'conic-gradient(#e74c3c 0deg 90deg, #f1c40f 90deg 180deg, #2ecc71 180deg 270deg, #3498db 270deg 360deg)' },
+    { name: 'Brown', color: '#6e3b1c' },
+    { name: 'Pink', color: '#e87a90' },
+    { name: 'Silver', color: '#c0c0c0' },
+    { name: 'Green', color: '#27ae60' },
+    { name: 'Navy Blue', color: '#1b2a4a' },
+    { name: 'Maroon', color: '#800020' },
+    { name: 'Grey', color: '#95a5a6' },
+    { name: 'Rose Gold', color: '#b76e79' },
+    { name: 'Purple', color: '#800080' },
+    { name: 'Yellow', color: '#f4d03f' },
+    { name: 'Beige', color: '#f5f5dc', border: '#e0e0e0' },
+    { name: 'Orange', color: '#f07d26' },
+    { name: 'Transparent', color: '#f0f0f0', border: '#cccccc' }
+  ];
+
+  const DEFAULT_ASTROLOGY_CATEGORIES = [
+    'Rings',
+    'Pendants',
+    'Bracelets',
+    'Gemstones & Crystals',
+    'Yantras & Idols',
+    'Rudraksha',
+    'Feng Shui & Healing'
+  ];
+
+  const DEFAULT_FLOWERS_CATEGORIES = [
+    'Bouquets',
+    'Roses',
+    'Orchids',
+    'Flower Baskets',
+    'Exotic Flowers'
+  ];
+
+  const DEFAULT_DECOR_CATEGORIES = [
+    'Wall Frames',
+    'Decorative Lamps',
+    'Table Idols',
+    'Vases & Planters',
+    'Clocks'
+  ];
 export default function CategoryPage({ categorySlug }) {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -356,87 +437,6 @@ export default function CategoryPage({ categorySlug }) {
     'Festive Gifts'
   ];
 
-  const DEFAULT_DIWALI_CATEGORIES = [
-    'Diyas & Lamps',
-    'Candles & Candle Sets',
-    'Decorative Lights',
-    'Diwali Gift Hampers',
-    'Laxmi Ganesh Idols',
-    'Sweets & Dry Fruits',
-    'Toran & Door Decor',
-    'Puja Thali & Brass Sets'
-  ];
-
-  const DEFAULT_ANNIVERSARY_CATEGORIES = [
-    'Watches',
-    'Hamper Gifts',
-    'Perfumes'
-  ];
-
-  const DEFAULT_BIRTHDAY_CATEGORIES = [
-    'Accessory Gift Set',
-    'Home Gift Sets',
-    'Rakhi Gift Set',
-    'Watch Gift Set',
-    'Baby Apparel Gift Set',
-    'Makeup Gift Set',
-    'Skin Care Gift Set',
-    'Fragrance Gift Set',
-  ];
-  const DEFAULT_GIFT_BRANDS = [
-    'AstroGifts',
-    'AstroToys',
-    'AstroSacred',
-    'AstroFlora',
-    'AstroDecor'
-  ];
-  const DEFAULT_GIFT_COLORS = [
-    { name: 'White', color: '#ffffff', border: '#d0cdc7' },
-    { name: 'Black', color: '#1a1a1a' },
-    { name: 'Blue', color: '#0066cc' },
-    { name: 'Red', color: '#d93838' },
-    { name: 'Gold', color: '#d4af37' },
-    { name: 'Multi', color: 'conic-gradient(#e74c3c 0deg 90deg, #f1c40f 90deg 180deg, #2ecc71 180deg 270deg, #3498db 270deg 360deg)' },
-    { name: 'Brown', color: '#6e3b1c' },
-    { name: 'Pink', color: '#e87a90' },
-    { name: 'Silver', color: '#c0c0c0' },
-    { name: 'Green', color: '#27ae60' },
-    { name: 'Navy Blue', color: '#1b2a4a' },
-    { name: 'Maroon', color: '#800020' },
-    { name: 'Grey', color: '#95a5a6' },
-    { name: 'Rose Gold', color: '#b76e79' },
-    { name: 'Purple', color: '#800080' },
-    { name: 'Yellow', color: '#f4d03f' },
-    { name: 'Beige', color: '#f5f5dc', border: '#e0e0e0' },
-    { name: 'Orange', color: '#f07d26' },
-    { name: 'Transparent', color: '#f0f0f0', border: '#cccccc' }
-  ];
-
-  const DEFAULT_ASTROLOGY_CATEGORIES = [
-    'Rings',
-    'Pendants',
-    'Bracelets',
-    'Gemstones & Crystals',
-    'Yantras & Idols',
-    'Rudraksha',
-    'Feng Shui & Healing'
-  ];
-
-  const DEFAULT_FLOWERS_CATEGORIES = [
-    'Bouquets',
-    'Roses',
-    'Orchids',
-    'Flower Baskets',
-    'Exotic Flowers'
-  ];
-
-  const DEFAULT_DECOR_CATEGORIES = [
-    'Wall Frames',
-    'Decorative Lamps',
-    'Table Idols',
-    'Vases & Planters',
-    'Clocks'
-  ];
 
   const isToysCategory = activeSlug.includes('toy') || activeSlug.includes('game');
   const isAstroCategory = activeSlug.includes('astro') || activeSlug.includes('ring') || activeSlug.includes('gem') || activeSlug.includes('pendant') || activeSlug.includes('crystal') || activeSlug.includes('bracelet');
