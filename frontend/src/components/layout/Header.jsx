@@ -83,7 +83,7 @@ export default function Header({ onAccountClick }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileMenuTab, setMobileMenuTab] = useState('CATEGORIES');
-  const [mobileExpandedCat, setMobileExpandedCat] = useState('gifts');
+  const [mobileExpandedCat, setMobileExpandedCat] = useState(null);
   const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
   const [dynamicCategories, setDynamicCategories] = useState(DEFAULT_CATEGORIES);
 
