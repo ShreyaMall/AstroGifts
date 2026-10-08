@@ -101,6 +101,23 @@ export default function CategoryPage({ categorySlug }) {
   const [expandedCategories, setExpandedCategories] = useState(['Toys']);
   const [selectedCategories, setSelectedCategories] = useState([]);
 
+  const visibleTree = useMemo(() => {
+    if (activeSlug === 'all' || activeSlug === 'shop' || activeSlug === 'astrogifts') {
+      return categoriesTree;
+    }
+    let parent = categoriesTree.find(cat => cat.slug.toLowerCase() === activeSlug || cat.name.toLowerCase() === activeSlug);
+    if (!parent) {
+      for (const cat of categoriesTree) {
+        if (cat.subcategories?.some(s => s.slug.toLowerCase() === activeSlug || s.name.toLowerCase() === activeSlug)) {
+          parent = cat;
+          break;
+        }
+      }
+    }
+    if (parent) return [parent];
+    return categoriesTree;
+  }, [categoriesTree, activeSlug]);
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setLoading(true);
@@ -898,7 +915,7 @@ export default function CategoryPage({ categorySlug }) {
 
 
                   <div className="myntra-category-tree">
-                    {categoriesTree.map(parentCat => {
+                    {visibleTree.map(parentCat => {
                       const isParentExpanded = expandedCategories.includes(parentCat.name) || expandedCategories.includes(parentCat.slug);
                       const isParentChecked = selectedCategories.includes(parentCat.name) || selectedCategories.includes(parentCat.slug);
 
