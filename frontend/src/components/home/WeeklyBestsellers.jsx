@@ -13,7 +13,7 @@ const getFormattedImageUrl = (rawUrl) => {
   }
   const t = rawUrl.trim();
   if (t.startsWith('http://') || t.startsWith('https://') || t.startsWith('data:')) {
-    return t;
+    return t.replace("http://127.0.0.1:8000", import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace(/\/api\/?$/, "") : "http://127.0.0.1:8000");
   }
   const backendBase = import.meta.env.VITE_API_BASE_URL
     ? import.meta.env.VITE_API_BASE_URL.replace(/\/api\/?$/, '')
@@ -23,7 +23,7 @@ const getFormattedImageUrl = (rawUrl) => {
     return `${backendBase}/${t.replace(/^\//, '')}`;
   }
   if (t.startsWith('/')) {
-    return t;
+    return t.replace("http://127.0.0.1:8000", import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace(/\/api\/?$/, "") : "http://127.0.0.1:8000");
   }
   return `/${t}`;
 };

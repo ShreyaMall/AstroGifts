@@ -58,7 +58,7 @@ function resolveImage(slide) {
 
   // External URL
   if (imgPath.startsWith('http://') || imgPath.startsWith('https://')) {
-    return imgPath;
+    return imgPath.replace("http://127.0.0.1:8000", API_BASE);
   }
 
   // Uploaded via Laravel storage
@@ -67,7 +67,7 @@ function resolveImage(slide) {
   }
 
   // Dynamic path (let it resolve directly)
-  return imgPath;
+  return imgPath.replace("http://127.0.0.1:8000", API_BASE);
 }
 
 const formatSlidePrice = (p) => {
