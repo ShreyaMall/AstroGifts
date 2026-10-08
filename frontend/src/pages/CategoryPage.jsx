@@ -105,25 +105,46 @@ export default function CategoryPage({ categorySlug }) {
     if (activeSlug === 'all' || activeSlug === 'shop' || activeSlug === 'astrogifts') {
       return categoriesTree;
     }
-    let parent = categoriesTree.find(cat => cat.slug.toLowerCase() === activeSlug || cat.name.toLowerCase() === activeSlug);
-    if (!parent) {
-      for (const cat of categoriesTree) {
-        if (cat.subcategories?.some(s => s.slug.toLowerCase() === activeSlug || s.name.toLowerCase() === activeSlug)) {
-          parent = cat;
-          break;
+
+    const findCategory = (cats, slug) => {
+      for (const cat of cats) {
+        if ((cat.slug && cat.slug.toLowerCase() === slug) || (cat.name && cat.name.toLowerCase() === slug)) return cat;
+        if (cat.subcategories && cat.subcategories.length > 0) {
+          const found = findCategory(cat.subcategories, slug);
+          if (found) return found;
         }
       }
+      return null;
+    };
+
+    const targetCat = findCategory(categoriesTree, activeSlug);
+    
+    // If target has subcategories, show them as flat items
+    if (targetCat && targetCat.subcategories && targetCat.subcategories.length > 0) {
+      return targetCat.subcategories;
     }
     
-    // Show flat subcategories if they exist, otherwise fallback to the whole tree or [parent]
-    if (parent && parent.subcategories && parent.subcategories.length > 0) {
-      // By returning the subcategories as the array, they render as flat top-level checkboxes
-      return parent.subcategories;
+    // If no subcategories, show its siblings
+    const findParentOf = (cats, slug) => {
+      for (const cat of cats) {
+        if (cat.subcategories && cat.subcategories.length > 0) {
+          if (cat.subcategories.some(s => (s.slug && s.slug.toLowerCase() === slug) || (s.name && s.name.toLowerCase() === slug))) {
+            return cat;
+          }
+          const found = findParentOf(cat.subcategories, slug);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+
+    const parentOfTarget = findParentOf(categoriesTree, activeSlug);
+    
+    if (parentOfTarget && parentOfTarget.subcategories && parentOfTarget.subcategories.length > 0) {
+      return parentOfTarget.subcategories;
     }
-    
-    if (parent) return [parent];
-    
-    return categoriesTree;
+
+    return targetCat ? [targetCat] : categoriesTree;
   }, [categoriesTree, activeSlug]);
 
   useEffect(() => {
