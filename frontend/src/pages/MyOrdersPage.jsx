@@ -244,8 +244,14 @@ function OrderTrackStepper({ order }) {
 const resolveItemImage = (item) => {
   const img = item?.image || item?.product_image;
   if (!img) return '';
+  const backendBase = import.meta.env.VITE_API_BASE_URL 
+    ? import.meta.env.VITE_API_BASE_URL.replace(/\/api\/?$/, '') 
+    : 'http://127.0.0.1:8000';
   if (img.startsWith('http://') || img.startsWith('https://') || img.startsWith('data:')) {
-    return img;
+    return img.replace('http://127.0.0.1:8000', backendBase);
+  }
+  if (img.startsWith('storage/') || img.startsWith('/storage/')) {
+    return `${backendBase}/${img.replace(/^\//, '')}`;
   }
   return img.startsWith('/') ? img : `/${img}`;
 };
