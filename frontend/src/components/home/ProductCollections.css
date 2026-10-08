@@ -1,11 +1,11 @@
-/* ── RESET ── */
+/*  RESET  */
 *, *::before, *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* ── WRAPPER ── */
+/*  WRAPPER  */
 .pc-wrapper {
   width: 100%;
   max-width: 1500px;
@@ -15,7 +15,7 @@
   font-family: var(--font-body);
 }
 
-/* ── HEADER ── */
+/*  HEADER  */
 .pc-header {
   text-align: center;
   margin-bottom: 32px;
@@ -33,9 +33,9 @@
   color: var(--text-muted);
 }
 
-/* ─────────────────────────────────────────────────────
-   GRID — 5 Columns, total height = 646px in every column
-───────────────────────────────────────────────────── */
+/* 
+   GRID - 5 Columns, total height = 646px in every column
+ */
 .pc-grid {
   display: grid;
   grid-template-columns: 1fr 1.1fr 1.1fr 1.1fr 1.1fr;
@@ -43,7 +43,7 @@
   align-items: start;
 }
 
-/* ── COLUMN FLEX CONTAINER ── */
+/*  COLUMN FLEX CONTAINER  */
 .pc-col {
   display: flex;
   flex-direction: column;
@@ -51,7 +51,7 @@
   width: 100%;
 }
 
-/* ── BASE CARD ── */
+/*  BASE CARD  */
 .pc-card {
   border-radius: 16px;
   overflow: hidden;
@@ -81,14 +81,14 @@
   transform: scale(1.05);
 }
 
-/* ── CARD HEIGHT CLASSES (sums to 650px per column) ── */
+/*  CARD HEIGHT CLASSES (sums to 650px per column)  */
 .h-325 { height: 325px; }
 .h-350 { height: 350px; }
 .h-300 { height: 300px; }
 .h-450 { height: 450px; }
 .h-200 { height: 200px; }
 
-/* ── TEXT CARDS ── */
+/*  TEXT CARDS  */
 .card-hallan {
   background: #f4ebd9;
   border: 1px solid #e2d2b5;
@@ -121,7 +121,7 @@
   box-shadow: none;
 }
 
-/* ── SHARED TEXT STYLES ── */
+/*  SHARED TEXT STYLES  */
 .pc-text-inner {
   padding: 20px 24px;
   display: flex;
@@ -151,7 +151,7 @@
   max-width: 220px;
 }
 
-/* ── VIDEO PLAY OVERLAY ── */
+/*  VIDEO PLAY OVERLAY  */
 .pc-card--video {
   position: relative;
 }
@@ -196,7 +196,7 @@
   border-radius: 20px;
 }
 
-/* ── RESPONSIVE ── */
+/*  RESPONSIVE  */
 @media (max-width: 1150px) {
   .pc-grid {
     grid-template-columns: repeat(3, 1fr);
@@ -207,9 +207,14 @@
     flex-direction: column;
     gap: 16px;
   }
-  .h-325, .h-350, .h-300, .h-450, .h-200 {
-    height: 280px;
+  .pc-col:nth-child(5) {
+    grid-column: span 2;
   }
+  .h-325 { height: 280px; }
+  .h-350 { height: 290px; }
+  .h-300 { height: 250px; }
+  .h-450 { height: 380px; }
+  .h-200 { height: 180px; }
 }
 
 @media (max-width: 768px) {
@@ -218,11 +223,18 @@
     gap: 14px;
   }
   .pc-col {
-    display: contents;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
   }
-  .h-325, .h-350, .h-300, .h-450, .h-200 {
-    height: 220px;
+  .pc-col:nth-child(5) {
+    grid-column: span 2;
   }
+  .h-325 { height: 240px; }
+  .h-350 { height: 250px; }
+  .h-300 { height: 220px; }
+  .h-450 { height: 320px; }
+  .h-200 { height: 160px; }
 }
 
 @media (max-width: 540px) {
@@ -233,13 +245,28 @@
     gap: 10px;
   }
   .pc-col {
-    display: contents;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
-  .h-325, .h-350, .h-300, .h-450, .h-200 {
-    height: 175px;
+  .pc-col:nth-child(5) {
+    grid-column: span 2;
   }
-  .pc-text-inner { padding: 10px 12px; }
-  .pc-text-title { font-size: 17px; }
-  .pc-text-desc { font-size: 11px; line-height: 1.3; }
+  .h-325 { height: 180px; }
+  .h-350 { height: 200px; }
+  .h-300 { height: 170px; }
+  .h-450 { height: 250px; }
+  .h-200 { height: 130px; }
+  
+  .pc-text-inner { padding: 10px; justify-content: center; }
+  .pc-text-title { font-size: 15px; margin-bottom: 4px; line-height: 1.1; }
+  .pc-text-desc { 
+    font-size: 11px; 
+    line-height: 1.3; 
+    display: -webkit-box; 
+    -webkit-line-clamp: 2; 
+    -webkit-box-orient: vertical; 
+    overflow: hidden; 
+  }
+  .pc-text-label { font-size: 9px; letter-spacing: 1px; margin-bottom: 2px; }
 }
-
