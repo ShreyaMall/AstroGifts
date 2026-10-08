@@ -105,9 +105,9 @@ export default function CategoryPage({ categorySlug }) {
     if (activeSlug === 'all' || activeSlug === 'shop' || activeSlug === 'astrogifts') {
       return categoriesTree;
     }
-    if (isDiwaliCategory) return DEFAULT_DIWALI_CATEGORIES.map(c => ({ name: c, slug: c.toLowerCase().replace(/\s+/g, '-'), subcategories: [] }));
-    if (isBirthdayCategory) return DEFAULT_BIRTHDAY_CATEGORIES.map(c => ({ name: c, slug: c.toLowerCase().replace(/\s+/g, '-'), subcategories: [] }));
-    if (isAnniversaryCategory) return DEFAULT_ANNIVERSARY_CATEGORIES.map(c => ({ name: c, slug: c.toLowerCase().replace(/\s+/g, '-'), subcategories: [] }));
+    if (activeSlug === 'diwali-gifts') return DEFAULT_DIWALI_CATEGORIES.map(c => ({ name: c, slug: c.toLowerCase().replace(/\s+/g, '-'), subcategories: [] }));
+    if (activeSlug === 'birthday-gifts') return DEFAULT_BIRTHDAY_CATEGORIES.map(c => ({ name: c, slug: c.toLowerCase().replace(/\s+/g, '-'), subcategories: [] }));
+    if (activeSlug === 'anniversary-gifts') return DEFAULT_ANNIVERSARY_CATEGORIES.map(c => ({ name: c, slug: c.toLowerCase().replace(/\s+/g, '-'), subcategories: [] }));
     if (activeSlug === 'astrology') return DEFAULT_ASTROLOGY_CATEGORIES.map(c => ({ name: c, slug: c.toLowerCase().replace(/\s+/g, '-'), subcategories: [] }));
 
     const findCategory = (cats, slug) => {
