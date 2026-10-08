@@ -176,12 +176,12 @@ export default function CategoryPage({ categorySlug }) {
 
       if (foundParent) {
         setExpandedCategories([foundParent.name]);
-        setSelectedCategories([]);
+        setSelectedCategories(foundSub ? [foundSub.name] : []);
       } else {
         const words = activeSlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1));
         const formatted = words.join(' ');
         setExpandedCategories([formatted]);
-        setSelectedCategories([]);
+        setSelectedCategories([formatted]);
       }
     }
   }, [activeSlug]);
@@ -953,7 +953,7 @@ export default function CategoryPage({ categorySlug }) {
                                 checked={isParentChecked}
                                 onChange={() => toggleParentCategory(parentCat)}
                               />
-                              <span className="myntra-check-text font-bold">
+                              <span className={`myntra-check-text ${(!parentCat.subcategories || parentCat.subcategories.length === 0) ? '' : 'font-bold'}`}>
                                 {parentCat.name}
                                 {parentCount > 0 && (
                                   <span className="myntra-check-count">({parentCount})</span>
