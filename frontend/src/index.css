@@ -75,12 +75,12 @@ h1, h2, h3, h4, h5, h6 {
 
 a { text-decoration: none; color: inherit; }
 button { cursor: pointer; border: none; background: none; font-family: inherit; }
-img { display: block; max-width: 100%; }
+img { display: block; max-width: 100%; height: auto; }
 ul { list-style: none; }
 input, select, textarea { font-family: inherit; }
 
 .app { min-height: 100vh; background: var(--bg-main); }
-body, html, #root, .app { overflow-x: clip; }
+body, html, #root, .app { overflow-x: hidden; }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {

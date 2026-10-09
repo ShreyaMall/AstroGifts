@@ -45,6 +45,16 @@
   transform: translate3d(0, 0, 0);
 }
 
+.hero__slide::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%);
+  z-index: 1;
+  display: none;
+  pointer-events: none;
+}
+
 /* Right-to-Left Entering Slide (comes in from right +100% to 0%) */
 .hero__slide--entering-rtl {
   opacity: 1;
@@ -172,7 +182,7 @@
 /* Title: Upholstered chair / Sectional fabric sofa / Terracotta vase */
 .hero__title {
   font-family: var(--font-body);
-  font-size: 48px;
+  font-size: clamp(28px, 6vw, 48px);
   font-weight: 700;
   color: #2c2c2c;
   line-height: 1.12;
@@ -188,7 +198,7 @@
   margin-bottom: 38px;
 }
 
-.hero__by { font-family: var(--font-body); font-size: 16px; font-weight: 500;
+.hero__by { font-family: var(--font-body); font-size: clamp(14px, 3vw, 16px); font-weight: 500;
   color: #2c2c2c;
   margin-right: 14px;
   line-height: 1;
@@ -203,7 +213,7 @@
   flex-shrink: 0;
 }
 
-.hero__designer-name { font-family: var(--font-body); font-size: 16px;
+.hero__designer-name { font-family: var(--font-body); font-size: clamp(14px, 3vw, 16px);
   font-weight: 700;
   color: #2c2c2c;
   line-height: 1;
@@ -247,7 +257,7 @@
 
 .hero__price {
   font-family: var(--font-body);
-  font-size: 30px;
+  font-size: clamp(20px, 5vw, 30px);
   font-weight: 700;
   color: #2c2c2c;
   letter-spacing: -0.5px;
@@ -336,14 +346,13 @@
     gap: 30px;
     padding: 0 30px;
   }
-  .hero__title { font-size: 34px; }
-  .hero__by, .hero__designer-name { font-size: 14px; }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+  .hero__slide::before { display: block; }
   .hero { height: 600px; padding: 0; }
   .hero__container { padding: 0 30px; align-items: flex-start; justify-content: flex-start; height: 100%; padding-top: 80px; }
-  .hero__left { display: flex; flex-direction: column; justify-content: flex-start; width: 100%; }
+  .hero__left { display: flex; flex-direction: column; justify-content: flex-start; width: 100%; position: relative; z-index: 6; }
   
   .hero__badge {
     background: transparent;
@@ -375,7 +384,7 @@
   }
   .hero__badge-title { font-weight: 600; }
   
-  .hero__title { font-size: 28px; line-height: 1.15; margin-bottom: 12px; font-weight: 800; color: #333; }
+  .hero__title { line-height: 1.15; margin-bottom: 12px; font-weight: 800; color: #333; }
   
   .hero__designer-row { margin-bottom: 45px; align-items: center; }
   .hero__by { font-size: 14px; margin-right: 8px; font-weight: 500; color: #555; }
@@ -385,42 +394,51 @@
   .hero__actions {
     flex-direction: row;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
+    flex-wrap: wrap;
   }
-  .hero__cta { padding: 12px 24px; font-size: 14px; font-weight: 700; border-radius: 50px; background: #fff; color: #333; }
-  .hero__price { font-size: 20px; font-weight: 800; color: #444; }
+  .hero__cta { padding: 12px 24px; font-size: 14px; font-weight: 700; border-radius: 50px; background: #fff; color: #333; z-index: 5; position: relative;}
+  .hero__price { 
+    background: #ffffff;
+    color: #2c2c2c;
+    padding: 8px 18px;
+    border-radius: 50px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    z-index: 5;
+    text-decoration: none !important;
+    position: relative;
+  }
   
-  .hero__dots-wrap { bottom: 40px; }
-  .hero__dots { padding: 6px 12px; gap: 8px; background: #fff; }
+  .hero__dots-wrap { bottom: 40px; z-index: 10; }
+  .hero__dots { padding: 6px 12px; gap: 8px; background: rgba(255, 255, 255, 0.9); }
   .hero__dot { width: 8px; height: 8px; background: #333; opacity: 0.3; }
   .hero__dot--active { opacity: 1; transform: scale(1.1); background: #333; }
   
   .hero__arrow { display: none; }
 }
 
+@media (max-width: 480px) {
+  .hero__container { padding: 0 20px; padding-top: 60px; }
+  .hero__dots-wrap { bottom: 20px; }
+  .hero__badge-icon-wrap { width: 40px; height: 40px; margin-right: 10px; }
+  .hero__badge-text-wrap { font-size: 12.5px; }
+}
+
 /* =====================================================
    HERO TEXT ANIMATIONS (Fade In & Slide Up Staggered)
    ===================================================== */
 @keyframes slideUpFade {
-  0% {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
-/* Base state for elements in a slide */
 .hero__slide .hero__badge,
 .hero__slide .hero__title,
 .hero__slide .hero__designer-row,
 .hero__slide .hero__actions {
-  opacity: 0; /* Hidden by default */
+  opacity: 0;
 }
 
-/* Only animate when the slide gets active class */
 .hero__slide--active .hero__badge {
   animation: slideUpFade 0.8s ease backwards;
   animation-delay: 0.2s;
@@ -444,4 +462,3 @@
   animation-delay: 0.8s;
   opacity: 1;
 }
-
