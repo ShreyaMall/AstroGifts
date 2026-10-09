@@ -150,7 +150,7 @@ function ProductCard({ product, onQuickView }) {
           <img
             src={cardImage}
             alt={product.name}
-            className="wb-card__img wb-card__img--main"
+            className="wb-card__img wb-card__img--main" loading="lazy" decoding="async"
             onError={(e) => {
               e.target.onerror = null;
               e.target.style.display = 'none';
@@ -268,6 +268,13 @@ function ProductCard({ product, onQuickView }) {
 
 export default function WeeklyBestsellers() {
   const [activeTab, setActiveTab] = useState('All');
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   const [apiProducts, setApiProducts] = useState([]);
   const [dynamicTabs, setDynamicTabs] = useState(['All']);
   const [loading, setLoading] = useState(true);
@@ -386,14 +393,21 @@ export default function WeeklyBestsellers() {
   const filteredProducts = React.useMemo(() => {
     if (!apiProducts || apiProducts.length === 0) return [];
 
+    let result = [];
     if (activeTab === 'All') {
       const bestsellers = apiProducts.filter(p => p.is_bestseller || p.badge === 'BESTSELLER');
-      if (bestsellers.length >= 4) return bestsellers.slice(0, 10);
-      return apiProducts.slice(0, 10);
+      if (bestsellers.length >= 4) {
+        result = bestsellers.slice(0, 10);
+      } else {
+        result = apiProducts.slice(0, 10);
+      }
+    } else {
+      result = apiProducts.filter(p => isProductInTab(p, activeTab));
     }
-
-    return apiProducts.filter(p => isProductInTab(p, activeTab));
-  }, [activeTab, apiProducts]);
+    
+    if (isMobile) return result.slice(0, 10);
+    return result;
+  }, [activeTab, apiProducts, isMobile]);
 
   return (
     <section className="wb-section" id="bestsellers-section">
@@ -423,7 +437,7 @@ export default function WeeklyBestsellers() {
         {/* Product Grid */}
         <div className="wb-grid">
           {loading ? (
-            Array.from({ length: 5 }).map((_, idx) => (
+            Array.from({ length: 10 }).map((_, idx) => (
               <div key={idx} className="wb-skeleton-card">
                 <div className="wb-skeleton-img" />
                 <div className="wb-skeleton-line wb-skeleton-title" />
@@ -441,6 +455,12 @@ export default function WeeklyBestsellers() {
             </div>
           )}
         </div>
+
+        {isMobile && !loading && (
+          <div className="wb-view-all-container">
+            <Link to="/shop" className="wb-view-all-btn">View all</Link>
+          </div>
+        )}
 
         {quickViewProduct && (
           <ProductDetailModal

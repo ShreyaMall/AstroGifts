@@ -565,6 +565,9 @@
   .header__nav-link:hover, .header__nav-link:active {
     color: #704832;
   }
+  .header__nav-link:active {
+    background: rgba(112, 72, 50, 0.05) !important;
+  }
   .header__shipping-badge { display: none; }
 
   /* Mobile: dropdown becomes an inline accordion */
@@ -591,15 +594,21 @@
     display: block !important;
   }
   .header__dropdown-link {
-    padding: 12px 20px 12px 46px;
-    font-size: 13.5px;
+    padding: 12px 20px 12px 36px;
+    font-size: 14px;
     font-weight: 500;
     color: #5c3826;
     border-bottom: 1px solid #ede1ca;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
   }
   .header__dropdown-link:hover {
     background: #ede1ca;
     color: #704832;
+  }
+  .header__dropdown-link:active {
+    background: #e8d9c5;
   }
   .header__nav-chevron {
     margin-left: auto;

@@ -292,12 +292,22 @@
 
 /* ── Responsive ── */
 @media (max-width: 1024px) {
+  .la-section { padding: 48px 0; }
   .la-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 600px) {
+  .la-section {
+    padding: 28px 0 80px; /* Kept bottom padding for floating buttons */
+  }
+  .la-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
   .la-container {
     padding: 0 0 0 16px; /* padding right 0 for bleed */
   }
@@ -311,7 +321,7 @@
     -webkit-overflow-scrolling: touch;
     gap: 16px;
     padding-right: 16px;
-    padding-bottom: 20px;
+    margin-bottom: 16px;
     scroll-snap-type: x mandatory;
   }
   .la-grid::-webkit-scrollbar { display: none; }

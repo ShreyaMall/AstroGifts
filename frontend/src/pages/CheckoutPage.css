@@ -24,7 +24,7 @@
   align-items: start;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1024px) {
   .astrogifts-checkout-grid {
     grid-template-columns: 1fr;
     gap: 20px;
@@ -99,7 +99,7 @@
   gap: 16px;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .astrogifts-form-grid {
     grid-template-columns: 1fr;
   }

@@ -24,7 +24,13 @@ export const ProductCard = ({ product, viewMode = 'grid-3' }) => {
 
   const slug = product.slug || String(product.name).toLowerCase().replace(/[^a-z0-9]+/g, '-');
   const handleCardClick = () => navigate(`/product/${slug}`);
-  const discount = product.old_price && product.old_price > product.price ? Math.round(product.old_price - product.price) : 0;
+  // Use backend-computed discount (preferred) or derive locally
+  const discountPct = product.computed_discount
+    ?? (product.old_price && product.old_price > product.price
+      ? Math.round(((product.old_price - product.price) / product.old_price) * 100)
+      : 0);
+  const discountAmt = product.old_price && product.old_price > product.price
+    ? Math.round(product.old_price - product.price) : 0;
 
   const handleShare = async (e) => {
     e.stopPropagation();
@@ -96,9 +102,13 @@ export const ProductCard = ({ product, viewMode = 'grid-3' }) => {
         <div className="cp-card__mobile-price">
           <div className="cp-card__mobile-price-row">
             <span className="cp-card__mobile-price-new">&#8377;{product.price.toFixed(0)}</span>
-            {product.old_price && <span className="cp-card__mobile-price-old">&#8377;{product.old_price.toFixed(0)}</span>}
+            {product.old_price && product.old_price > product.price && (
+              <span className="cp-card__mobile-price-old">&#8377;{product.old_price.toFixed(0)}</span>
+            )}
+            {discountPct > 0 && (
+              <span className="cp-card__mobile-off">{discountPct}% OFF</span>
+            )}
           </div>
-          {discount > 0 && <div className="cp-card__mobile-off">&#8377;{discount} OFF</div>}
         </div>
 
         <h3 className="cp-card__title">
@@ -133,8 +143,13 @@ export const ProductCard = ({ product, viewMode = 'grid-3' }) => {
 
         {!isList && (
           <div className="cp-card__price-row cp-card__price-row--desktop">
-            {product.old_price && <span className="cp-card__old-price">&#8377;{product.old_price.toFixed(2)}</span>}
-            <span className="cp-card__price">&#8377;{product.price.toFixed(2)}</span>
+            <span className="cp-card__price">&#8377;{product.price.toFixed(0)}</span>
+            {product.old_price && product.old_price > product.price && (
+              <span className="cp-card__old-price">&#8377;{product.old_price.toFixed(0)}</span>
+            )}
+            {discountPct > 0 && (
+              <span className="cp-card__discount-badge">{discountPct}% OFF</span>
+            )}
           </div>
         )}
       </div>

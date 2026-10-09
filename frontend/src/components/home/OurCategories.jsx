@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import './OurCategories.css';
 import { categoriesApi } from '../../services/api';
@@ -19,8 +19,17 @@ const STATIC_FALLBACK_CATEGORIES = [
   { name: 'Crystals', slug: 'gemstones-crystals', img: crystalImg },
 ];
 
+
+
 export default function OurCategories() {
   const [categories, setCategories] = useState(STATIC_FALLBACK_CATEGORIES);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     categoriesApi.getAll()
@@ -40,7 +49,6 @@ export default function OurCategories() {
             };
           });
 
-          // Retain fallback items like Crystals if not returned by main categories API
           STATIC_FALLBACK_CATEGORIES.forEach(stat => {
             if (!mapped.some(m => m.slug === stat.slug || m.name.toLowerCase().startsWith('crystal'))) {
               mapped.push(stat);
@@ -55,6 +63,37 @@ export default function OurCategories() {
       });
   }, []);
 
+  const handleClick = (e) => {
+    // Basic native link click
+  };
+
+  const renderCategory = (cat, i, isDup) => (
+    <Link
+      to={`/category/${cat.slug}`}
+      key={cat.name + i + (isDup ? '_dup' : '')}
+      className="cat-card"
+      id={isDup ? undefined : `cat-${cat.slug}`}
+      onClick={handleClick}
+      tabIndex={isDup ? -1 : 0}
+      aria-hidden={isDup ? "true" : undefined}
+    >
+      <div className="cat-card__circle">
+        <img
+          src={cat.img}
+          alt={cat.name}
+          className="cat-card__img"
+          loading="lazy"
+          decoding="async"
+          onError={e => {
+            e.target.style.display = 'none';
+            e.target.parentElement.style.background = `hsl(${i * 36}, 20%, 75%)`;
+          }}
+        />
+      </div>
+      <span className="cat-card__label">{cat.name}</span>
+    </Link>
+  );
+
   return (
     <section className="our-categories" id="categories-section">
       <div className="our-categories__container">
@@ -63,27 +102,9 @@ export default function OurCategories() {
           <p className="our-categories__subtitle">Lots of new products and product collections</p>
         </div>
         <div className="our-categories__grid">
-          {categories.map((cat, i) => (
-            <Link
-              to={`/category/${cat.slug}`}
-              key={cat.name + i}
-              className="cat-card"
-              id={`cat-${cat.slug}`}
-            >
-              <div className="cat-card__circle">
-                <img
-                  src={cat.img}
-                  alt={cat.name}
-                  className="cat-card__img"
-                  onError={e => {
-                    e.target.style.display = 'none';
-                    e.target.parentElement.style.background = `hsl(${i * 36}, 20%, 75%)`;
-                  }}
-                />
-              </div>
-              <span className="cat-card__label">{cat.name}</span>
-            </Link>
-          ))}
+          {categories.map((cat, i) => renderCategory(cat, i, false))}
+          {/* Trailing spacer for mobile scroll */}
+          <div className="our-categories__spacer" aria-hidden="true"></div>
         </div>
       </div>
     </section>

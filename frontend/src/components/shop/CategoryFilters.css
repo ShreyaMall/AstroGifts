@@ -1,0 +1,334 @@
+/* ══════════════════════════════════════════════════
+   CategoryFilters.css
+   Scope: .cf-* classes only. No global overrides.
+   Theme: CSS variables for brand colors.
+══════════════════════════════════════════════════ */
+
+/* ── variables (mirrors site theme) ───────────────────────────── */
+:root {
+  --cf-brand:      var(--brand-primary, #7c3a1d);
+  --cf-bg:         #fff;
+  --cf-border:     #ece8e2;
+  --cf-text:       #1c1c1c;
+  --cf-muted:      #b0aba0;
+  --cf-hover-bg:   #f6f5f2;
+  --cf-more-color: var(--brand-primary, #7c3a1d);
+}
+
+/* ── desktop sidebar ────────────────────────────────────────── */
+.cf-sidebar {
+  width: 268px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 90px;
+  max-height: calc(100vh - 110px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #e0d6cc transparent;
+}
+.cf-sidebar::-webkit-scrollbar { width: 4px; }
+.cf-sidebar::-webkit-scrollbar-thumb { background: #e0d6cc; border-radius: 4px; }
+
+/* ── FILTERS header ─────────────────────────────────────────── */
+.cf-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px 14px;
+  margin-bottom: 2px;
+}
+.cf-header__title {
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--cf-text);
+  text-transform: uppercase;
+}
+.cf-header__clear {
+  background: none;
+  border: none;
+  color: var(--cf-brand);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  text-transform: uppercase;
+}
+
+/* ── collapsible section ────────────────────────────────────── */
+.cf-section {
+  background: var(--cf-bg);
+  border-radius: 10px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  overflow: hidden;
+}
+
+.cf-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 14px 18px;
+  cursor: pointer;
+  font-family: inherit;
+  border-bottom: 1px solid var(--cf-border);
+}
+
+.cf-section__title {
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--cf-text);
+}
+
+.cf-section__body {
+  padding: 14px 18px 16px;
+}
+
+/* ── checklist ──────────────────────────────────────────────── */
+.cf-checklist-wrap {}
+
+.cf-checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cf-check-label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  padding: 5px 4px;
+  border-radius: 6px;
+  font-size: 0.86rem;
+  color: #444;
+  transition: background 0.12s;
+}
+@media (hover: hover) {
+  .cf-check-label:hover { background: var(--cf-hover-bg); }
+}
+
+.cf-check {
+  accent-color: var(--cf-brand);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.cf-radio {
+  accent-color: var(--cf-brand);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* color swatch */
+.cf-swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.cf-check-text {
+  flex: 1;
+  font-weight: 500;
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cf-check-count {
+  font-size: 0.76rem;
+  color: var(--cf-muted);
+  font-weight: 600;
+}
+
+.cf-no-results {
+  font-size: 0.82rem;
+  color: var(--cf-muted);
+  padding: 4px 2px;
+}
+
+/* + N more */
+.cf-more-btn {
+  display: inline-block;
+  margin-top: 10px;
+  background: none;
+  border: none;
+  color: var(--cf-more-color);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  letter-spacing: 0.2px;
+}
+@media (hover: hover) {
+  .cf-more-btn:hover { text-decoration: underline; }
+}
+
+/* search row */
+.cf-search-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.cf-search-toggle {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+.cf-search-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  border: 1.5px solid var(--cf-border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  background: #fafaf8;
+  transition: border-color 0.15s;
+}
+.cf-search-box:focus-within { border-color: var(--cf-brand); }
+.cf-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: none;
+  font-size: 0.84rem;
+  color: #333;
+  font-family: inherit;
+}
+.cf-search-clear {
+  background: none;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0;
+  line-height: 1;
+}
+
+/* ── mobile: desktop sidebar hidden below 1024px ────────────── */
+@media (max-width: 1023px) {
+  .cf-desktop-only { display: none; }
+}
+@media (min-width: 1024px) {
+  .cf-sidebar { display: block; }
+}
+
+/* ── mobile bottom sheet ────────────────────────────────────── */
+.cf-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.48);
+  z-index: 900;
+  animation: cf-fade-in 0.2s ease;
+}
+
+@keyframes cf-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.cf-bottom-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 85vh;
+  background: #f6f5f2;
+  border-radius: 20px 20px 0 0;
+  z-index: 901;
+  display: flex;
+  flex-direction: column;
+  animation: cf-slide-up 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+  overflow: hidden;
+}
+
+@keyframes cf-slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.cf-sheet-handle {
+  width: 40px;
+  height: 4px;
+  background: #ddd;
+  border-radius: 2px;
+  margin: 12px auto 4px;
+  flex-shrink: 0;
+}
+
+.cf-sheet-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 16px 16px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cf-sheet-footer {
+  flex-shrink: 0;
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #fff;
+  border-top: 1px solid var(--cf-border);
+  padding-bottom: max(14px, env(safe-area-inset-bottom));
+}
+
+.cf-footer-clear {
+  flex: 1;
+  padding: 13px;
+  background: none;
+  border: 1.5px solid #ccc;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: inherit;
+  color: #555;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+@media (hover: hover) {
+  .cf-footer-clear:hover { border-color: var(--cf-brand); color: var(--cf-brand); }
+}
+
+.cf-footer-apply {
+  flex: 2;
+  padding: 13px;
+  background: var(--cf-brand);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+@media (hover: hover) {
+  .cf-footer-apply:hover { opacity: 0.88; }
+}

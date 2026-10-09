@@ -58,15 +58,10 @@
   position: relative;
   background: var(--bg-card);
   border: 1px solid var(--gray-300);
-  cursor: pointer;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: default;
   width: 100%;
   flex-shrink: 0;
-}
-.pc-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 14px 36px rgba(92, 56, 38, 0.12);
-  border-color: var(--brand-accent);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .pc-img {
@@ -74,11 +69,7 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.35s ease;
   background: var(--bg-card);
-}
-.pc-card:hover .pc-img {
-  transform: scale(1.05);
 }
 
 /*  CARD HEIGHT CLASSES (sums to 650px per column)  */
@@ -197,76 +188,93 @@
 }
 
 /*  RESPONSIVE  */
-@media (max-width: 1150px) {
+@media (max-width: 1023px) and (min-width: 640px) {
+  .pc-wrapper { padding: 48px 20px; }
+  .pc-title { font-size: clamp(24px, 7vw, 32px); line-height: 1.2; margin-bottom: 8px; }
+  .pc-subtitle { margin-bottom: 20px; }
+  .pc-header { margin-bottom: 24px; }
   .pc-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+    display: block;
+    column-count: 3;
+    column-gap: 16px;
   }
   .pc-col {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    display: block;
   }
-  .pc-col:nth-child(5) {
-    grid-column: span 2;
+  .pc-card {
+    margin-bottom: 16px;
+    break-inside: avoid;
+    height: auto !important;
   }
-  .h-325 { height: 280px; }
-  .h-350 { height: 290px; }
-  .h-300 { height: 250px; }
-  .h-450 { height: 380px; }
-  .h-200 { height: 180px; }
+  .pc-card:not(.card-hallan):not(.card-gladom) {
+    aspect-ratio: 4 / 5;
+  }
+  .card-hallan, .card-gladom {
+    height: auto !important;
+    min-height: 200px;
+  }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 639px) {
+  .pc-wrapper { padding: 28px 12px; }
+  .pc-header { margin-bottom: 16px; }
+  .pc-title { font-size: clamp(24px, 7vw, 32px); line-height: 1.2; margin-bottom: 8px; }
+  .pc-subtitle { font-size: 13px; margin-bottom: 16px; margin-top: 0; }
   .pc-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
+    column-count: 2;
+    column-gap: 12px;
   }
-  .pc-col {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
+  .pc-card {
+    margin-bottom: 12px;
+    border-radius: 12px;
   }
-  .pc-col:nth-child(5) {
-    grid-column: span 2;
+  .pc-text-inner {
+    padding: 16px;
   }
-  .h-325 { height: 240px; }
-  .h-350 { height: 250px; }
-  .h-300 { height: 220px; }
-  .h-450 { height: 320px; }
-  .h-200 { height: 160px; }
+  .pc-text-label {
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+  .pc-text-title {
+    font-size: clamp(16px, 4vw, 20px);
+    line-height: 1.2;
+  }
+  .pc-text-desc {
+    font-size: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .pc-overlay-title {
+    font-size: clamp(13px, 3.5vw, 16px);
+    font-weight: 700;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .pc-overlay {
+    padding: 24px 12px 12px;
+  }
 }
 
-@media (max-width: 540px) {
-  .pc-wrapper { padding: 24px 12px 20px; }
-  .pc-title   { font-size: 26px; }
-  .pc-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-  .pc-col {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .pc-col:nth-child(5) {
-    grid-column: span 2;
-  }
-  .h-325 { height: 180px; }
-  .h-350 { height: 200px; }
-  .h-300 { height: 170px; }
-  .h-450 { height: 250px; }
-  .h-200 { height: 130px; }
-  
-  .pc-text-inner { padding: 10px; justify-content: center; }
-  .pc-text-title { font-size: 15px; margin-bottom: 4px; line-height: 1.1; }
-  .pc-text-desc { 
-    font-size: 11px; 
-    line-height: 1.3; 
-    display: -webkit-box; 
-    -webkit-line-clamp: 2; 
-    -webkit-box-orient: vertical; 
-    overflow: hidden; 
-  }
-  .pc-text-label { font-size: 9px; letter-spacing: 1px; margin-bottom: 2px; }
+/* OVERLAY FOR IMAGE CARDS */
+.pc-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 40px 16px 16px;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%);
+  display: flex;
+  align-items: flex-end;
+  pointer-events: none;
+}
+.pc-overlay-title {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }

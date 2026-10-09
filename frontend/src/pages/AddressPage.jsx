@@ -139,7 +139,7 @@ export default function AddressPage() {
                 <p style={{ color: '#888', margin: 0, fontSize: '14px' }}>Manage your shipping addresses</p>
               </div>
               {!showForm && (
-                <button onClick={() => { setShowForm(true); setEditingId(null); setFormData({name: '', phone: '', pincode: '', locality: '', address_line: '', city: '', state: '', is_default: false}); }} style={{ padding: '10px 20px', background: '#d96b27', color: '#fff', borderRadius: '8px', border: 'none', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                <button onClick={() => { setShowForm(true); setEditingId(null); setFormData({name: '', phone: '', pincode: '', locality: '', address_line: '', city: '', state: '', is_default: false}); }} style={{ padding: '10px 20px', background: 'var(--brand-primary)', color: '#fff', borderRadius: '8px', border: 'none', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                   + Add New Address
                 </button>
               )}
@@ -182,7 +182,7 @@ export default function AddressPage() {
                     <label htmlFor="is_default" style={{ fontSize: '14px' }}>Make this my default address</label>
                   </div>
                   <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '12px', marginTop: '20px' }}>
-                    <button type="submit" style={{ padding: '10px 24px', background: '#d96b27', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}>
+                    <button type="submit" style={{ padding: '10px 24px', background: 'var(--brand-primary)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}>
                       Save Address
                     </button>
                     <button type="button" onClick={() => setShowForm(false)} style={{ padding: '10px 24px', background: '#f5f5f5', color: '#333', border: '1px solid #ddd', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}>
@@ -200,9 +200,9 @@ export default function AddressPage() {
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                 {addresses.map(addr => (
-                  <div key={addr.id} style={{ background: '#fff', borderRadius: '12px', padding: '20px', boxShadow: '0 1px 8px rgba(0,0,0,0.06)', position: 'relative', border: addr.is_default ? '2px solid #d96b27' : '2px solid transparent' }}>
+                  <div key={addr.id} style={{ background: '#fff', borderRadius: '12px', padding: '20px', boxShadow: '0 1px 8px rgba(0,0,0,0.06)', position: 'relative', border: addr.is_default ? '2px solid var(--brand-primary)' : '2px solid transparent' }}>
                     {addr.is_default && (
-                      <span style={{ position: 'absolute', top: '16px', right: '16px', background: '#fff7f0', color: '#d96b27', padding: '4px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: '700' }}>DEFAULT</span>
+                      <span style={{ position: 'absolute', top: '16px', right: '16px', background: '#f5f0ec', color: 'var(--brand-primary)', padding: '4px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: '700' }}>DEFAULT</span>
                     )}
                     <h3 style={{ margin: '0 0 10px', fontSize: '16px', fontWeight: '600', paddingRight: '60px' }}>{addr.name}</h3>
                     <div style={{ fontSize: '14px', color: '#555', lineHeight: '1.6', marginBottom: '16px' }}>

@@ -78,7 +78,7 @@
             </div>
 
             <div style="text-align: center; margin-top: 24px;">
-                <a href="{{ env('FRONTEND_URL', 'http://localhost:5173') }}/admin" class="cta-btn">
+                <a href="{{ config('app.frontend_url') }}/admin/orders/{{ $order->id ?? $order->_id }}" class="cta-btn">
                     Review in Admin Dashboard &rarr;
                 </a>
             </div>

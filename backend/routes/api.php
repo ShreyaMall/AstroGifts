@@ -50,6 +50,7 @@ Route::get('/categories/all', [CategoryController::class, 'all']);
 Route::get('/categories/{slug}', [CategoryController::class, 'show']);
 
 Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/facets', [ProductController::class, 'facets']);
 Route::get('/products/bestsellers', [ProductController::class, 'bestsellers']);
 Route::get('/products/featured', [ProductController::class, 'featured']);
 Route::get('/products/{identifier}', [ProductController::class, 'show']);

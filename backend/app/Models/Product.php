@@ -14,6 +14,8 @@ class Product extends Model
         'category_id',
         'category_slug',
         'category_name',
+        'subcategory_slug',
+        'subcategory_name',
         'name',
         'slug',
         'price',
@@ -44,6 +46,7 @@ class Product extends Model
         'features',
         'faqs',
         'trust_badges',
+        'occasions',
     ];
 
     protected $casts = [
@@ -63,6 +66,7 @@ class Product extends Model
         'features' => 'array',
         'faqs' => 'array',
         'trust_badges' => 'array',
+        'occasions' => 'array',
     ];
 
     public function category(): BelongsTo

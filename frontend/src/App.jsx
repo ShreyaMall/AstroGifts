@@ -16,6 +16,7 @@ import WishlistDrawer from './components/shop/WishlistDrawer';
 import MobileBottomNav from './components/layout/MobileBottomNav';
 import PageLoader from './components/layout/PageLoader';
 import WhatsAppFloat from './components/layout/WhatsAppFloat';
+import ScrollToTop from './components/layout/ScrollToTop';
 
 /* Routes */
 import AppRoutes from './routes/AppRoutes';
@@ -27,6 +28,7 @@ export default function App() {
         <CartProvider>
           <WishlistProvider>
             
+            <ScrollToTop />
             <PageLoader />
             <AppRoutes />
 

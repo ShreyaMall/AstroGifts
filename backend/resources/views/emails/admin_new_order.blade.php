@@ -312,7 +312,7 @@
             @endif
 
             <div class="cta-box">
-                <a href="{{ env('FRONTEND_URL', 'http://localhost:5173') }}/admin" class="cta-btn">
+                <a href="{{ config('app.frontend_url') }}/admin/orders/{{ $order->id ?? $order->_id }}" class="cta-btn">
                     View in Admin Dashboard &rarr;
                 </a>
             </div>

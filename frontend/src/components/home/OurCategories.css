@@ -30,41 +30,46 @@
   color: var(--text-muted);
 }
 
-/* Grid: 6 circles per row */
+/* Grid layout */
 .our-categories__grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 24px;
   justify-items: center;
 }
 
+@media (min-width: 1024px) {
+  .our-categories__grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
 .cat-card {
-  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   text-decoration: none;
   cursor: pointer;
   width: 100%;
-  max-width: 160px;
+  max-width: 220px;
+  gap: 12px;
+  transition: transform 0.2s ease;
+}
+
+.cat-card:active {
+  transform: scale(0.96);
 }
 
 .cat-card__circle {
   position: relative;
   width: 100%;
-  max-width: 160px;
-  aspect-ratio: 1;
+  aspect-ratio: 1 / 1;
   border-radius: 50%;
   overflow: hidden;
   background: var(--bg-card);
-  border: 1px solid var(--gray-300);
+  border: 1px solid var(--border-color, transparent);
   transition: transform 0.35s ease, box-shadow 0.35s ease;
-}
-
-.cat-card:hover .cat-card__circle {
-  transform: scale(1.03);
-  box-shadow: 0 12px 36px rgba(92, 56, 38, 0.15);
 }
 
 .cat-card__img {
@@ -74,103 +79,77 @@
   transition: transform 0.45s ease;
 }
 
-.cat-card:hover .cat-card__img {
-  transform: scale(1.08);
-}
-
-/* Pill Label centered OVER Image */
+/* Label below */
 .cat-card__label {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 3;
-  background: var(--brand-primary);
-  color: #ffffff;
-  border: 1px solid var(--brand-primary);
+  color: var(--text-heading);
   font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 700;
-  padding: 7px 18px;
-  border-radius: 50px;
-  box-shadow: 0 4px 14px rgba(92, 56, 38, 0.25);
-  transition: all 0.25s ease;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  transition: color 0.25s ease;
+  width: 100%;
   white-space: nowrap;
-  pointer-events: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.cat-card:hover .cat-card__label {
-  background: var(--brand-primary-hover);
-  color: #ffffff;
-  border-color: transparent;
-  transform: translate(-50%, -50%) scale(1.04);
+@media (hover: hover) {
+  .cat-card:hover .cat-card__circle {
+    transform: scale(1.03);
+    box-shadow: 0 10px 20px var(--color-primary-light, rgba(0,0,0,0.08));
+  }
+  .cat-card:hover .cat-card__img {
+    transform: scale(1.08);
+  }
+  .cat-card:hover .cat-card__label {
+    color: var(--color-primary);
+  }
 }
 
-@media (max-width: 1100px) {
-  .our-categories__grid { grid-template-columns: repeat(6, 1fr); gap: 10px; }
+/* Tablet */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .our-categories__grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
   .our-categories__container { padding: 0 30px; }
-  .cat-card__label { padding: 7px 16px; font-size: 13px; }
 }
 
-@media (max-width: 768px) {
-  .our-categories__container { padding: 0 16px; }
-  .our-categories__header { margin-bottom: 18px; }
+/* Mobile */
+@media (max-width: 639px) {
+  .our-categories__container { padding: 0; }
+  .our-categories__header { padding: 0 16px; margin-bottom: 18px; }
   .our-categories__title { font-size: 22px; }
   .our-categories__subtitle { font-size: 13px; }
   
   .our-categories__grid { 
     display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
     overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x proximity;
     gap: 12px;
-    padding-bottom: 12px;
+    padding: 4px 16px 12px;
+    scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
   }
   .our-categories__grid::-webkit-scrollbar {
     display: none;
   }
   
-  .cat-card { 
-    flex: 0 0 100px;
-    max-width: none;
-    scroll-snap-align: start;
+  .our-categories__spacer {
+    flex: 0 0 1px;
+    width: 1px;
   }
-  
-  .cat-card__circle { 
-    width: 100px;
-    height: 100px;
-    max-width: none;
-    border-radius: 50%;
-  }
-  
-  /* Ensure images in the circle have a dark overlay as per original design */
-  .cat-card__circle::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.15);
-    border-radius: 50%;
-    z-index: 1;
-  }
-  .cat-card__label {
-    z-index: 2;
-    font-size: 11px;
-    padding: 5px 12px;
-  }
-}
 
-@media (max-width: 480px) {
   .cat-card { 
-    flex: 0 0 88px;
+    flex: 0 0 auto;
+    width: clamp(84px, 25vw, 110px);
+    scroll-snap-align: start;
+    gap: 8px;
   }
-  .cat-card__circle { 
-    width: 88px;
-    height: 88px;
-  }
+  
   .cat-card__label {
-    font-size: 10px;
-    padding: 4px 10px;
+    font-size: 13px;
   }
 }

@@ -510,38 +510,73 @@ export default function Header({ onAccountClick }) {
               return (
                 <li key={cat.id || cat.name} className={`header__nav-item${hasSubs ? ' header__nav-item--has-dropdown' : ''}${isExpanded ? ' header__nav-item--expanded' : ''}`}>
                   <div className="header__nav-link-wrap" style={{ display: 'flex', width: '100%', alignItems: 'center' }}>
+                    {/* Desktop Link */}
                     <Link
                       to={`/category/${catSlug}`}
-                      id={`nav-${catSlug}`}
-                      className={`header__nav-link${isActive ? ' header__nav-link--active' : ''}`}
+                      id={`nav-${catSlug}-desktop`}
+                      className={`header__nav-link desktop-only ${isActive ? ' header__nav-link--active' : ''}`}
                       style={{ flex: 1 }}
                       onClick={() => setMenuOpen(false)}
                     >
                       <span className="header__nav-icon">{ICONS_MAP[cat.name] || <HomeIcon />}</span>
                       <span>{cat.name}</span>
+                      {hasSubs && (
+                        <span className="header__nav-chevron">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <polyline points="6 9 12 15 18 9" />
+                          </svg>
+                        </span>
+                      )}
                     </Link>
-                    {hasSubs && (
+
+                    {/* Mobile Button / Link */}
+                    {hasSubs ? (
                       <button
-                        type="button"
-                        className="header__nav-chevron-btn"
+                        id={`nav-${catSlug}-mobile`}
+                        className={`header__nav-link mobile-only ${isActive ? ' header__nav-link--active' : ''}`}
                         onClick={(e) => {
-                          e.stopPropagation();
                           e.preventDefault();
                           setMobileExpandedCat(prev => prev === catSlug ? null : catSlug);
                         }}
-                        style={{ background: 'none', border: 'none', padding: '12px 16px', cursor: 'pointer', color: '#5c3826', display: 'flex', alignItems: 'center' }}
-                        aria-label="Toggle category"
+                        aria-expanded={isExpanded}
+                        aria-controls={`submenu-${catSlug}`}
+                        style={{ width: '100%', display: 'flex', alignItems: 'center', textAlign: 'left', minHeight: '44px', background: 'transparent', border: 'none', cursor: 'pointer', padding: '15px 20px' }}
                       >
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
-                          <polyline points="6 9 12 15 18 9" />
-                        </svg>
+                        <span className="header__nav-icon">{ICONS_MAP[cat.name] || <HomeIcon />}</span>
+                        <span style={{ flex: 1 }}>{cat.name}</span>
+                        <span className="header__nav-chevron-btn" style={{ padding: '0', display: 'flex', alignItems: 'center' }}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                            <polyline points="6 9 12 15 18 9" />
+                          </svg>
+                        </span>
                       </button>
+                    ) : (
+                      <Link
+                        to={`/category/${catSlug}`}
+                        id={`nav-${catSlug}-mobile`}
+                        className={`header__nav-link mobile-only ${isActive ? ' header__nav-link--active' : ''}`}
+                        style={{ flex: 1, minHeight: '44px' }}
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        <span className="header__nav-icon">{ICONS_MAP[cat.name] || <HomeIcon />}</span>
+                        <span>{cat.name}</span>
+                      </Link>
                     )}
                   </div>
 
                   {/* Dropdown submenu */}
                   {hasSubs && (
-                    <ul className="header__dropdown">
+                    <ul className="header__dropdown" id={`submenu-${catSlug}`}>
+                      <li className="header__dropdown-item mobile-only">
+                        <Link
+                          to={`/category/${catSlug}`}
+                          className="header__dropdown-link"
+                          style={{ fontWeight: '700' }}
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          <span>View All {cat.name}</span>
+                        </Link>
+                      </li>
                       {cat.subcategories.map(sub => {
                         const subSlug = sub.slug || sub.name.toLowerCase();
                         return (
@@ -580,7 +615,7 @@ export default function Header({ onAccountClick }) {
               </Link>
             </li>
             <li className="header__nav-item">
-              <Link to="#!" className="header__nav-link" onClick={() => setMenuOpen(false)}>
+              <Link to="/about" className="header__nav-link" onClick={() => setMenuOpen(false)}>
                 <span>About Us</span>
               </Link>
             </li>
