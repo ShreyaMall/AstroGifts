@@ -426,10 +426,6 @@
 /* RESPONSIVE */
 
 @media (max-width: 1024px) {
-  .header__nav-link { padding: 10px 10px; font-size: 13px; }
-}
-
-@media (max-width: 768px) {
   .desktop-only { display: none !important; }
   .mobile-only { display: flex !important; }
 
@@ -437,13 +433,29 @@
   
   .header__search { display: none; }
   
-  .header__mobile-toggle { display: flex; flex: 1; justify-content: flex-start; padding-left: 0; }
+  .header__mobile-toggle { 
+    display: flex; 
+    flex: 1; 
+    justify-content: flex-start; 
+    padding-left: 0;
+    min-height: 44px;
+    min-width: 44px;
+  }
   
   .header__logo { flex: 1; justify-content: center; }
   
   .header__actions { flex: 1; justify-content: flex-end; gap: 0; }
   
-  .header__cart-btn { padding: 8px; border-radius: 50%; min-width: 36px; justify-content: center; background: transparent; color: #1c1c1c; }
+  .header__cart-btn { 
+    padding: 8px; 
+    border-radius: 50%; 
+    min-width: 44px; 
+    min-height: 44px; 
+    justify-content: center; 
+    background: transparent; 
+    color: #1c1c1c; 
+  }
+  
   .header__cart-btn:hover { background: transparent; }
   .header__cart-badge { top: -4px; right: -8px; }
 
@@ -630,7 +642,7 @@
 @media (max-width: 480px) {
   .header__container { padding: 0 10px; }
   .header__logo-text { font-size: 18px; }
-  .header__icon-btn { width: 36px; height: 36px; }
+  .header__icon-btn { min-width: 44px; min-height: 44px; }
 }
 
 /* Account Dropdown bridge & animation */

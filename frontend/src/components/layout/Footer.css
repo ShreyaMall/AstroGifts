@@ -241,7 +241,7 @@
   }
 }
 
-@media (max-width: 650px) {
+@media (max-width: 768px) {
   .footer__top-row {
     flex-direction: column;
     align-items: flex-start;
@@ -264,5 +264,15 @@
   }
   .footer__container {
     padding: 0 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer__cols-row {
+    grid-template-columns: 1fr; /* Stack columns completely on mobile */
+    gap: 25px;
+  }
+  .footer__app-badges-row {
+    flex-wrap: wrap; /* Prevent overflow on small screens */
   }
 }
