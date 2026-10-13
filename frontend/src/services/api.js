@@ -108,6 +108,13 @@ export const authApi = {
     });
   },
 
+  checkPhone: async (phone) => {
+    return request('/auth/check-phone', {
+      method: 'POST',
+      body: JSON.stringify({ phone }),
+    });
+  },
+
   verifyPhoneOtp: async (phone, otp, name = '') => {
     const res = await request('/auth/verify-otp', {
       method: 'POST',
@@ -645,6 +652,10 @@ export const faqApi = {
   adminDelete: (id) => request(`/admin/faqs/${id}`, { method: 'DELETE' }),
 };
 
+export const settingsApi = {
+  getSiteSettings: async () => request('/site-settings'),
+};
+
 export default {
   auth: authApi,
   categories: categoriesApi,
@@ -657,4 +668,5 @@ export default {
   reviews: reviewsApi,
   contact: contactApi,
   faq: faqApi,
+  settings: settingsApi,
 };

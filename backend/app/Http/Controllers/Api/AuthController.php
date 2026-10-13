@@ -166,12 +166,15 @@ class AuthController extends Controller
                 ], 500);
             }
 
+            $userExists = !empty($user->phone_verified_at);
+
             return response()->json([
                 'status' => 'success',
                 'message' => "6-digit OTP sent to +91 {$phone}",
                 'phone' => $phone,
                 'cooldown' => 120,
                 'retry_after' => 120,
+                'user_exists' => $userExists,
             ]);
         }
 
@@ -231,6 +234,31 @@ class AuthController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => '6-digit OTP sent to your email successfully.'
+        ]);
+    }
+
+    /**
+     * Check if a phone number already has a verified account
+     */
+    public function checkPhone(Request $request): JsonResponse
+    {
+        $phoneInput = $request->input('phone');
+        $phone = $this->normalizePhone($phoneInput);
+
+        if (!$phone) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Please enter a valid 10-digit Indian mobile number.'
+            ], 422);
+        }
+
+        $user = User::where('phone', $phone)->first();
+        $exists = (bool)($user && !empty($user->phone_verified_at));
+
+        return response()->json([
+            'status' => 'success',
+            'exists' => $exists,
+            'phone' => $phone,
         ]);
     }
 

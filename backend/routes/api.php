@@ -26,6 +26,9 @@ use Illuminate\Support\Facades\Route;
 Route::post('/contact', [ContactController::class, 'store']);
 Route::get('/faqs', [FaqController::class, 'index']);
 
+// ── 0. Public Site Settings ──
+Route::get('/site-settings', [\App\Http\Controllers\Api\AdminSettingsController::class, 'getPublicSettings']);
+
 // ── 1. Authentication Routes ──
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
@@ -34,6 +37,7 @@ Route::prefix('auth')->group(function () {
     
     Route::post('/send-otp', [AuthController::class, 'sendOtp'])->middleware('throttle:5,1');
     Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
+    Route::post('/check-phone', [AuthController::class, 'checkPhone'])->middleware('throttle:10,1');
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/me', [AuthController::class, 'me']);
@@ -77,7 +81,7 @@ Route::post('/articles/{slug}/comments', [CommentController::class, 'store']);
 Route::post('/coupons/validate', [CouponController::class, 'validateCoupon']);
 
 // ── 5. Orders & Checkout ──
-Route::middleware('auth:sanctum')->post('/orders', [OrderController::class, 'store']);
+Route::post('/orders', [OrderController::class, 'store']);
 Route::get('/orders/{orderNumber}', [OrderController::class, 'show']);
 Route::post('/orders/{orderNumber}/return-request', [OrderController::class, 'requestReturn']);
 Route::post('/orders/{orderNumber}/cancel-item', [OrderController::class, 'cancelItem']);

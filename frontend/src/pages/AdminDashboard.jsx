@@ -5310,6 +5310,13 @@ function PageSettings() {
     twilioAccountSid: '',
     twilioAuthToken: '',
     twilioVerifySid: '',
+    // Checkout
+    guestCheckoutEnabled: true,
+    showCreateAccount: true,
+    createAccountDefaultChecked: true,
+    createAccountMethod: 'otp',
+    createAccountLabel: 'Create an account?',
+    createAccountHelpText: 'Create an account for faster checkout and order tracking',
   });
 
   const [showKeys, setShowKeys] = useState({
@@ -5341,7 +5348,7 @@ function PageSettings() {
       setLoading(true);
       const res = await adminApi.getSettings();
       if (res?.data) {
-        const { twilio, razorpay, shiprocket } = res.data;
+        const { twilio, razorpay, shiprocket, checkout } = res.data;
         setFormData(prev => ({
           ...prev,
           // Twilio
@@ -5357,6 +5364,13 @@ function PageSettings() {
           // Shiprocket
           shiprocketKey: shiprocket?.key || prev.shiprocketKey,
           shiprocketSecret: shiprocket?.secret || '',
+          // Checkout
+          guestCheckoutEnabled: checkout ? Boolean(checkout.guest_checkout_enabled) : true,
+          showCreateAccount: checkout ? Boolean(checkout.show_create_account) : true,
+          createAccountDefaultChecked: checkout ? Boolean(checkout.create_account_default_checked) : true,
+          createAccountMethod: checkout?.create_account_method || 'otp',
+          createAccountLabel: checkout?.create_account_label || 'Create an account?',
+          createAccountHelpText: checkout?.create_account_help_text || 'Create an account for faster checkout and order tracking',
         }));
         if (razorpay?.mode) {
           setRazorpayMode(razorpay.mode);
@@ -5395,6 +5409,14 @@ function PageSettings() {
       shiprocket: {
         key: formData.shiprocketKey,
         secret: formData.shiprocketSecret,
+      },
+      checkout: {
+        guest_checkout_enabled: Boolean(formData.guestCheckoutEnabled),
+        show_create_account: Boolean(formData.showCreateAccount),
+        create_account_default_checked: Boolean(formData.createAccountDefaultChecked),
+        create_account_method: formData.createAccountMethod,
+        create_account_label: formData.createAccountLabel,
+        create_account_help_text: formData.createAccountHelpText,
       },
     };
 
@@ -5803,6 +5825,164 @@ function PageSettings() {
                   <span>{testOtpStatus.text}</span>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+
+        {/* Checkout & Account Creation Card */}
+        <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '24px', gridColumn: '1 / -1' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ width: '40px', height: '40px', background: '#eff6ff', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2563eb' }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: '#111827' }}>Checkout & Account Creation</h3>
+                <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#6b7280' }}>
+                  Manage guest checkout rules and configure dynamic account creation options.
+                </p>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '4px 10px',
+                borderRadius: '9999px',
+                fontSize: '12px',
+                fontWeight: 600,
+                background: formData.guestCheckoutEnabled ? '#ecfdf5' : '#fef2f2',
+                color: formData.guestCheckoutEnabled ? '#065f46' : '#991b1b',
+              }}>
+                <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: formData.guestCheckoutEnabled ? '#10b981' : '#ef4444' }} />
+                {formData.guestCheckoutEnabled ? 'Guest Checkout Enabled' : 'Guest Checkout Disabled'}
+              </span>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+            {/* Guest Checkout Enabled Toggle */}
+            <div style={{ background: '#f9fafb', padding: '16px', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+              <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+                <div>
+                  <span style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151' }}>
+                    Allow Guest Checkout
+                  </span>
+                  <span style={{ display: 'block', fontSize: '12px', color: '#6b7280', marginTop: '2px' }}>
+                    When disabled, visitors must log in via OTP to place orders.
+                  </span>
+                </div>
+                <input
+                  type="checkbox"
+                  name="guestCheckoutEnabled"
+                  checked={formData.guestCheckoutEnabled}
+                  onChange={handleChange}
+                  style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#d96b27' }}
+                />
+              </label>
+            </div>
+
+            {/* Show Create Account Toggle */}
+            <div style={{ background: '#f9fafb', padding: '16px', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+              <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+                <div>
+                  <span style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151' }}>
+                    Show "Create an account?" Card
+                  </span>
+                  <span style={{ display: 'block', fontSize: '12px', color: '#6b7280', marginTop: '2px' }}>
+                    Render account creation options for guest buyers on checkout.
+                  </span>
+                </div>
+                <input
+                  type="checkbox"
+                  name="showCreateAccount"
+                  checked={formData.showCreateAccount}
+                  onChange={handleChange}
+                  style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#d96b27' }}
+                />
+              </label>
+            </div>
+
+            {/* Default Checked Toggle */}
+            <div style={{ background: '#f9fafb', padding: '16px', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+              <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+                <div>
+                  <span style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151' }}>
+                    Default Checked
+                  </span>
+                  <span style={{ display: 'block', fontSize: '12px', color: '#6b7280', marginTop: '2px' }}>
+                    Check the "Create an account?" box by default on page load.
+                  </span>
+                </div>
+                <input
+                  type="checkbox"
+                  name="createAccountDefaultChecked"
+                  checked={formData.createAccountDefaultChecked}
+                  onChange={handleChange}
+                  style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#d96b27' }}
+                />
+              </label>
+            </div>
+
+            {/* Account Creation Method */}
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>
+                Account Creation Method
+              </label>
+              <select
+                name="createAccountMethod"
+                value={formData.createAccountMethod}
+                onChange={handleChange}
+                style={{ width: '100%', padding: '10px 14px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', outline: 'none', background: '#fff' }}
+              >
+                <option value="otp">OTP Verification (SMS) — Verified before order</option>
+                <option value="password">Password Setup (Min 8 chars, hashed securely)</option>
+              </select>
+              <span style={{ display: 'block', fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                Select whether guests authenticate via mobile OTP or choose a password.
+              </span>
+            </div>
+
+            {/* Create Account Label */}
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>
+                Checkbox Label
+              </label>
+              <input
+                type="text"
+                name="createAccountLabel"
+                value={formData.createAccountLabel}
+                onChange={handleChange}
+                placeholder="Create an account?"
+                style={{ width: '100%', padding: '10px 14px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+              />
+              <span style={{ display: 'block', fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                Primary headline displayed next to the checkout checkbox.
+              </span>
+            </div>
+
+            {/* Create Account Help Text */}
+            <div style={{ gridColumn: '1 / -1' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>
+                Help Text
+              </label>
+              <input
+                type="text"
+                name="createAccountHelpText"
+                value={formData.createAccountHelpText}
+                onChange={handleChange}
+                placeholder="Create an account for faster checkout and order tracking"
+                style={{ width: '100%', padding: '10px 14px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+              />
+              <span style={{ display: 'block', fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                Subtext explaining the value of creating an account to the customer.
+              </span>
             </div>
           </div>
         </div>

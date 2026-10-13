@@ -1,518 +1,1595 @@
-/* ──────────────────────────────────────────────
-   AstroGifts Checkout Page Styling (Warm Chestnut Theme)
-   ────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════
+   AstroGifts Premium Checkout Page Styles
+   Built with AstroGifts Luxury Dermato Warm Cream Design System
+   CSS Variables: --brand-primary, --bg-main, --bg-card, --text-heading, --font-heading, --font-body
+══════════════════════════════════════════════════════════════════════ */
 
-.astrogifts-checkout-page {
+.checkout-page {
+  min-height: 100dvh;
+  background-color: var(--bg-main, #faf4eb);
+  color: var(--text-dark, #4a2c1d);
+  font-family: var(--font-body, "Plus Jakarta Sans", sans-serif);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   1. HEADER & 3-STEP PROGRESS TRACKER
+────────────────────────────────────────────────────────────────────── */
+.checkout-header {
+  background-color: #ffffff;
+  border-bottom: 1px solid rgba(112, 72, 50, 0.12);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 2px 10px rgba(92, 56, 38, 0.04);
+}
+
+.checkout-header__container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.checkout-header__logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: opacity 0.2s ease;
+}
+
+.checkout-header__logo:hover {
+  opacity: 0.9;
+}
+
+/* Stepper Component */
+.checkout-stepper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.checkout-stepper__step {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted, #7c5946);
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 6px 0;
+  cursor: default;
+  transition: color 0.2s ease;
+}
+
+.checkout-stepper__btn {
+  cursor: pointer;
+}
+
+.checkout-stepper__btn:hover {
+  color: var(--brand-primary, #704832);
+}
+
+.checkout-stepper__badge {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  background: #e9decb;
+  color: #704832;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.checkout-stepper__step--active {
+  color: var(--brand-primary, #704832);
+  font-weight: 700;
+  position: relative;
+}
+
+.checkout-stepper__step--active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  background-color: var(--brand-primary, #704832);
+  border-radius: 2px;
+}
+
+.checkout-stepper__step--active .checkout-stepper__badge {
+  background-color: var(--brand-primary, #704832);
+  color: #ffffff;
+}
+
+.checkout-stepper__step--completed {
+  color: #15803d;
+  font-weight: 600;
+}
+
+.checkout-stepper__step--completed .checkout-stepper__badge {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.checkout-stepper__step--disabled {
+  color: #a89487;
+  opacity: 0.65;
+}
+
+.checkout-stepper__divider {
+  color: #d2c1b2;
+  font-weight: 400;
+  font-size: 14px;
+}
+
+@media (max-width: 640px) {
+  .checkout-header__container {
+    padding: 12px 16px;
+  }
+  .checkout-stepper__label {
+    display: none;
+  }
+  .checkout-stepper__step {
+    gap: 0;
+  }
+  .checkout-stepper__step--active::after {
+    display: none;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   2. COLLAPSIBLE ORDER SUMMARY BAR (Mobile < 1024px)
+────────────────────────────────────────────────────────────────────── */
+.checkout-mobile-summary-bar {
+  display: none;
+  background-color: #f7efe2;
+  border-bottom: 1px solid rgba(112, 72, 50, 0.15);
+  position: sticky;
+  top: 60px;
+  z-index: 40;
+}
+
+@media (max-width: 1023px) {
+  .checkout-mobile-summary-bar {
+    display: block;
+  }
+}
+
+.checkout-mobile-summary-trigger {
   width: 100%;
-  background-color: #faf8f5;
-  min-height: 85vh;
-  padding: 30px 0 60px;
-  color: #111827;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--brand-primary, #704832);
   font-family: inherit;
 }
 
-.astrogifts-checkout-container {
-  max-width: 1140px;
+.checkout-mobile-summary-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkout-mobile-summary-count {
+  color: var(--text-muted, #7c5946);
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.checkout-chevron-icon {
+  transition: transform 0.25s ease;
+}
+
+.checkout-chevron-icon--rotated {
+  transform: rotate(180deg);
+}
+
+.checkout-mobile-summary-total {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-heading, #5c3826);
+}
+
+.checkout-mobile-summary-dropdown {
+  background-color: #ffffff;
+  padding: 16px 20px;
+  border-bottom: 1px solid #ebdccb;
+  box-shadow: 0 4px 12px rgba(92, 56, 38, 0.08);
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   3. MAIN CONTENT CONTAINER & TWO-COLUMN GRID
+────────────────────────────────────────────────────────────────────── */
+.checkout-main {
+  flex: 1;
+  padding: 32px 0 60px;
+}
+
+@media (max-width: 1023px) {
+  .checkout-main {
+    padding: 20px 0 100px; /* Space for mobile sticky bottom bar */
+  }
+}
+
+.checkout-container {
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
 }
 
-.astrogifts-checkout-grid {
-  display: grid;
-  grid-template-columns: 1.25fr 0.75fr;
-  gap: 24px;
-  align-items: start;
-}
-
-@media (max-width: 1024px) {
-  .astrogifts-checkout-grid {
-    grid-template-columns: 1fr;
-    gap: 20px;
+@media (max-width: 640px) {
+  .checkout-container {
+    padding: 0 14px;
   }
 }
 
-.astrogifts-left-col {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.astrogifts-right-col {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  position: sticky;
-  top: 90px;
-}
-
-/* Cards styling */
-.astrogifts-card {
-  background: #ffffff;
-  border: 1px solid #eae5df;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-}
-
-.astrogifts-card-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #f3eeea;
-}
-
-.astrogifts-card-header h2 {
-  font-size: 18px;
-  font-weight: 700;
-  color: #111827;
-  margin: 0;
-  letter-spacing: -0.2px;
-}
-
-.astrogifts-header-icon {
-  color: #7c3a1d;
-}
-
-/* Email Banner */
-.astrogifts-email-banner {
-  background: #eef7ed;
-  border: 1px solid #c3e6cb;
-  border-radius: 8px;
-  padding: 14px 18px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 14px;
-  color: #155724;
-}
-
-.astrogifts-email-banner strong {
-  color: #0f401b;
-}
-
-/* Form Grid */
-.astrogifts-form-grid {
+/* Grid Layout */
+.checkout-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
-
-@media (max-width: 768px) {
-  .astrogifts-form-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.astrogifts-form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.astrogifts-full-width {
-  grid-column: 1 / -1;
-}
-
-.astrogifts-form-group label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #374151;
-}
-
-.astrogifts-form-group input {
-  width: 100%;
-  padding: 11px 14px;
-  border: 1px solid #dcd5cc;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #111827;
-  outline: none;
-  background: #ffffff;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  box-sizing: border-box;
-}
-
-.astrogifts-form-group input::placeholder {
-  color: #9ca3af;
-  font-size: 13px;
-}
-
-.astrogifts-form-group input:focus {
-  border-color: #7c3a1d;
-  box-shadow: 0 0 0 3px rgba(124, 58, 29, 0.12);
-}
-
-/* Payment Method Options */
-.astrogifts-payment-options {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.astrogifts-radio-option {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 16px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  cursor: pointer;
-  background: #ffffff;
-  transition: all 0.15s ease;
-  position: relative;
-}
-
-.astrogifts-radio-option:hover {
-  border-color: #7c3a1d;
-  background: #fdfaf6;
-}
-
-.astrogifts-radio-option.active {
-  border-color: #7c3a1d;
-  background: #fdf6f0;
-}
-
-.astrogifts-radio-option input[type="radio"] {
-  accent-color: #7c3a1d;
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-}
-
-.astrogifts-radio-text {
-  font-size: 14px;
-  font-weight: 500;
-  color: #374151;
-}
-
-/* Order Items List */
-.astrogifts-items-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.astrogifts-item-row {
-  display: flex;
-  gap: 14px;
+  grid-template-columns: minmax(0, 1.25fr) minmax(360px, 0.85fr);
+  gap: 32px;
   align-items: flex-start;
+}
+
+@media (max-width: 1023px) {
+  .checkout-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+.checkout-col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Card Container */
+.checkout-card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px solid rgba(112, 72, 50, 0.1);
+  box-shadow: 0 4px 20px -2px rgba(92, 56, 38, 0.05);
+  padding: 28px;
+}
+
+@media (max-width: 640px) {
+  .checkout-card {
+    padding: 20px 16px;
+    border-radius: 12px;
+  }
+}
+
+.checkout-card--sticky {
+  position: sticky;
+  top: 86px;
+}
+
+@media (max-width: 1023px) {
+  .checkout-card--sticky {
+    position: static;
+  }
+}
+
+.checkout-card__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
   padding-bottom: 14px;
-  border-bottom: 1px solid #f3eeea;
+  border-bottom: 1px solid #f1e6d7;
 }
 
-.astrogifts-item-row:last-child {
-  padding-bottom: 0;
-  border-bottom: none;
-}
-
-.astrogifts-item-thumb {
-  width: 56px;
-  height: 56px;
-  object-fit: cover;
+.checkout-card__header-icon {
+  width: 36px;
+  height: 36px;
   border-radius: 8px;
-  border: 1px solid #eae5df;
+  background-color: #f6ecdc;
+  color: var(--brand-primary, #704832);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
 
-.astrogifts-item-info {
+.checkout-card__header-text-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.checkout-card__title {
+  font-family: var(--font-heading, "Outfit", sans-serif);
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text-heading, #5c3826);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.checkout-link-return-btn {
+  background: none;
+  border: none;
+  color: var(--brand-primary, #704832);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   4. ALERTS & NOTIFICATIONS
+────────────────────────────────────────────────────────────────────── */
+.checkout-alert {
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.checkout-alert--error {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+
+.checkout-alert--warning {
+  background-color: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #b45309;
+}
+
+.checkout-alert--info {
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+}
+
+.checkout-alert__text {
   flex: 1;
 }
 
-.astrogifts-item-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 10px;
-  margin-bottom: 4px;
-}
-
-.astrogifts-item-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #111827;
-  margin: 0;
-  line-height: 1.3;
-}
-
-.astrogifts-item-price-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
-
-.astrogifts-item-price {
-  font-size: 15px;
-  font-weight: 700;
-  color: #7c3a1d;
-}
-
-.astrogifts-item-old-price {
-  font-size: 12px;
-  color: #9ca3af;
-  text-decoration: line-through;
-}
-
-.astrogifts-item-meta {
-  font-size: 12px;
-  color: #6b7280;
-}
-
-/* Order Summary Card */
-.astrogifts-summary-card .astrogifts-card-header {
-  border-bottom: 1px solid #eae5df;
-}
-
-.astrogifts-summary-rows {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 18px;
-}
-
-.astrogifts-summary-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-  color: #4b5563;
-}
-
-.astrogifts-summary-row strong {
-  color: #111827;
-  font-weight: 600;
-}
-
-.astrogifts-divider {
-  height: 1px;
-  background-color: #eae5df;
-  margin: 4px 0;
-}
-
-.astrogifts-total-row {
-  font-size: 16px;
-  color: #111827;
-  padding-top: 4px;
-}
-
-.astrogifts-total-price {
-  font-size: 20px;
-  font-weight: 800;
-  color: #7c3a1d;
-}
-
-/* Coupon section */
-.astrogifts-coupon-section {
-  margin-bottom: 20px;
-}
-
-.astrogifts-coupon-link {
+.checkout-alert__link-btn {
   background: none;
   border: none;
-  color: #7c3a1d;
-  font-size: 13px;
-  font-weight: 600;
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
   cursor: pointer;
   padding: 0;
 }
 
-.astrogifts-coupon-link:hover {
+.checkout-alert__close {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.checkout-alert__close:hover {
+  opacity: 1;
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   5. SAVED ADDRESS SELECTION CARDS
+────────────────────────────────────────────────────────────────────── */
+.checkout-saved-address-card {
+  background: #fdfaf5;
+  border: 1.5px solid #e7d8c5;
+  border-radius: 12px;
+  padding: 18px 20px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.checkout-saved-address-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.checkout-saved-address-name {
+  font-size: 16px;
+  color: var(--text-heading, #5c3826);
+}
+
+.checkout-default-pill {
+  background: #e8dccb;
+  color: #704832;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.03em;
+}
+
+.checkout-saved-address-text p {
+  margin: 3px 0;
+  font-size: 14px;
+  color: #5d4037;
+  line-height: 1.45;
+}
+
+.checkout-saved-address-phone {
+  margin-top: 8px !important;
+  color: #3e2723;
+}
+
+.checkout-saved-address-actions {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #ede1d1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.checkout-text-btn {
+  background: none;
+  border: none;
+  color: var(--brand-primary, #704832);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.checkout-text-btn:hover {
   text-decoration: underline;
 }
 
-.astrogifts-coupon-box {
+.checkout-btn-divider {
+  color: #c9b4a1;
+}
+
+/* Address Picker Dropdown Modal */
+.checkout-address-picker-modal {
+  margin-top: 16px;
+  background: #ffffff;
+  border: 1px solid #e1d3bf;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.checkout-address-picker-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-heading, #5c3826);
+  margin: 0 0 12px;
+}
+
+.checkout-address-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.checkout-address-radio-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #ebdccb;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.checkout-address-radio-item:hover {
+  border-color: var(--brand-primary, #704832);
+  background: #fdfaf6;
+}
+
+.checkout-address-radio-item--selected {
+  border-color: var(--brand-primary, #704832);
+  background: #fcf6ee;
+}
+
+.checkout-address-radio-content strong {
+  font-size: 14px;
+  color: var(--text-heading, #5c3826);
+}
+
+.checkout-address-radio-content p {
+  margin: 4px 0 2px;
+  font-size: 13px;
+  color: #6d4c41;
+}
+
+.checkout-address-radio-content span {
+  font-size: 12px;
+  color: #8d6e63;
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   6. FORM FIELDS & ACCESSIBILITY
+────────────────────────────────────────────────────────────────────── */
+.checkout-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+
+@media (max-width: 640px) {
+  .checkout-form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+.checkout-form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.checkout-full-width {
+  grid-column: 1 / -1;
+}
+
+.checkout-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-heading, #5c3826);
+  margin-bottom: 6px;
+}
+
+.checkout-required-star {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.checkout-optional-tag {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-muted, #7c5946);
+}
+
+.checkout-loading-badge {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--brand-primary, #704832);
+  margin-left: auto;
+}
+
+/* 48px Height Accessible Inputs */
+.checkout-input,
+.checkout-select {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 1.5px solid #dccfc1;
+  border-radius: 10px;
+  font-size: 16px; /* Prevents auto-zoom on iOS */
+  color: var(--text-dark, #4a2c1d);
+  background-color: #ffffff;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.checkout-input:focus,
+.checkout-select:focus,
+.checkout-textarea:focus {
+  border-color: var(--brand-primary, #704832);
+  box-shadow: 0 0 0 3px rgba(112, 72, 50, 0.15);
+}
+
+.checkout-input--disabled {
+  background-color: #f7eee2;
+  color: #7d6252;
+  cursor: not-allowed;
+  border-color: #e5d7c7;
+}
+
+.checkout-input--error,
+.checkout-select--error {
+  border-color: #dc2626 !important;
+  background-color: #fffafb;
+}
+
+.checkout-input--error:focus,
+.checkout-select--error:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15) !important;
+}
+
+.checkout-error-msg {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #dc2626;
+  margin-top: 5px;
+}
+
+/* Phone input with fixed country badge */
+.checkout-phone-input-wrap {
+  display: flex;
+  align-items: stretch;
+  position: relative;
+}
+
+.checkout-country-prefix {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  background-color: #f7ede1;
+  border: 1.5px solid #dccfc1;
+  border-right: none;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #5c3826;
+  user-select: none;
+}
+
+.checkout-input--prefixed {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* Textarea */
+.checkout-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #dccfc1;
+  border-radius: 10px;
+  font-size: 15px;
+  color: var(--text-dark, #4a2c1d);
+  background-color: #ffffff;
+  outline: none;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 80px;
+  box-sizing: border-box;
+}
+
+/* Checkbox Labels */
+.checkout-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text-dark, #4a2c1d);
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkout-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--brand-primary, #704832);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.checkout-ship-different-label {
+  font-size: 15px;
+  color: var(--text-heading, #5c3826);
+}
+
+.checkout-secondary-ship-form {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #ebdccb;
+}
+
+.checkout-secondary-ship-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-heading, #5c3826);
+  margin: 0 0 16px;
+}
+
+/* Create an Account Card */
+#checkout-create-account-card {
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.checkout-create-account-header {
+  position: relative;
+}
+
+.checkout-create-account-body {
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   7. RIGHT CARD: PRODUCTS, BREAKDOWN, SHIPPING PROGRESS
+────────────────────────────────────────────────────────────────────── */
+/* Free Shipping Progress Track */
+.checkout-shipping-progress-box {
+  background-color: #fbf5eb;
+  border: 1px solid #ebdccb;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+}
+
+.checkout-shipping-progress-text {
+  font-size: 13.5px;
+  color: var(--text-heading, #5c3826);
+  margin-bottom: 8px;
+}
+
+.checkout-shipping-progress-qualified {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #15803d;
+  font-weight: 600;
+}
+
+.checkout-shipping-progress-track {
+  width: 100%;
+  height: 8px;
+  background-color: #e8dccb;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.checkout-shipping-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #b87d57 0%, #704832 100%);
+  border-radius: 6px;
+  transition: width 0.3s ease;
+}
+
+/* Product Line Item Rows */
+.checkout-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.desktop-items-list {
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 4px;
+  margin-bottom: 18px;
+}
+
+.checkout-item-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f2e7d9;
+}
+
+.checkout-item-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.checkout-item-thumb-wrap {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+}
+
+.checkout-item-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #ebdccb;
+  background-color: #f7eee2;
+}
+
+.checkout-item-qty-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background-color: var(--brand-primary, #704832);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkout-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.checkout-item-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-heading, #5c3826);
+  margin: 0 0 3px;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.checkout-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted, #7c5946);
+  margin-bottom: 4px;
+}
+
+.checkout-item-meta-color {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.checkout-color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  border: 1px solid #ccc;
+}
+
+.checkout-item-unit-price {
+  font-size: 12px;
+  color: #8c6753;
+}
+
+.checkout-item-price-col {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.checkout-item-line-total {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-heading, #5c3826);
+}
+
+/* Delivery Note */
+.checkout-delivery-note {
+  background-color: #f6ecdc;
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-heading, #5c3826);
+  margin-bottom: 18px;
+}
+
+/* Coupon Accordion */
+.checkout-coupon-section {
+  margin-bottom: 20px;
+}
+
+.checkout-coupon-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--brand-primary, #704832);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.checkout-coupon-toggle-btn:hover {
+  text-decoration: underline;
+}
+
+.checkout-coupon-box {
   margin-top: 10px;
 }
 
-.astrogifts-coupon-input-group {
+.checkout-coupon-input-group {
   display: flex;
   gap: 8px;
 }
 
-.astrogifts-coupon-input-group input {
+.checkout-coupon-input {
   flex: 1;
-  padding: 8px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 13px;
+  padding: 10px 12px;
+  border: 1.5px solid #dccfc1;
+  border-radius: 8px;
+  font-size: 14px;
+  text-transform: uppercase;
   outline: none;
 }
 
-.astrogifts-coupon-input-group button {
-  background: #7c3a1d;
-  color: #ffffff;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 16px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
+.checkout-coupon-input:focus {
+  border-color: var(--brand-primary, #704832);
 }
 
-.astrogifts-coupon-msg {
-  font-size: 12px;
-  margin-top: 6px;
-  padding: 6px 10px;
-  border-radius: 4px;
-}
-
-.astrogifts-coupon-msg.success {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.astrogifts-coupon-msg.error {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-/* Action Buttons */
-.astrogifts-action-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.astrogifts-place-order-btn {
-  width: 100%;
-  background: #7c3a1d;
+.checkout-coupon-apply-btn {
+  background-color: var(--brand-primary, #704832);
   color: #ffffff;
   border: none;
   border-radius: 8px;
-  padding: 14px 20px;
-  font-size: 15px;
+  padding: 10px 18px;
   font-weight: 700;
+  font-size: 13.5px;
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.1s ease;
-  box-shadow: 0 2px 6px rgba(124, 58, 29, 0.2);
+  transition: background 0.2s ease;
 }
 
-.astrogifts-place-order-btn:hover {
-  background: #6b3117;
+.checkout-coupon-apply-btn:hover:not(:disabled) {
+  background-color: var(--brand-primary-hover, #543221);
 }
 
-.astrogifts-place-order-btn:disabled {
+.checkout-coupon-apply-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.astrogifts-back-cart-btn {
-  width: 100%;
-  background: #ffffff;
-  color: #374151;
-  border: 1.5px solid #d1d5db;
-  border-radius: 8px;
-  padding: 12px 20px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
-
-.astrogifts-back-cart-btn:hover {
-  background: #fdf6f0;
-  border-color: #7c3a1d;
-  color: #7c3a1d;
-}
-
-/* Empty Cart State */
-.astrogifts-empty-cart-box {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 60px 20px;
-  text-align: center;
-  max-width: 500px;
-  margin: 40px auto;
-  border: 1px solid #e5e7eb;
-}
-
-.astrogifts-empty-cart-box h2 {
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.astrogifts-empty-cart-box p {
-  color: #6b7280;
-  font-size: 14px;
-  margin-bottom: 24px;
-}
-
-.astrogifts-btn-primary {
-  background: #7c3a1d;
-  color: #ffffff;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-/* Success Step Screen */
-.astrogifts-success-box {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 40px;
-  max-width: 600px;
-  margin: 20px auto;
-  border: 1px solid #e5e7eb;
-  text-align: center;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-}
-
-.astrogifts-success-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: #dcfce7;
+.checkout-applied-coupon-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin: 0 auto 20px;
-}
-
-.astrogifts-success-box h2 {
-  font-size: 22px;
-  font-weight: 800;
-  color: #111827;
-  margin-bottom: 8px;
-}
-
-.astrogifts-success-box p {
-  color: #4b5563;
-  font-size: 14px;
-  margin-bottom: 24px;
-}
-
-.astrogifts-success-details {
-  background: #faf8f5;
-  border: 1px solid #f3eeea;
+  justify-content: space-between;
+  background-color: #eef7ed;
+  border: 1px solid #c8e6c9;
   border-radius: 8px;
-  padding: 16px 20px;
-  margin-bottom: 24px;
+  padding: 8px 12px;
+}
+
+.checkout-applied-coupon-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkout-applied-coupon-code {
+  font-weight: 700;
+  font-size: 13px;
+  color: #155724;
+}
+
+.checkout-applied-coupon-amount {
+  font-size: 12px;
+  color: #15803d;
+  font-weight: 600;
+}
+
+.checkout-coupon-remove-btn {
+  background: none;
+  border: none;
+  color: #b91c1c;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.checkout-coupon-msg {
+  font-size: 12px;
+  margin-top: 6px;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.checkout-coupon-msg--success {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.checkout-coupon-msg--error {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Totals Breakdown */
+.checkout-breakdown {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  text-align: left;
-  font-size: 14px;
+  margin-bottom: 24px;
 }
 
-.astrogifts-success-details div {
+.checkout-breakdown-row {
   display: flex;
   justify-content: space-between;
-  color: #4b5563;
+  font-size: 14.5px;
+  color: var(--text-dark, #4a2c1d);
 }
 
-.astrogifts-success-details strong {
-  color: #111827;
+.checkout-breakdown-row--discount {
+  color: #15803d;
+  font-weight: 600;
 }
 
-.astrogifts-success-actions {
+.checkout-free-badge {
+  background-color: #dcfce7;
+  color: #15803d;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.checkout-breakdown-divider {
+  height: 1px;
+  background-color: #ebdccb;
+  margin: 4px 0;
+}
+
+.checkout-breakdown-row--total {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-heading, #5c3826);
+  padding-top: 4px;
+}
+
+.checkout-final-total-amount {
+  font-size: 22px;
+  color: var(--brand-primary, #704832);
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   8. PAYMENT METHODS LIST
+────────────────────────────────────────────────────────────────────── */
+.checkout-payment-section {
+  margin-bottom: 20px;
+  padding-top: 18px;
+  border-top: 1px solid #ebdccb;
+}
+
+.checkout-payment-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-heading, #5c3826);
+  margin: 0 0 12px;
+}
+
+.checkout-payment-options {
   display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.checkout-payment-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1.5px solid #dccfc1;
+  border-radius: 12px;
+  cursor: pointer;
+  background-color: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.checkout-payment-card:hover {
+  border-color: var(--brand-primary, #704832);
+  background-color: #fdfaf6;
+}
+
+.checkout-payment-card--active {
+  border-color: var(--brand-primary, #704832);
+  background-color: #faf3e8;
+  box-shadow: 0 0 0 1px var(--brand-primary, #704832);
+}
+
+.checkout-payment-radio {
+  accent-color: var(--brand-primary, #704832);
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  cursor: pointer;
+}
+
+.checkout-payment-card-body {
+  flex: 1;
+}
+
+.checkout-payment-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+
+.checkout-payment-name {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-heading, #5c3826);
+}
+
+.checkout-payment-tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background-color: #ebdccb;
+  color: #704832;
+}
+
+.checkout-payment-tag--secure {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.checkout-payment-desc {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--text-muted, #7c5946);
+  line-height: 1.4;
+}
+
+/* Terms note */
+.checkout-terms-note {
+  font-size: 12px;
+  color: var(--text-muted, #7c5946);
+  line-height: 1.4;
+  margin-bottom: 18px;
+}
+
+.checkout-terms-note a {
+  color: var(--brand-primary, #704832);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   9. BUTTONS & ACTIONS
+────────────────────────────────────────────────────────────────────── */
+.checkout-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-weight: 700;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.checkout-btn--submit {
+  width: 100%;
+  padding: 16px 24px;
+  background-color: var(--brand-primary, #704832);
+  color: #ffffff;
+  border: none;
+  font-size: 16px;
+  box-shadow: 0 4px 14px rgba(112, 72, 50, 0.28);
+}
+
+.checkout-btn--submit:hover:not(:disabled) {
+  background-color: var(--brand-primary-hover, #543221);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(112, 72, 50, 0.35);
+}
+
+.checkout-btn--submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.checkout-btn-loading-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.checkout-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: checkoutSpin 0.7s linear infinite;
+}
+
+@keyframes checkoutSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   10. MOBILE STICKY BOTTOM ACTION BAR (< 1024px)
+────────────────────────────────────────────────────────────────────── */
+.checkout-mobile-bottom-bar {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 90;
+  background-color: #ffffff;
+  border-top: 1px solid rgba(112, 72, 50, 0.15);
+  box-shadow: 0 -4px 16px rgba(92, 56, 38, 0.08);
+  padding: 12px 18px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+@media (max-width: 1023px) {
+  .checkout-mobile-bottom-bar {
+    display: block;
+  }
+}
+
+.checkout-mobile-bottom-bar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.checkout-mobile-bottom-total-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.checkout-mobile-bottom-label {
+  font-size: 11.5px;
+  color: var(--text-muted, #7c5946);
+  font-weight: 500;
+}
+
+.checkout-mobile-bottom-price {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--brand-primary, #704832);
+}
+
+.checkout-btn--mobile-submit {
+  flex: 1;
+  max-width: 200px;
+  padding: 13px 20px;
+  background-color: var(--brand-primary, #704832);
+  color: #ffffff;
+  border: none;
+  font-size: 15px;
+}
+
+.checkout-btn--mobile-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   11. STEP 3: ORDER COMPLETE SCREEN
+────────────────────────────────────────────────────────────────────── */
+.checkout-complete-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid rgba(112, 72, 50, 0.12);
+  box-shadow: 0 8px 30px rgba(92, 56, 38, 0.06);
+  padding: 48px 36px;
+  max-width: 720px;
+  margin: 20px auto;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .checkout-complete-card {
+    padding: 30px 20px;
+  }
+}
+
+.checkout-complete-badge {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 20px rgba(22, 163, 74, 0.28);
+}
+
+.checkout-complete-title {
+  font-family: var(--font-heading, "Outfit", sans-serif);
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text-heading, #5c3826);
+  margin: 0 0 10px;
+}
+
+.checkout-complete-subtitle {
+  font-size: 15px;
+  color: var(--text-muted, #7c5946);
+  margin: 0 0 24px;
+}
+
+.checkout-complete-order-num {
+  display: inline-block;
+  background-color: #f7eee2;
+  border: 1px dashed #cca589;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 16px;
+  color: var(--text-heading, #5c3826);
+  margin-bottom: 28px;
+}
+
+.checkout-complete-order-num strong {
+  color: var(--brand-primary, #704832);
+}
+
+.checkout-complete-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  text-align: left;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 640px) {
+  .checkout-complete-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.checkout-complete-info-box {
+  background-color: #fbf6ee;
+  border: 1px solid #ebdccb;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.checkout-complete-label {
+  font-size: 12px;
+  color: var(--text-muted, #7c5946);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.checkout-complete-highlight {
+  color: var(--brand-primary, #704832);
+  font-size: 18px;
+}
+
+.checkout-complete-shipping-box,
+.checkout-complete-items-box {
+  background-color: #ffffff;
+  border: 1px solid #ebdccb;
+  border-radius: 12px;
+  padding: 18px 20px;
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.checkout-complete-section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-heading, #5c3826);
+  margin: 0 0 10px;
+  border-bottom: 1px solid #f2e7d9;
+  padding-bottom: 8px;
+}
+
+.checkout-complete-shipping-box p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #4a2c1d;
+}
+
+.checkout-complete-items-list {
+  display: flex;
+  flex-direction: column;
   gap: 12px;
 }
 
-.astrogifts-success-actions button {
+.checkout-complete-item-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.checkout-complete-item-img {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ebdccb;
+}
+
+.checkout-complete-item-info {
   flex: 1;
+}
+
+.checkout-complete-item-name {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a2c1d;
+}
+
+.checkout-complete-item-meta {
+  font-size: 12px;
+  color: #7c5946;
+}
+
+.checkout-complete-item-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--brand-primary, #704832);
+}
+
+.checkout-complete-actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 28px;
+}
+
+@media (max-width: 640px) {
+  .checkout-complete-actions {
+    flex-direction: column;
+  }
+}
+
+.checkout-btn--primary {
+  flex: 1;
+  padding: 14px 20px;
+  background-color: var(--brand-primary, #704832);
+  color: #ffffff;
+  border: none;
+  font-size: 15px;
+}
+
+.checkout-btn--primary:hover {
+  background-color: var(--brand-primary-hover, #543221);
+}
+
+.checkout-btn--secondary {
+  flex: 1;
+  padding: 14px 20px;
+  background-color: #ffffff;
+  color: var(--brand-primary, #704832);
+  border: 1.5px solid var(--brand-primary, #704832);
+  font-size: 15px;
+}
+
+.checkout-btn--secondary:hover {
+  background-color: #fdfaf6;
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   12. EMPTY CART VIEW
+────────────────────────────────────────────────────────────────────── */
+.checkout-empty-state {
+  max-width: 480px;
+  margin: 40px auto;
+  text-align: center;
+  padding: 50px 24px;
+}
+
+.checkout-empty-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background-color: #f6ecdc;
+  color: var(--brand-primary, #704832);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.checkout-empty-title {
+  font-family: var(--font-heading, "Outfit", sans-serif);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-heading, #5c3826);
+  margin: 0 0 10px;
+}
+
+.checkout-empty-desc {
+  font-size: 14.5px;
+  color: var(--text-muted, #7c5946);
+  margin: 0 0 24px;
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   13. SKELETON LOADERS
+────────────────────────────────────────────────────────────────────── */
+.checkout-skeleton-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 40px;
+}
+
+.checkout-skeleton {
+  background: linear-gradient(90deg, #f0e6d8 25%, #faefe1 50%, #f0e6d8 75%);
+  background-size: 200% 100%;
+  border-radius: 8px;
+  animation: skeletonLoading 1.5s infinite;
+}
+
+.checkout-skeleton--title {
+  width: 40%;
+  height: 28px;
+}
+
+.checkout-skeleton--text {
+  width: 100%;
+  height: 48px;
+}
+
+@keyframes skeletonLoading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   14. REDUCED MOTION PREFERENCES
+────────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

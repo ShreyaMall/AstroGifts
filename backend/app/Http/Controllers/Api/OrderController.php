@@ -7,14 +7,18 @@ use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\Setting;
+use App\Models\User;
 use App\Mail\AdminNewOrderMail;
 use App\Mail\CustomerOrderConfirmationMail;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 
 class OrderController extends Controller
@@ -129,19 +133,151 @@ class OrderController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $user = $request->user();
-        if (!$user) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Authentication required to place an order. Please log in with your mobile number.',
-            ], 401);
-        }
+        $user = $request->user('sanctum') ?? $request->user();
 
-        if (empty($user->phone_verified_at)) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Mobile number verification is required before placing an order.',
-            ], 403);
+        $checkoutSettings = Setting::get('checkout', []);
+        $guestCheckoutEnabled = isset($checkoutSettings['guest_checkout_enabled']) ? (bool)$checkoutSettings['guest_checkout_enabled'] : true;
+        $showCreateAccount = isset($checkoutSettings['show_create_account']) ? (bool)$checkoutSettings['show_create_account'] : true;
+        $defaultMethod = $checkoutSettings['create_account_method'] ?? 'otp';
+
+        $createAccount = (bool)$request->input('create_account', false);
+        $authToken = null;
+
+        if (!$user) {
+            if (!$guestCheckoutEnabled) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Guest checkout is disabled. Please log in with your mobile number to complete your order.',
+                ], 403);
+            }
+
+            if ($createAccount) {
+                if (!$showCreateAccount) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Account creation during checkout is currently disabled.',
+                    ], 422);
+                }
+
+                $rawPhone = (string)$request->input('phone', '');
+                $cleanPhone = preg_replace('/\D/', '', $rawPhone);
+                if (strlen($cleanPhone) === 12 && str_starts_with($cleanPhone, '91')) {
+                    $cleanPhone = substr($cleanPhone, 2);
+                }
+
+                if (!preg_match('/^[6-9]\d{9}$/', $cleanPhone)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Please provide a valid 10-digit Indian mobile number starting with 6-9 for account creation.',
+                    ], 422);
+                }
+
+                // Throttle 5/min per IP and phone
+                $ip = $request->ip();
+                $throttleKey = 'create_account:' . $ip . ':' . $cleanPhone;
+                if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+                    $seconds = RateLimiter::availableIn($throttleKey);
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => "Too many account creation attempts. Please try again in {$seconds} seconds.",
+                    ], 429);
+                }
+                RateLimiter::hit($throttleKey, 60);
+
+                // Prevent duplicate verified accounts
+                $existingVerified = User::where('phone', $cleanPhone)->whereNotNull('phone_verified_at')->first();
+                if ($existingVerified) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'An account already exists for this number. Please log in.',
+                        'account_exists' => true,
+                    ], 422);
+                }
+
+                $method = $request->input('create_account_method', $defaultMethod);
+
+                if ($method === 'password') {
+                    $password = (string)$request->input('password', '');
+                    $passwordConfirmation = (string)$request->input('password_confirmation', '');
+
+                    if (strlen($password) < 8) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Password must be at least 8 characters long.',
+                        ], 422);
+                    }
+
+                    if ($password !== $passwordConfirmation) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Passwords do not match.',
+                        ], 422);
+                    }
+
+                    $draftUser = User::where('phone', $cleanPhone)->first() ?? new User();
+                    $draftUser->phone = $cleanPhone;
+                    $draftUser->name = trim((string)$request->input('customer_name', ''));
+                    if ($request->filled('email')) {
+                        $draftUser->email = strtolower(trim((string)$request->input('email')));
+                    }
+                    $draftUser->password = Hash::make($password);
+                    $draftUser->phone_verified_at = Carbon::now();
+                    $draftUser->role = 'customer';
+                    $draftUser->save();
+
+                    $user = $draftUser;
+                } else {
+                    // Method: OTP
+                    $otp = trim((string)$request->input('otp', ''));
+                    if (strlen($otp) !== 6 || !ctype_digit($otp)) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'A valid 6-digit verification code is required.',
+                        ], 422);
+                    }
+
+                    $draftUser = User::where('phone', $cleanPhone)->first();
+                    if (!$draftUser || !$draftUser->otp_expires_at || Carbon::now()->greaterThan(new Carbon($draftUser->otp_expires_at))) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Verification code has expired. Please request a new code.',
+                        ], 422);
+                    }
+
+                    $otpHash = hash('sha256', $otp);
+                    $isValid = ($draftUser->otp_hash && $draftUser->otp_hash === $otpHash) || ($draftUser->otp && $draftUser->otp === $otp);
+                    if (!$isValid) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Invalid verification code. Please check and try again.',
+                        ], 422);
+                    }
+
+                    $draftUser->name = trim((string)$request->input('customer_name', ''));
+                    if ($request->filled('email')) {
+                        $draftUser->email = strtolower(trim((string)$request->input('email')));
+                    }
+                    $draftUser->phone_verified_at = Carbon::now();
+                    $draftUser->otp = null;
+                    $draftUser->otp_hash = null;
+                    $draftUser->otp_expires_at = null;
+                    $draftUser->role = 'customer';
+                    $draftUser->save();
+
+                    $user = $draftUser;
+                }
+
+                // Generate Sanctum token for the new user
+                $authToken = $user->createToken('customer_token', ['customer'])->plainTextToken;
+            }
+        } else {
+            // Logged-in user: ignore create_account flag even if passed
+            if (empty($user->phone_verified_at)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Mobile number verification is required before placing an order.',
+                ], 403);
+            }
         }
 
         $validated = $request->validate([
@@ -268,7 +404,7 @@ class OrderController extends Controller
             'pincode' => $validated['zip'] ?? '',
         ];
 
-        $userId = auth('sanctum')->check() ? auth('sanctum')->id() : null;
+        $userId = $user ? (string)($user->_id ?? $user->id) : (auth('sanctum')->check() ? (string)auth('sanctum')->id() : null);
 
         $order = Order::create([
             'order_number' => $orderNumber,
@@ -405,11 +541,26 @@ class OrderController extends Controller
             }
         }
 
-        return response()->json([
+        $response = [
             'status' => 'success',
             'message' => 'Order placed successfully!',
             'data' => $order,
-        ], 201);
+            'order' => $order,
+        ];
+
+        if (!empty($authToken) && $user) {
+            $response['auth_token'] = $authToken;
+            $response['token'] = $authToken;
+            $response['user'] = [
+                'id' => (string)($user->_id ?? $user->id),
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'role' => $user->role,
+            ];
+        }
+
+        return response()->json($response, 201);
     }
 
     /**
