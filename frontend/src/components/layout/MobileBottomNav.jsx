@@ -12,7 +12,11 @@ export default function MobileBottomNav({ onAccountClick }) {
   const { wishlistCount, openWishlist } = useWishlist();
   const { authRole, isAuthenticated, isAdmin, openAuth } = useAuth();
 
-  if (location.pathname.startsWith('/admin')) {
+  if (
+    location.pathname.startsWith('/admin') ||
+    location.pathname === '/checkout' ||
+    location.pathname.startsWith('/order-complete')
+  ) {
     return null;
   }
 

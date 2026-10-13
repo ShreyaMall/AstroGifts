@@ -77,11 +77,28 @@ const formatSlidePrice = (p) => {
   return '₹' + str;
 };
 
+const SLIDES_CACHE_KEY = 'astrogifts_hero_slides_cache';
+
+function getCachedSlides() {
+  try {
+    const raw = localStorage.getItem(SLIDES_CACHE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    }
+  } catch {
+    // Ignore localStorage errors
+  }
+  return [];
+}
+
 export default function HeroSlider() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  const [slides, setSlides] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [slides, setSlides] = useState(() => getCachedSlides());
+  const [loading, setLoading] = useState(() => getCachedSlides().length === 0);
   const [current, setCurrent] = useState(0);
   const [prevSlide, setPrevSlide] = useState(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -90,21 +107,52 @@ export default function HeroSlider() {
   const touchStartX = useRef(null);
   const touchEndX = useRef(null);
 
-  /* ── API Se Slides Load ── */
+  /* ── API Se Slides Load (Refresh in background) ── */
   useEffect(() => {
+    let isMounted = true;
     slidersApi.getAll()
       .then(res => {
         const apiSlides = res?.data || [];
-        if (apiSlides.length > 0) {
+        if (isMounted && apiSlides.length > 0) {
           setSlides(apiSlides);
+          try {
+            localStorage.setItem(SLIDES_CACHE_KEY, JSON.stringify(apiSlides));
+          } catch {
+            // QuotaExceeded or restricted
+          }
         }
-        // agar API se koi slide nahi aai toh fallback rehta hai
       })
-      .catch(() => {
-        // Silently use fallback — no error shown to user
+      .catch((err) => {
+        console.warn('Could not load hero slides:', err);
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (isMounted) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
+
+  /* ── Preload First Slide Image Once Data Arrives ── */
+  useEffect(() => {
+    if (slides.length > 0) {
+      const firstImg = resolveImage(slides[0]);
+      if (firstImg) {
+        const existing = document.querySelector(`link[rel="preload"][href="${firstImg}"]`);
+        if (!existing) {
+          const link = document.createElement('link');
+          link.rel = 'preload';
+          link.as = 'image';
+          link.href = firstImg;
+          link.setAttribute('fetchpriority', 'high');
+          document.head.appendChild(link);
+        }
+      }
+    }
+  }, [slides]);
 
   const goTo = useCallback((nextIdx) => {
     if (nextIdx === current) return;
@@ -122,10 +170,10 @@ export default function HeroSlider() {
   const next = useCallback(() => goTo((current + 1) % slides.length), [current, goTo, slides.length]);
 
   useEffect(() => {
-    if (isPaused || loading) return;
+    if (isPaused || loading || slides.length === 0) return;
     const timer = setInterval(next, 5000);
     return () => clearInterval(timer);
-  }, [next, isPaused, loading]);
+  }, [next, isPaused, loading, slides.length]);
 
   useEffect(() => {
     return () => { if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current); };
@@ -142,10 +190,58 @@ export default function HeroSlider() {
     touchEndX.current = null;
   };
 
+  /* ── FULL-SIZE SKELETON WITH SHIMMER ── */
   if (loading) {
     return (
-      <section className="hero" id="hero-slider" style={{ background: '#f5f0eb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ fontSize: '1.2rem', color: '#888' }}>Loading slides…</div>
+      <section
+        className="hero hero--skeleton"
+        id="hero-slider"
+        aria-busy="true"
+        aria-label="Loading featured slides"
+      >
+        <div className="hero__container">
+          <div className="hero__left hero-skeleton__left">
+            {/* Badge Shimmer */}
+            <div className="hero-skeleton__badge">
+              <div className="hero-skeleton__shimmer hero-skeleton__badge-icon" />
+              <div className="hero-skeleton__badge-text">
+                <div className="hero-skeleton__shimmer hero-skeleton__badge-line1" />
+                <div className="hero-skeleton__shimmer hero-skeleton__badge-line2" />
+              </div>
+            </div>
+
+            {/* Title Lines Shimmer */}
+            <div className="hero-skeleton__title-wrap">
+              <div className="hero-skeleton__shimmer hero-skeleton__title-line1" />
+              <div className="hero-skeleton__shimmer hero-skeleton__title-line2" />
+            </div>
+
+            {/* Designer Row Shimmer */}
+            <div className="hero-skeleton__designer-row">
+              <div className="hero-skeleton__shimmer hero-skeleton__avatar" />
+              <div className="hero-skeleton__shimmer hero-skeleton__designer-name" />
+            </div>
+
+            {/* Button & Price Shimmer */}
+            <div className="hero-skeleton__actions">
+              <div className="hero-skeleton__shimmer hero-skeleton__cta" />
+              <div className="hero-skeleton__shimmer hero-skeleton__price" />
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  /* ── EMPTY / ERROR PRESERVING HEIGHT (Avoid Layout Shift) ── */
+  if (!loading && slides.length === 0) {
+    return (
+      <section className="hero hero--empty" id="hero-slider" aria-label="Featured slides">
+        <div className="hero__container">
+          <div className="hero__left" style={{ opacity: 0.7 }}>
+            <h2 style={{ fontSize: '1.4rem', color: '#666', margin: 0 }}>Featured Collections</h2>
+          </div>
+        </div>
       </section>
     );
   }
@@ -173,12 +269,30 @@ export default function HeroSlider() {
           const badgeCategory = slide.badge_category || (slide.link?.includes('gift') ? 'gifts' : slide.link?.includes('toy') ? 'toys' : slide.link?.includes('astrology') ? 'astrology' : 'gifts');
           const targetLink = getSlideTargetLink(slide);
 
+          // Performance: only mount current, next, previous and first slide backgrounds (others lazy)
+          const isCurrent = idx === current;
+          const isNext = idx === (current + 1) % slides.length;
+          const isPrev = idx === prevSlide;
+          const isFirst = idx === 0;
+          const shouldMountBg = isCurrent || isNext || isPrev || isFirst;
+          const slideImg = shouldMountBg ? resolveImage(slide) : '';
+
           return (
             <div
               key={slide._id || slide.id}
               className={slideClass}
-              style={{ backgroundImage: `url(${resolveImage(slide)})` }}
+              style={slideImg ? { backgroundImage: `url(${slideImg})` } : undefined}
             >
+              {/* Performance: First slide rendered as <img> with fetchPriority="high" & decoding="async" */}
+              {idx === 0 && slideImg && (
+                <img
+                  src={slideImg}
+                  alt={slide.title || 'Featured collection'}
+                  fetchPriority="high"
+                  decoding="async"
+                  className="hero__slide-bg-img"
+                />
+              )}
               <div className="hero__container">
                 {/* ====== LEFT PANEL ====== */}
                 <div className="hero__left">

@@ -2,10 +2,28 @@
    HERO SLIDER - 100% MATCH TO ASTROGIFTS FURNITURE 2 SCREENSHOTS
    ============================================================ */
 
+:root {
+  --hero-h: 520px;
+}
+
+@media (max-width: 960px) {
+  :root {
+    --hero-h: 500px;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --hero-h: 600px;
+  }
+}
+
 .hero {
   position: relative;
   width: 100%;
-  height: 520px;
+  height: var(--hero-h);
+  min-height: var(--hero-h);
+  box-sizing: border-box;
   overflow: hidden;
   user-select: none;
   background: #f6f6f6;
@@ -34,6 +52,19 @@
   pointer-events: none;
   z-index: 1;
   will-change: transform, opacity;
+}
+
+/* Performance: First slide rendered as <img> with fetchPriority="high" */
+.hero__slide-bg-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+  pointer-events: none;
 }
 
 /* Active Slide (idle / finished transition) */
@@ -198,13 +229,18 @@
   margin-bottom: 38px;
 }
 
-.hero__by { font-family: var(--font-body); font-size: clamp(14px, 3vw, 16px); font-weight: 500;
+.hero__by {
+  font-family: var(--font-body);
+  font-size: clamp(14px, 3vw, 16px);
+  font-weight: 500;
   color: #2c2c2c;
   margin-right: 14px;
   line-height: 1;
 }
 
-.hero__avatar { width: 32px; height: 32px;
+.hero__avatar {
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   object-fit: cover;
   margin-right: 14px;
@@ -213,7 +249,9 @@
   flex-shrink: 0;
 }
 
-.hero__designer-name { font-family: var(--font-body); font-size: clamp(14px, 3vw, 16px);
+.hero__designer-name {
+  font-family: var(--font-body);
+  font-size: clamp(14px, 3vw, 16px);
   font-weight: 700;
   color: #2c2c2c;
   line-height: 1;
@@ -329,6 +367,135 @@
   transform: scale(1.15);
 }
 
+/* ============ FULL-SIZE HERO SKELETON ============ */
+.hero--skeleton {
+  background: #fbf7f2;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.hero--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fbf7f2;
+}
+
+.hero-skeleton__shimmer {
+  background: linear-gradient(
+    90deg,
+    #ede5d8 0%,
+    #fdfbf7 50%,
+    #ede5d8 100%
+  );
+  background-size: 200% 100%;
+  animation: heroSkeletonShimmer 1.5s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+@keyframes heroSkeletonShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-skeleton__shimmer {
+    animation: none !important;
+    background: #ede5d8 !important;
+  }
+}
+
+.hero-skeleton__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 45px;
+  width: fit-content;
+}
+
+.hero-skeleton__badge-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.hero-skeleton__badge-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hero-skeleton__badge-line1 {
+  width: 150px;
+  height: 14px;
+}
+
+.hero-skeleton__badge-line2 {
+  width: 110px;
+  height: 12px;
+}
+
+.hero-skeleton__title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.hero-skeleton__title-line1 {
+  width: min(460px, 90%);
+  height: clamp(30px, 5vw, 44px);
+}
+
+.hero-skeleton__title-line2 {
+  width: min(320px, 65%);
+  height: clamp(30px, 5vw, 44px);
+}
+
+.hero-skeleton__designer-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 38px;
+}
+
+.hero-skeleton__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.hero-skeleton__designer-name {
+  width: 130px;
+  height: 16px;
+}
+
+.hero-skeleton__actions {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.hero-skeleton__cta {
+  width: 130px;
+  height: 45px;
+  border-radius: 50px;
+}
+
+.hero-skeleton__price {
+  width: 90px;
+  height: 36px;
+  border-radius: 8px;
+}
+
 /* ============ RESPONSIVE ============ */
 @media (max-width: 1200px) {
   .hero__container {
@@ -340,7 +507,11 @@
 }
 
 @media (max-width: 960px) {
-  .hero { height: 500px; padding: 40px 0; }
+  .hero {
+    height: var(--hero-h);
+    min-height: var(--hero-h);
+    padding: 40px 0;
+  }
   .hero__container {
     grid-template-columns: 1fr;
     gap: 30px;
@@ -350,9 +521,45 @@
 
 @media (max-width: 768px) {
   .hero__slide::before { display: block; }
-  .hero { height: 600px; padding: 0; }
-  .hero__container { padding: 0 30px; align-items: flex-start; justify-content: flex-start; height: 100%; padding-top: 80px; }
-  .hero__left { display: flex; flex-direction: column; justify-content: flex-start; width: 100%; position: relative; z-index: 6; }
+  .hero {
+    height: var(--hero-h);
+    min-height: var(--hero-h);
+    padding: 0;
+  }
+  .hero__container {
+    padding: 0 30px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    height: 100%;
+    padding-top: 80px;
+  }
+  .hero__left {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    width: 100%;
+    position: relative;
+    z-index: 6;
+  }
+
+  /* Skeleton Mobile Adjustments */
+  .hero--skeleton .hero__container {
+    padding: 0 30px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    height: 100%;
+    padding-top: 80px;
+  }
+  .hero-skeleton__badge {
+    margin-bottom: 25px;
+  }
+  .hero-skeleton__designer-row {
+    margin-bottom: 45px;
+  }
+  .hero-skeleton__price {
+    border-radius: 50px;
+    height: 38px;
+  }
   
   .hero__badge {
     background: transparent;
@@ -419,6 +626,7 @@
 
 @media (max-width: 480px) {
   .hero__container { padding: 0 20px; padding-top: 60px; }
+  .hero--skeleton .hero__container { padding: 0 20px; padding-top: 60px; }
   .hero__dots-wrap { bottom: 20px; }
   .hero__badge-icon-wrap { width: 40px; height: 40px; margin-right: 10px; }
   .hero__badge-text-wrap { font-size: 12.5px; }

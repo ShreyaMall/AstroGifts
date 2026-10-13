@@ -68,7 +68,8 @@ export default function AppRoutes() {
       <Route path="/profile" element={<ProtectedRoute requirePhoneVerified={true}><UserProfilePage /></ProtectedRoute>} />
       <Route path="/address" element={<ProtectedRoute requirePhoneVerified={true}><AddressPage /></ProtectedRoute>} />
       <Route path="/wishlist" element={<WishlistPage />} />
-      <Route path="/checkout" element={<ProtectedRoute requirePhoneVerified={true}><CheckoutPage /></ProtectedRoute>} />
+      <Route path="/checkout" element={<CheckoutPage />} />
+      <Route path="/order-complete/:orderNumber" element={<CheckoutPage />} />
       <Route path="/contact-us" element={<ContactPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

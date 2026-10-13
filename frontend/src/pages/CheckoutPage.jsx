@@ -2,8 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { ordersApi, addressesApi, couponsApi, authApi, settingsApi, getAuthToken } from '../services/api';
-import OtpInput from '../components/auth/OtpInput';
+import { ordersApi, addressesApi, couponsApi, authApi, getAuthToken } from '../services/api';
 import AstroGiftsSVG from '../components/common/AstroGiftsSVG';
 import { getColorName, getHexColor } from '../utils/colorUtils';
 import './CheckoutPage.css';
@@ -88,31 +87,6 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pincodeLoading, setPincodeLoading] = useState(false);
 
-  // Dynamic Site Settings
-  const [siteSettings, setSiteSettings] = useState({
-    guest_checkout_enabled: true,
-    show_create_account: true,
-    create_account_default_checked: true,
-    create_account_method: 'otp',
-    create_account_label: 'Create an account?',
-    create_account_help_text: 'Create an account for faster checkout and order tracking',
-  });
-
-  // Create an Account Card States
-  const [createAccountChecked, setCreateAccountChecked] = useState(true);
-  const [createAccountPassword, setCreateAccountPassword] = useState('');
-  const [createAccountPasswordConfirm, setCreateAccountPasswordConfirm] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
-  const [accountOtpDigits, setAccountOtpDigits] = useState(Array(6).fill(''));
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpLoading, setOtpLoading] = useState(false);
-  const [otpCountdown, setOtpCountdown] = useState(0);
-  const [phoneAccountExists, setPhoneAccountExists] = useState(false);
-  const [checkingPhone, setCheckingPhone] = useState(false);
-  const [createAccountError, setCreateAccountError] = useState('');
-  const firstAccountFieldRef = useRef(null);
-
   // Payment Method
   const [paymentMethod, setPaymentMethod] = useState('cod'); // 'cod' or 'razorpay'
 
@@ -130,102 +104,12 @@ export default function CheckoutPage() {
   // Ref for focusing first invalid field
   const formRef = useRef(null);
 
-  // ── 0. LOAD SITE SETTINGS (Public non-secret configuration) ──
+  // ── 1. AUTHENTICATION ENFORCEMENT: Login is ALWAYS required for checkout ──
   useEffect(() => {
-    settingsApi.getSiteSettings()
-      .then(res => {
-        if (res?.data?.checkout) {
-          const cfg = res.data.checkout;
-          setSiteSettings(cfg);
-          setCreateAccountChecked(Boolean(cfg.create_account_default_checked));
-        }
-      })
-      .catch(err => {
-        console.warn('Could not load site settings for checkout:', err);
-      });
-  }, []);
-
-  // ── 1. GUEST ACCESS CHECK: Block guest only if guest_checkout_enabled is false ──
-  useEffect(() => {
-    if (!isAuthenticated && currentStep === 1 && siteSettings.guest_checkout_enabled === false) {
+    if (!isAuthenticated && currentStep === 1) {
       openAuth({ pendingAction: 'checkout', redirectTo: '/checkout' });
     }
-  }, [isAuthenticated, currentStep, siteSettings.guest_checkout_enabled]);
-
-  // ── 1b. OTP COOLDOWN TIMER ──
-  useEffect(() => {
-    let timer;
-    if (otpCountdown > 0) {
-      timer = setTimeout(() => setOtpCountdown(c => c - 1), 1000);
-    }
-    return () => clearTimeout(timer);
-  }, [otpCountdown]);
-
-  // ── 1c. FOCUS FIRST NEW FIELD WHEN CHECKED ──
-  useEffect(() => {
-    if (createAccountChecked && !isAuthenticated && siteSettings.show_create_account) {
-      const timer = setTimeout(() => {
-        if (firstAccountFieldRef.current && typeof firstAccountFieldRef.current.focus === 'function') {
-          firstAccountFieldRef.current.focus();
-        }
-      }, 60);
-      return () => clearTimeout(timer);
-    }
-  }, [createAccountChecked, isAuthenticated, siteSettings.show_create_account]);
-
-  // ── 1d. PHONE DUPLICATE CHECK ──
-  useEffect(() => {
-    const clean = (formData.phone || '').replace(/\D/g, '');
-    if (clean.length === 10 && /^[6-9]\d{9}$/.test(clean) && !isAuthenticated) {
-      setCheckingPhone(true);
-      authApi.checkPhone(clean)
-        .then(res => {
-          if (res?.exists) {
-            setPhoneAccountExists(true);
-            setCreateAccountError('An account already exists for this number. Please log in.');
-          } else {
-            setPhoneAccountExists(false);
-            setCreateAccountError(prev => prev.includes('already exists') ? '' : prev);
-          }
-        })
-        .catch(err => {
-          console.warn('Phone existence check failed:', err);
-        })
-        .finally(() => setCheckingPhone(false));
-    } else {
-      setPhoneAccountExists(false);
-      setCreateAccountError(prev => prev.includes('already exists') ? '' : prev);
-    }
-  }, [formData.phone, isAuthenticated]);
-
-  // Handler to send OTP for account creation
-  const handleSendAccountOtp = async () => {
-    const cleanPhone = (formData.phone || '').replace(/\D/g, '');
-    if (!cleanPhone || cleanPhone.length !== 10 || !/^[6-9]\d{9}$/.test(cleanPhone)) {
-      setCreateAccountError('Please enter a valid 10-digit mobile number above first.');
-      const phoneInput = document.getElementById('checkout-phone');
-      phoneInput?.focus();
-      return;
-    }
-
-    setOtpLoading(true);
-    setCreateAccountError('');
-    try {
-      const res = await authApi.sendPhoneOtp(cleanPhone);
-      if (res?.user_exists) {
-        setPhoneAccountExists(true);
-        setCreateAccountError('An account already exists for this number. Please log in.');
-      } else {
-        setOtpSent(true);
-        setOtpCountdown(60);
-        setAccountOtpDigits(Array(6).fill(''));
-      }
-    } catch (err) {
-      setCreateAccountError(err?.message || 'Failed to send verification code. Please try again.');
-    } finally {
-      setOtpLoading(false);
-    }
-  };
+  }, [isAuthenticated, currentStep]);
 
   // ── 2. LOAD COMPLETED ORDER (If direct URL /order-complete/:orderNumber) ──
   useEffect(() => {
@@ -550,26 +434,6 @@ export default function CheckoutPage() {
       errors.pincode = 'Please enter a valid 6-digit postal pincode.';
     }
 
-    // Dynamic Account Creation Validation (Guest only)
-    if (!isAuthenticated && createAccountChecked && siteSettings.show_create_account) {
-      if (phoneAccountExists) {
-        errors.createAccount = 'An account already exists for this number. Please log in.';
-      } else if (siteSettings.create_account_method === 'password') {
-        if (!createAccountPassword || createAccountPassword.length < 8) {
-          errors.createAccountPassword = 'Password must be at least 8 characters long.';
-        }
-        if (createAccountPassword !== createAccountPasswordConfirm) {
-          errors.createAccountPasswordConfirm = 'Passwords do not match.';
-        }
-      } else {
-        // OTP method
-        const enteredOtp = accountOtpDigits.join('');
-        if (!enteredOtp || enteredOtp.length !== 6) {
-          errors.createAccountOtp = 'Please enter the 6-digit verification code sent to your phone.';
-        }
-      }
-    }
-
     setFieldErrors(errors);
 
     // Auto-focus first invalid input
@@ -618,8 +482,8 @@ export default function CheckoutPage() {
       return;
     }
 
-    // Check authentication if guest checkout is disabled
-    if (!isAuthenticated && !siteSettings.guest_checkout_enabled) {
+    // Login is ALWAYS required to place an order
+    if (!isAuthenticated) {
       openAuth({ pendingAction: 'checkout', redirectTo: '/checkout' });
       return;
     }
@@ -707,8 +571,8 @@ export default function CheckoutPage() {
       state: activeShippingState,
       zip: activeShippingZip,
       address_id: (isAuthenticated && !useNewAddressForm && selectedAddressId) ? selectedAddressId : undefined,
-      save_address: !isAuthenticated ? true : (formData.saveAddressToAccount ?? true),
-      saveAddressToAccount: !isAuthenticated ? true : (formData.saveAddressToAccount ?? true),
+      save_address: formData.saveAddressToAccount ?? true,
+      saveAddressToAccount: formData.saveAddressToAccount ?? true,
       line1: formData.address.trim(),
       landmark: formData.landmark ? formData.landmark.trim() : undefined,
       country: formData.country || 'India',
@@ -729,23 +593,7 @@ export default function CheckoutPage() {
       total: finalTotal,
     };
 
-    // Include create_account fields if guest opted to create an account
-    if (!isAuthenticated && createAccountChecked && siteSettings.show_create_account) {
-      payload.create_account = true;
-      payload.create_account_method = siteSettings.create_account_method;
-      if (siteSettings.create_account_method === 'password') {
-        payload.password = createAccountPassword;
-        payload.password_confirmation = createAccountPasswordConfirm;
-      } else {
-        payload.otp = accountOtpDigits.join('');
-      }
-    }
-
     const processOrderSuccess = (createdOrder, paymentId = null) => {
-      // If newly created account credentials returned, log the user in immediately
-      if (createdOrder?.auth_token && createdOrder?.user) {
-        login(createdOrder.user.role || 'customer', createdOrder.auth_token, createdOrder.user, true);
-      }
       const orderNum = createdOrder?.order_number || ('ORD-' + Math.floor(100000 + Math.random() * 900000));
       const completeData = {
         orderNumber: orderNum,
@@ -1728,275 +1576,7 @@ export default function CheckoutPage() {
                 </div>
               )}
 
-              {/* 3. DYNAMIC: "CREATE AN ACCOUNT?" CARD */}
-              {!isAuthenticated && siteSettings.show_create_account && (
-                <div className="checkout-card" id="checkout-create-account-card">
-                  <div className="checkout-create-account-header">
-                    <label
-                      htmlFor="checkout-create-account-cb"
-                      className="checkout-checkbox-label"
-                      style={{
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        minHeight: '44px',
-                        userSelect: 'none',
-                      }}
-                    >
-                      <input
-                        id="checkout-create-account-cb"
-                        type="checkbox"
-                        checked={createAccountChecked}
-                        onChange={(e) => setCreateAccountChecked(e.target.checked)}
-                        className="checkout-checkbox"
-                        style={{
-                          width: '22px',
-                          height: '22px',
-                          minHeight: '44px',
-                          cursor: 'pointer',
-                          accentColor: 'var(--brand-primary, #d96b27)',
-                          margin: 0,
-                          flexShrink: 0,
-                        }}
-                      />
-                      <strong style={{ fontSize: '16px', color: 'var(--text-heading, #2c1510)', fontWeight: 600 }}>
-                        {siteSettings.create_account_label || 'Create an account?'}
-                      </strong>
-                    </label>
-                    <p style={{ margin: '4px 0 0 34px', fontSize: '13px', color: '#6b7280', lineHeight: 1.4 }}>
-                      {siteSettings.create_account_help_text || 'Create an account for faster checkout and order tracking'}
-                    </p>
-                  </div>
-
-                  {createAccountChecked && (
-                    <div
-                      className="checkout-create-account-body"
-                      style={{
-                        marginTop: '18px',
-                        paddingTop: '18px',
-                        borderTop: '1px solid #ebdccb',
-                      }}
-                    >
-                      {/* Duplicate Phone Notice */}
-                      {phoneAccountExists ? (
-                        <div
-                          role="alert"
-                          aria-live="polite"
-                          style={{
-                            padding: '14px 18px',
-                            background: '#fffbeb',
-                            border: '1px solid #fde68a',
-                            borderRadius: '8px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            flexWrap: 'wrap',
-                            gap: '12px',
-                          }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <span style={{ color: '#d97706', fontSize: '18px', lineHeight: 1 }}>ℹ</span>
-                            <span style={{ fontSize: '14px', color: '#92400e', fontWeight: 500 }}>
-                              An account already exists for this number (+91 {(formData.phone || '').replace(/\D/g, '')}). Please log in.
-                            </span>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => openAuth({ pendingAction: 'checkout', redirectTo: '/checkout' })}
-                            style={{
-                              background: 'var(--brand-primary, #d96b27)',
-                              color: '#fff',
-                              border: 'none',
-                              borderRadius: '6px',
-                              padding: '10px 20px',
-                              minHeight: '44px',
-                              fontSize: '14px',
-                              fontWeight: 600,
-                              cursor: 'pointer',
-                              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                            }}
-                          >
-                            Log In via OTP
-                          </button>
-                        </div>
-                      ) : siteSettings.create_account_method === 'password' ? (
-                        /* Password Creation Method */
-                        <div className="checkout-form-grid">
-                          <div className="checkout-form-group">
-                            <label htmlFor="checkout-create-password" className="checkout-label">
-                              Choose Password <span className="checkout-required-star">*</span>
-                            </label>
-                            <div style={{ position: 'relative' }}>
-                              <input
-                                id="checkout-create-password"
-                                ref={firstAccountFieldRef}
-                                type={showPassword ? 'text' : 'password'}
-                                value={createAccountPassword}
-                                onChange={(e) => setCreateAccountPassword(e.target.value)}
-                                placeholder="At least 8 characters"
-                                autoComplete="new-password"
-                                className={`checkout-input ${fieldErrors.createAccountPassword ? 'checkout-input--error' : ''}`}
-                                style={{ minHeight: '44px', fontSize: '16px', paddingRight: '46px' }}
-                              />
-                              <button
-                                type="button"
-                                onClick={() => setShowPassword(p => !p)}
-                                aria-label={showPassword ? 'Hide password' : 'Show password'}
-                                style={{
-                                  position: 'absolute',
-                                  right: 0,
-                                  top: 0,
-                                  bottom: 0,
-                                  width: '44px',
-                                  minHeight: '44px',
-                                  background: 'none',
-                                  border: 'none',
-                                  cursor: 'pointer',
-                                  color: '#6b7280',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                }}
-                              >
-                                {showPassword ? (
-                                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
-                                ) : (
-                                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                                )}
-                              </button>
-                            </div>
-                            {fieldErrors.createAccountPassword && (
-                              <span className="checkout-error-msg" role="alert" aria-live="polite">
-                                {fieldErrors.createAccountPassword}
-                              </span>
-                            )}
-                          </div>
-
-                          <div className="checkout-form-group">
-                            <label htmlFor="checkout-create-password-confirm" className="checkout-label">
-                              Confirm Password <span className="checkout-required-star">*</span>
-                            </label>
-                            <div style={{ position: 'relative' }}>
-                              <input
-                                id="checkout-create-password-confirm"
-                                type={showPasswordConfirm ? 'text' : 'password'}
-                                value={createAccountPasswordConfirm}
-                                onChange={(e) => setCreateAccountPasswordConfirm(e.target.value)}
-                                placeholder="Re-enter password"
-                                autoComplete="new-password"
-                                className={`checkout-input ${fieldErrors.createAccountPasswordConfirm ? 'checkout-input--error' : ''}`}
-                                style={{ minHeight: '44px', fontSize: '16px', paddingRight: '46px' }}
-                              />
-                              <button
-                                type="button"
-                                onClick={() => setShowPasswordConfirm(p => !p)}
-                                aria-label={showPasswordConfirm ? 'Hide confirmed password' : 'Show confirmed password'}
-                                style={{
-                                  position: 'absolute',
-                                  right: 0,
-                                  top: 0,
-                                  bottom: 0,
-                                  width: '44px',
-                                  minHeight: '44px',
-                                  background: 'none',
-                                  border: 'none',
-                                  cursor: 'pointer',
-                                  color: '#6b7280',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                }}
-                              >
-                                {showPasswordConfirm ? (
-                                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
-                                ) : (
-                                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                                )}
-                              </button>
-                            </div>
-                            {fieldErrors.createAccountPasswordConfirm && (
-                              <span className="checkout-error-msg" role="alert" aria-live="polite">
-                                {fieldErrors.createAccountPasswordConfirm}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      ) : (
-                        /* OTP Verification Method */
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
-                            <div>
-                              <span style={{ fontSize: '13px', color: '#6b7280' }}>Verification mobile:</span>
-                              <strong style={{ fontSize: '14px', color: '#111827', marginLeft: '6px' }}>
-                                +91 {formData.phone ? formData.phone.replace(/\D/g, '') : '—'}
-                              </strong>
-                            </div>
-
-                            <button
-                              type="button"
-                              onClick={handleSendAccountOtp}
-                              disabled={otpLoading || otpCountdown > 0 || !formData.phone || formData.phone.replace(/\D/g, '').length !== 10}
-                              style={{
-                                background: otpSent ? '#f3f4f6' : 'var(--brand-primary, #d96b27)',
-                                color: otpSent ? '#374151' : '#fff',
-                                border: otpSent ? '1px solid #d1d5db' : 'none',
-                                borderRadius: '6px',
-                                padding: '10px 18px',
-                                minHeight: '44px',
-                                fontSize: '13px',
-                                fontWeight: 600,
-                                cursor: otpLoading || otpCountdown > 0 ? 'not-allowed' : 'pointer',
-                              }}
-                            >
-                              {otpLoading ? 'Sending...' : otpCountdown > 0 ? `Resend in ${otpCountdown}s` : otpSent ? 'Resend Code' : 'Send Verification Code'}
-                            </button>
-                          </div>
-
-                          {otpSent && (
-                            <div style={{ marginTop: '8px' }}>
-                              <label htmlFor="checkout-create-otp" className="checkout-label" style={{ marginBottom: '8px', display: 'block' }}>
-                                Enter 6-digit OTP code <span className="checkout-required-star">*</span>
-                              </label>
-                              <div ref={firstAccountFieldRef}>
-                                <OtpInput
-                                  length={6}
-                                  value={accountOtpDigits}
-                                  onChange={setAccountOtpDigits}
-                                />
-                              </div>
-                              {fieldErrors.createAccountOtp && (
-                                <span className="checkout-error-msg" role="alert" aria-live="polite" style={{ marginTop: '6px', display: 'block' }}>
-                                  {fieldErrors.createAccountOtp}
-                                </span>
-                              )}
-                            </div>
-                          )}
-
-                          {createAccountError && (
-                            <div
-                              role="alert"
-                              aria-live="polite"
-                              style={{
-                                padding: '10px 14px',
-                                background: '#fef2f2',
-                                border: '1px solid #fecaca',
-                                borderRadius: '6px',
-                                color: '#b91c1c',
-                                fontSize: '13px',
-                              }}
-                            >
-                              {createAccountError}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* 4. ORDER NOTES */}
+              {/* ORDER NOTES */}
               <div className="checkout-card">
                 <div className="checkout-card__header">
                   <div className="checkout-card__header-icon" aria-hidden="true">

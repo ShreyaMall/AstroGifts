@@ -93,38 +93,19 @@ class AdminSettingsController extends Controller
                     'secret' => $this->maskSecret($shipSecret),
                     'has_secret' => !empty($shipSecret),
                 ],
-                'checkout' => [
-                    'guest_checkout_enabled' => isset($checkoutSetting['guest_checkout_enabled']) ? (bool)$checkoutSetting['guest_checkout_enabled'] : true,
-                    'show_create_account' => isset($checkoutSetting['show_create_account']) ? (bool)$checkoutSetting['show_create_account'] : true,
-                    'create_account_default_checked' => isset($checkoutSetting['create_account_default_checked']) ? (bool)$checkoutSetting['create_account_default_checked'] : true,
-                    'create_account_method' => in_array($checkoutSetting['create_account_method'] ?? 'otp', ['otp', 'password']) ? ($checkoutSetting['create_account_method'] ?? 'otp') : 'otp',
-                    'create_account_label' => $checkoutSetting['create_account_label'] ?? 'Create an account?',
-                    'create_account_help_text' => $checkoutSetting['create_account_help_text'] ?? 'Create an account for faster checkout and order tracking',
-                ],
             ],
         ]);
     }
 
     /**
      * GET /api/site-settings (Public)
-     * Returns public non-secret configuration options for the storefront/checkout.
+     * Returns public non-secret configuration options for the storefront.
      */
     public function getPublicSettings(): JsonResponse
     {
-        $checkoutSetting = Setting::get('checkout', []);
-
         return response()->json([
             'status' => 'success',
-            'data' => [
-                'checkout' => [
-                    'guest_checkout_enabled' => isset($checkoutSetting['guest_checkout_enabled']) ? (bool)$checkoutSetting['guest_checkout_enabled'] : true,
-                    'show_create_account' => isset($checkoutSetting['show_create_account']) ? (bool)$checkoutSetting['show_create_account'] : true,
-                    'create_account_default_checked' => isset($checkoutSetting['create_account_default_checked']) ? (bool)$checkoutSetting['create_account_default_checked'] : true,
-                    'create_account_method' => in_array($checkoutSetting['create_account_method'] ?? 'otp', ['otp', 'password']) ? ($checkoutSetting['create_account_method'] ?? 'otp') : 'otp',
-                    'create_account_label' => $checkoutSetting['create_account_label'] ?? 'Create an account?',
-                    'create_account_help_text' => $checkoutSetting['create_account_help_text'] ?? 'Create an account for faster checkout and order tracking',
-                ],
-            ],
+            'data' => [],
         ]);
     }
 
@@ -203,40 +184,10 @@ class AdminSettingsController extends Controller
             Setting::set('shiprocket', $shipData);
         }
 
-        // ── 4. Update Checkout Settings ──
-        if ($request->has('checkout')) {
-            $incoming = $request->input('checkout', []);
-            $existing = Setting::where('key', 'checkout')->first()?->value ?? [];
-
-            $checkoutData = [
-                'guest_checkout_enabled' => isset($incoming['guest_checkout_enabled'])
-                    ? (bool)$incoming['guest_checkout_enabled']
-                    : ($existing['guest_checkout_enabled'] ?? true),
-                'show_create_account' => isset($incoming['show_create_account'])
-                    ? (bool)$incoming['show_create_account']
-                    : ($existing['show_create_account'] ?? true),
-                'create_account_default_checked' => isset($incoming['create_account_default_checked'])
-                    ? (bool)$incoming['create_account_default_checked']
-                    : ($existing['create_account_default_checked'] ?? true),
-                'create_account_method' => in_array($incoming['create_account_method'] ?? '', ['otp', 'password'])
-                    ? $incoming['create_account_method']
-                    : ($existing['create_account_method'] ?? 'otp'),
-                'create_account_label' => isset($incoming['create_account_label'])
-                    ? trim($incoming['create_account_label'])
-                    : ($existing['create_account_label'] ?? 'Create an account?'),
-                'create_account_help_text' => isset($incoming['create_account_help_text'])
-                    ? trim($incoming['create_account_help_text'])
-                    : ($existing['create_account_help_text'] ?? 'Create an account for faster checkout and order tracking'),
-            ];
-
-            Setting::set('checkout', $checkoutData);
-        }
-
         // Invalidate caches
         Setting::clearCache('twilio');
         Setting::clearCache('razorpay');
         Setting::clearCache('shiprocket');
-        Setting::clearCache('checkout');
 
         return response()->json([
             'status' => 'success',
