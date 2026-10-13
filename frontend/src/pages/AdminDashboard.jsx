@@ -5292,25 +5292,156 @@ function PageUsers() {
 /* ── SETTINGS PAGE ── */
 function PageSettings() {
   const [razorpayMode, setRazorpayMode] = useState('test'); // 'test' or 'live'
+  const [loading, setLoading] = useState(true);
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [saveStatus, setSaveStatus] = useState(null); // { type: 'success'|'error', text: '' }
+
   const [formData, setFormData] = useState({
+    // Razorpay
     razorpayKeyId: 'rzp_test_TWLMva2WMHr864',
     razorpaySecret: 'C4wy66QaYjPwBkTMGSPWfRKP',
     razorpayLiveKeyId: '',
     razorpayLiveSecret: '',
+    // Shiprocket
     shiprocketKey: 'XFf2@IVCaj^xeUDj352b&YDK@XzHnmgj',
-    shiprocketSecret: ''
+    shiprocketSecret: '',
+    // Twilio
+    twilioEnabled: false,
+    twilioAccountSid: '',
+    twilioAuthToken: '',
+    twilioVerifySid: '',
   });
-  const [showKeys, setShowKeys] = useState({ rzpKey: false, rzpSec: false, shipKey: false, shipSec: false });
+
+  const [showKeys, setShowKeys] = useState({
+    rzpKey: false,
+    rzpSec: false,
+    shipKey: false,
+    shipSec: false,
+    twilioToken: false,
+  });
+
+  // Test OTP state
+  const [testPhone, setTestPhone] = useState('');
+  const [testOtpLoading, setTestOtpLoading] = useState(false);
+  const [testOtpStatus, setTestOtpStatus] = useState(null); // { type: 'success'|'error', text: '' }
 
   const toggleKey = (field) => setShowKeys(prev => ({ ...prev, [field]: !prev[field] }));
 
   const handleChange = (e) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
+    if (saveStatus) setSaveStatus(null);
   };
 
-  const handleSave = (e) => {
+  const fetchSettings = async () => {
+    try {
+      setLoading(true);
+      const res = await adminApi.getSettings();
+      if (res?.data) {
+        const { twilio, razorpay, shiprocket } = res.data;
+        setFormData(prev => ({
+          ...prev,
+          // Twilio
+          twilioEnabled: Boolean(twilio?.enabled),
+          twilioAccountSid: twilio?.account_sid || '',
+          twilioAuthToken: twilio?.auth_token || '',
+          twilioVerifySid: twilio?.verify_service_sid || '',
+          // Razorpay
+          razorpayKeyId: razorpay?.key_id || prev.razorpayKeyId,
+          razorpaySecret: razorpay?.secret || prev.razorpaySecret,
+          razorpayLiveKeyId: razorpay?.live_key_id || '',
+          razorpayLiveSecret: razorpay?.live_secret || '',
+          // Shiprocket
+          shiprocketKey: shiprocket?.key || prev.shiprocketKey,
+          shiprocketSecret: shiprocket?.secret || '',
+        }));
+        if (razorpay?.mode) {
+          setRazorpayMode(razorpay.mode);
+        }
+      }
+    } catch (err) {
+      console.warn('Could not load settings from API:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const handleSave = async (e) => {
     e.preventDefault();
-    alert('Settings saved successfully!');
+    setSaveLoading(true);
+    setSaveStatus(null);
+
+    const payload = {
+      twilio: {
+        enabled: Boolean(formData.twilioEnabled),
+        account_sid: formData.twilioAccountSid,
+        auth_token: formData.twilioAuthToken,
+        verify_service_sid: formData.twilioVerifySid,
+      },
+      razorpay: {
+        mode: razorpayMode,
+        key_id: formData.razorpayKeyId,
+        secret: formData.razorpaySecret,
+        live_key_id: formData.razorpayLiveKeyId,
+        live_secret: formData.razorpayLiveSecret,
+      },
+      shiprocket: {
+        key: formData.shiprocketKey,
+        secret: formData.shiprocketSecret,
+      },
+    };
+
+    try {
+      const res = await adminApi.updateSettings(payload);
+      setSaveStatus({
+        type: 'success',
+        text: res?.message || 'Configuration settings saved successfully!',
+      });
+      fetchSettings();
+    } catch (err) {
+      setSaveStatus({
+        type: 'error',
+        text: err.data?.message || err.message || 'Failed to save configuration settings.',
+      });
+    } finally {
+      setSaveLoading(false);
+    }
+  };
+
+  const handleSendTestOtp = async () => {
+    const cleanPhone = testPhone.replace(/\D/g, '');
+    if (!cleanPhone || cleanPhone.length !== 10 || !/^[6-9]\d{9}$/.test(cleanPhone)) {
+      setTestOtpStatus({
+        type: 'error',
+        text: 'Please enter a valid 10-digit Indian phone number starting with 6-9.',
+      });
+      return;
+    }
+
+    setTestOtpLoading(true);
+    setTestOtpStatus(null);
+
+    try {
+      const res = await adminApi.sendTestOtp(cleanPhone);
+      setTestOtpStatus({
+        type: 'success',
+        text: res?.message || `Test OTP sent successfully to +91 ${cleanPhone}!`,
+      });
+    } catch (err) {
+      setTestOtpStatus({
+        type: 'error',
+        text: err.data?.message || err.message || 'Failed to dispatch test OTP.',
+      });
+    } finally {
+      setTestOtpLoading(false);
+    }
   };
 
   const isTestMode = razorpayMode === 'test';
@@ -5322,13 +5453,37 @@ function PageSettings() {
       <div className="admin__panel-header" style={{ marginBottom: '24px' }}>
         <div>
           <h2 className="admin__panel-title">Settings</h2>
-          <p className="admin__panel-sub">Manage your integrations and API keys.</p>
+          <p className="admin__panel-sub">Manage your integrations, SMS verification, and API keys.</p>
         </div>
       </div>
+
+      {saveStatus && (
+        <div style={{
+          padding: '12px 18px',
+          borderRadius: '8px',
+          marginBottom: '20px',
+          maxWidth: '1200px',
+          fontSize: '14px',
+          fontWeight: '500',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          background: saveStatus.type === 'success' ? '#f0fdf4' : '#fef2f2',
+          border: `1px solid ${saveStatus.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
+          color: saveStatus.type === 'success' ? '#15803d' : '#b91c1c',
+        }}>
+          {saveStatus.type === 'success' ? (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          ) : (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          )}
+          <span>{saveStatus.text}</span>
+        </div>
+      )}
       
       <form onSubmit={handleSave} style={{ maxWidth: '1200px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', alignItems: 'start' }}>
         
-        {/* Razorpay Card */}
+        {/* ── CARD 1: Razorpay Card ── */}
         <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
           <div style={{ padding: '20px 24px', borderBottom: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', gap: '12px', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -5416,7 +5571,7 @@ function PageSettings() {
           </div>
         </div>
 
-        {/* Shiprocket Card */}
+        {/* ── CARD 2: Shiprocket Card ── */}
         <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
           <div style={{ padding: '20px 24px', borderBottom: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{ width: '40px', height: '40px', background: '#fff7ed', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ea580c' }}>
@@ -5453,20 +5608,237 @@ function PageSettings() {
           </div>
         </div>
 
+        {/* ── CARD 3: Twilio (OTP SMS) Card ── */}
+        <div style={{ gridColumn: '1 / -1', background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
+          <div style={{ padding: '20px 24px', borderBottom: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ width: '40px', height: '40px', background: '#fef2f2', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444' }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                </svg>
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: '#111827' }}>Twilio (OTP SMS)</h3>
+                <p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>Mobile phone OTP verification and SMS gateway</p>
+              </div>
+            </div>
+
+            {/* Enabled / Disabled Toggle */}
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', userSelect: 'none' }}>
+              <span style={{ fontSize: '13px', fontWeight: 600, color: formData.twilioEnabled ? '#15803d' : '#6b7280' }}>
+                {formData.twilioEnabled ? 'Enabled' : 'Disabled'}
+              </span>
+              <div style={{
+                width: '46px',
+                height: '24px',
+                background: formData.twilioEnabled ? '#16a34a' : '#d1d5db',
+                borderRadius: '12px',
+                position: 'relative',
+                transition: 'background 0.2s',
+              }}>
+                <input
+                  type="checkbox"
+                  name="twilioEnabled"
+                  checked={formData.twilioEnabled}
+                  onChange={handleChange}
+                  style={{ opacity: 0, width: 0, height: 0, position: 'absolute' }}
+                />
+                <div style={{
+                  position: 'absolute',
+                  top: '2px',
+                  left: formData.twilioEnabled ? '24px' : '2px',
+                  width: '20px',
+                  height: '20px',
+                  background: '#fff',
+                  borderRadius: '50%',
+                  transition: 'left 0.2s',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                }} />
+              </div>
+            </label>
+          </div>
+
+          <div style={{ padding: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            {/* Account SID */}
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>
+                Account SID
+              </label>
+              <input
+                type="text"
+                name="twilioAccountSid"
+                value={formData.twilioAccountSid}
+                onChange={handleChange}
+                placeholder="Enter Twilio Account SID (e.g. AC••••••••)"
+                autoComplete="off"
+                style={{ width: '100%', padding: '10px 14px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+              />
+              <span style={{ display: 'block', fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                Stored encrypted at rest. Masked on view for security.
+              </span>
+            </div>
+
+            {/* Auth Token (Show/Hide) */}
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>
+                Auth Token
+              </label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showKeys.twilioToken ? "text" : "password"}
+                  name="twilioAuthToken"
+                  value={formData.twilioAuthToken}
+                  onChange={handleChange}
+                  placeholder="Enter Twilio Auth Token"
+                  autoComplete="new-password"
+                  style={{ width: '100%', padding: '10px 42px 10px 14px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => toggleKey('twilioToken')}
+                  style={{ position: 'absolute', right: '12px', top: '10px', background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280' }}
+                  title={showKeys.twilioToken ? "Hide token" : "Show token"}
+                >
+                  {showKeys.twilioToken ? (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                  ) : (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                  )}
+                </button>
+              </div>
+              <span style={{ display: 'block', fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                Stored encrypted at rest. Never sent in plain text.
+              </span>
+            </div>
+
+            {/* Verify Service SID */}
+            <div style={{ gridColumn: '1 / -1' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>
+                Verify Service SID
+              </label>
+              <input
+                type="text"
+                name="twilioVerifySid"
+                value={formData.twilioVerifySid}
+                onChange={handleChange}
+                placeholder="Enter Twilio Verify Service SID (starts with VA••••••••)"
+                autoComplete="off"
+                style={{ width: '100%', padding: '10px 14px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+              />
+              <span style={{ display: 'block', fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                Created inside your Twilio Console under Verify &gt; Services.
+              </span>
+            </div>
+
+            {/* Test OTP Integration Section */}
+            <div style={{
+              gridColumn: '1 / -1',
+              marginTop: '10px',
+              padding: '16px 20px',
+              background: '#f9fafb',
+              border: '1px dashed #d1d5db',
+              borderRadius: '8px',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+                <div>
+                  <h4 style={{ margin: '0 0 4px', fontSize: '14px', fontWeight: 600, color: '#111827' }}>
+                    Send Test Verification OTP
+                  </h4>
+                  <p style={{ margin: 0, fontSize: '12.5px', color: '#6b7280' }}>
+                    Send a test OTP to verify that your Twilio Account SID, Token, and Service SID are active.
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <span style={{ padding: '9px 12px', background: '#e5e7eb', border: '1px solid #d1d5db', borderRight: 'none', borderTopLeftRadius: '6px', borderBottomLeftRadius: '6px', fontSize: '13px', fontWeight: 600, color: '#374151' }}>
+                      +91
+                    </span>
+                    <input
+                      type="tel"
+                      value={testPhone}
+                      onChange={(e) => setTestPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                      placeholder="10-digit mobile"
+                      maxLength={10}
+                      style={{ padding: '9px 12px', border: '1px solid #d1d5db', borderTopRightRadius: '6px', borderBottomRightRadius: '6px', fontSize: '13px', outline: 'none', width: '140px' }}
+                    />
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleSendTestOtp}
+                    disabled={testOtpLoading || testPhone.length !== 10}
+                    style={{
+                      background: testOtpLoading ? '#9ca3af' : '#4b5563',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '9px 18px',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      cursor: testOtpLoading || testPhone.length !== 10 ? 'not-allowed' : 'pointer',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {testOtpLoading ? 'Sending...' : 'Send Test OTP'}
+                  </button>
+                </div>
+              </div>
+
+              {testOtpStatus && (
+                <div style={{
+                  marginTop: '12px',
+                  padding: '10px 14px',
+                  borderRadius: '6px',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  background: testOtpStatus.type === 'success' ? '#f0fdf4' : '#fef2f2',
+                  border: `1px solid ${testOtpStatus.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
+                  color: testOtpStatus.type === 'success' ? '#15803d' : '#b91c1c',
+                }}>
+                  {testOtpStatus.type === 'success' ? '✓' : '✕'}
+                  <span>{testOtpStatus.text}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* Security Notice Card & Button */}
-        <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '24px' }}>
-          <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '16px 24px', display: 'flex', gap: '16px', alignItems: 'center', flex: 1 }}>
+        <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '24px', flexWrap: 'wrap' }}>
+          <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '16px 24px', display: 'flex', gap: '16px', alignItems: 'center', flex: 1, minWidth: '280px' }}>
             <div style={{ width: '40px', height: '40px', background: '#ecfdf5', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', flexShrink: 0 }}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
             </div>
             <div>
               <h4 style={{ margin: '0 0 4px', fontSize: '14px', fontWeight: 600, color: '#111827' }}>Security Notice</h4>
-              <p style={{ margin: 0, fontSize: '13px', color: '#6b7280', lineHeight: 1.5 }}>API secret keys should never be exposed in frontend code. Store securely.</p>
+              <p style={{ margin: 0, fontSize: '13px', color: '#6b7280', lineHeight: 1.5 }}>
+                API secret keys & tokens are encrypted at rest with AES-256 and never returned to the browser in plaintext.
+              </p>
             </div>
           </div>
 
-          <button type="submit" style={{ background: '#d96b27', color: '#fff', padding: '16px 32px', height: '100%', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '15px', whiteSpace: 'nowrap' }}>
-            Save Configuration
+          <button
+            type="submit"
+            disabled={saveLoading}
+            style={{
+              background: saveLoading ? '#b45309' : '#d96b27',
+              color: '#fff',
+              padding: '16px 36px',
+              borderRadius: '8px',
+              border: 'none',
+              cursor: saveLoading ? 'not-allowed' : 'pointer',
+              fontWeight: 600,
+              fontSize: '15px',
+              whiteSpace: 'nowrap',
+              boxShadow: '0 2px 6px rgba(217, 107, 39, 0.25)',
+              transition: 'background 0.2s',
+            }}
+          >
+            {saveLoading ? 'Saving...' : 'Save Configuration'}
           </button>
         </div>
       </form>

@@ -611,9 +611,23 @@ export const adminApi = {
     return request('/admin/comments');
   },
 
-  deleteComment: async (id) => {
-    return request(`/admin/comments/${id}`, {
-      method: 'DELETE',
+  getSettings: async () => {
+    return request('/admin/settings', { isAdmin: true });
+  },
+
+  updateSettings: async (settingsData) => {
+    return request('/admin/settings', {
+      method: 'POST',
+      body: JSON.stringify(settingsData),
+      isAdmin: true,
+    });
+  },
+
+  sendTestOtp: async (phone) => {
+    return request('/admin/settings/test-otp', {
+      method: 'POST',
+      body: JSON.stringify({ phone }),
+      isAdmin: true,
     });
   },
 };

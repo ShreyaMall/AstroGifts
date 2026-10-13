@@ -92,6 +92,11 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function ()
     Route::post('/logout', [AuthController::class, 'adminLogout']);
     Route::get('/stats', [AdminController::class, 'stats']);
     
+    // Integrations & Twilio Settings
+    Route::get('/settings', [\App\Http\Controllers\Api\AdminSettingsController::class, 'getSettings']);
+    Route::post('/settings', [\App\Http\Controllers\Api\AdminSettingsController::class, 'updateSettings']);
+    Route::post('/settings/test-otp', [\App\Http\Controllers\Api\AdminSettingsController::class, 'testOtp'])->middleware('throttle:3,1');
+    
     // Contacts & FAQs
     Route::get('/contacts', [ContactController::class, 'index']);
     // Wait, the FAQ admin controller operations would require FaqController methods (store, update, delete). Let's define them directly or just add them.
