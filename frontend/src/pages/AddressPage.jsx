@@ -73,6 +73,19 @@ export default function AddressPage() {
       } else {
         await addressesApi.addAddress(formData);
       }
+
+      // Auto-sync profile name if empty
+      if ((!user?.name || user.name.trim() === '' || /^User \d+$/i.test(user.name.trim())) && formData.name.trim()) {
+        try {
+          const updateRes = await authApi.updateProfile({ name: formData.name.trim() });
+          if (updateRes && updateRes.user) {
+            login(updateRes.user.role || 'customer', getAuthToken(), updateRes.user, true);
+          }
+        } catch (e) {
+          console.warn('Auto profile name update from AddressPage failed:', e);
+        }
+      }
+
       setShowForm(false);
       setEditingId(null);
       setFormData({

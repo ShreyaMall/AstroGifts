@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Store, Heart, ShoppingCart, User } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
@@ -7,22 +7,31 @@ import { useAuth } from '../../context/AuthContext';
 import './MobileBottomNav.css';
 
 export default function MobileBottomNav({ onAccountClick }) {
+  const location = useLocation();
   const { cartCount, openCart } = useCart();
   const { wishlistCount, openWishlist } = useWishlist();
-  const { authRole, isAuthenticated, isAdmin } = useAuth();
+  const { authRole, isAuthenticated, isAdmin, openAuth } = useAuth();
+
+  if (location.pathname.startsWith('/admin')) {
+    return null;
+  }
 
   const handleAccountClick = (e) => {
-    if (onAccountClick && !isAuthenticated) {
+    if (!isAuthenticated) {
       e.preventDefault();
-      onAccountClick();
+      if (onAccountClick) {
+        onAccountClick();
+      } else {
+        openAuth({ redirectTo: '/profile' });
+      }
     }
   };
 
-  const accountPath = isAdmin ? '/admin/dashboard' : (isAuthenticated ? '/profile' : '/login');
+  const accountPath = isAuthenticated ? '/profile' : '/login';
 
   return (
     <nav className="mobile-bottom-nav">
-      <Link to="/shop" className="mobile-bottom-nav__item">
+      <Link to="/products" className="mobile-bottom-nav__item">
         <div className="mobile-bottom-nav__icon">
           <Store size={22} strokeWidth={1.5} />
         </div>

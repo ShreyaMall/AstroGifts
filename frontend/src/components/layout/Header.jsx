@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import './Header.css';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
@@ -73,7 +73,7 @@ const DEFAULT_CATEGORIES = [
 export default function Header({ onAccountClick }) {
   const { cartCount, cartTotal, openCart } = useCart();
   const { wishlistCount, openWishlist } = useWishlist();
-  const { authRole, user, logout } = useAuth();
+  const { authRole, user, logout, openAuth } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -177,9 +177,11 @@ export default function Header({ onAccountClick }) {
   const accountPath = authRole === 'admin' ? '/admin/dashboard' : ((authRole === 'user' || authRole === 'customer') ? '/profile' : '/login');
 
   const handleAccountClick = (e) => {
+    e.preventDefault();
     if (onAccountClick) {
-      e.preventDefault();
       onAccountClick();
+    } else {
+      openAuth({ redirectTo: '/profile' });
     }
   };
 
@@ -240,10 +242,11 @@ export default function Header({ onAccountClick }) {
 
           {/* Top Menu (Desktop only, next to search) */}
           <div className="header__top-menu desktop-only">
-            <Link to="/" className="header__top-link">Home</Link>
-            <Link to="/blog" className="header__top-link">Blog</Link>
-            <Link to="/about" className="header__top-link">About Us</Link>
-            <Link to="/contact-us" className="header__top-link">Contact Us</Link>
+            <NavLink to="/" className={({ isActive }) => `header__top-link${isActive ? ' header__top-link--active' : ''}`} end>Home</NavLink>
+            <NavLink to="/products" className={({ isActive }) => `header__top-link${isActive ? ' header__top-link--active' : ''}`}>Shop All</NavLink>
+            <NavLink to="/blog" className={({ isActive }) => `header__top-link${isActive ? ' header__top-link--active' : ''}`}>Blog</NavLink>
+            <NavLink to="/about" className={({ isActive }) => `header__top-link${isActive ? ' header__top-link--active' : ''}`}>About Us</NavLink>
+            <NavLink to="/contact-us" className={({ isActive }) => `header__top-link${isActive ? ' header__top-link--active' : ''}`}>Contact Us</NavLink>
           </div>
 
           {/* Action icons */}
@@ -286,7 +289,7 @@ export default function Header({ onAccountClick }) {
                   style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
                 >
                   <UserIcon />
-                  <span>{user?.name ? user.name.split(' ')[0] : (authRole === 'admin' ? 'Admin' : 'Account')}</span>
+                  <span>{(!user?.name || /^User \d+$/i.test(user.name.trim())) ? (authRole === 'admin' ? 'Admin' : 'Account') : user.name.split(' ')[0]}</span>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginLeft: '2px', transition: 'transform 0.2s', transform: accountDropdownOpen ? 'rotate(180deg)' : 'none' }}>
                     <polyline points="6 9 12 15 18 9"></polyline>
                   </svg>
@@ -316,49 +319,17 @@ export default function Header({ onAccountClick }) {
                       {/* User profile brief */}
                       <div style={{ padding: '14px 16px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
                         <div style={{ fontWeight: '600', fontSize: '13.5px', color: '#0f172a' }}>
-                          {user?.name || (authRole === 'admin' ? 'Administrator' : 'Customer')}
+                          {user?.name || 'Customer'}
                         </div>
-                        <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px', wordBreak: 'break-all' }}>
-                          {user?.email || (authRole === 'admin' ? 'admin@astrogifts.com' : '')}
-                        </div>
-                        <span style={{
-                          display: 'inline-block',
-                          marginTop: '6px',
-                          fontSize: '10px',
-                          fontWeight: '700',
-                          textTransform: 'uppercase',
-                          padding: '2px 8px',
-                          borderRadius: '12px',
-                          background: authRole === 'admin' ? '#fef3c7' : '#e0f2fe',
-                          color: authRole === 'admin' ? '#b45309' : '#0369a1'
-                        }}>
-                          {authRole === 'admin' ? 'Admin Role' : 'Customer'}
-                        </span>
+                        {user?.email && (
+                          <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px', wordBreak: 'break-all' }}>
+                            {user.email}
+                          </div>
+                        )}
                       </div>
 
                       {/* Navigation links */}
                       <div style={{ padding: '6px 0' }}>
-                        {authRole === 'admin' && (
-                          <Link
-                            to="/admin/dashboard"
-                            onClick={() => setAccountDropdownOpen(false)}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '10px',
-                              padding: '10px 16px',
-                              fontSize: '13px',
-                              color: '#334155',
-                              textDecoration: 'none',
-                              transition: 'background 0.15s'
-                            }}
-                            onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'}
-                            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                          >
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>
-                            Admin Dashboard
-                          </Link>
-                        )}
 
                         <Link
                           to="/my-orders"
@@ -604,6 +575,11 @@ export default function Header({ onAccountClick }) {
 
           {/* Regular Menu list (Mobile only, shown if tab is MENU) */}
           <ul className={`header__nav-list header__nav-list--menu ${mobileMenuTab === 'CATEGORIES' ? 'mobile-hidden' : ''} mobile-only`}>
+            <li className="header__nav-item">
+              <Link to="/products" className="header__nav-link" onClick={() => setMenuOpen(false)} style={{ fontWeight: 600 }}>
+                <span>Shop All</span>
+              </Link>
+            </li>
             <li className="header__nav-item">
               <Link to="/" className="header__nav-link" onClick={() => setMenuOpen(false)}>
                 <span>Home</span>

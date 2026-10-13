@@ -1,7 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
-import ProtectedRoute from '../components/auth/ProtectedRoute';
+import ProtectedRoute, { AdminProtectedRoute } from '../components/auth/ProtectedRoute';
 
 /* Pages */
 import HomePage from '../pages/HomePage';
@@ -20,6 +20,7 @@ import CheckoutPage from '../pages/CheckoutPage';
 import ContactPage from '../pages/ContactPage';
 import SearchPage from '../pages/SearchPage';
 import AboutPage from '../pages/AboutPage';
+import AllProducts from '../pages/AllProducts';
 
 export default function AppRoutes() {
   return (
@@ -29,14 +30,15 @@ export default function AppRoutes() {
       <Route
         path="/admin/dashboard"
         element={
-          <ProtectedRoute requireRole="admin">
+          <AdminProtectedRoute>
             <AdminDashboard />
-          </ProtectedRoute>
+          </AdminProtectedRoute>
         }
       />
 
       {/* Normal Routes */}
       <Route path="/" element={<HomePage />} />
+      <Route path="/products" element={<AllProducts />} />
       <Route path="/about" element={<AboutPage />} />
       <Route path="/shop" element={<CategoryPage categorySlug="gifts" />} />
       <Route path="/astrogifts" element={<CategoryPage categorySlug="gifts" />} />
@@ -62,11 +64,11 @@ export default function AppRoutes() {
       <Route path="/blog" element={<BlogPage />} />
       <Route path="/blog/:slug" element={<BlogDetailPage />} />
       <Route path="/login" element={<UserLoginPage />} />
-      <Route path="/my-orders" element={<MyOrdersPage />} />
-      <Route path="/profile" element={<UserProfilePage />} />
-      <Route path="/address" element={<AddressPage />} />
+      <Route path="/my-orders" element={<ProtectedRoute requirePhoneVerified={true}><MyOrdersPage /></ProtectedRoute>} />
+      <Route path="/profile" element={<ProtectedRoute requirePhoneVerified={true}><UserProfilePage /></ProtectedRoute>} />
+      <Route path="/address" element={<ProtectedRoute requirePhoneVerified={true}><AddressPage /></ProtectedRoute>} />
       <Route path="/wishlist" element={<WishlistPage />} />
-      <Route path="/checkout" element={<CheckoutPage />} />
+      <Route path="/checkout" element={<ProtectedRoute requirePhoneVerified={true}><CheckoutPage /></ProtectedRoute>} />
       <Route path="/contact-us" element={<ContactPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

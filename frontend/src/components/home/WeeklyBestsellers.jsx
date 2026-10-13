@@ -4,6 +4,7 @@ import './WeeklyBestsellers.css';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { productsApi, categoriesApi } from '../../services/api';
+import { MAX_PER_PAGE } from '../../utils/constants';
 import { getHexColor } from '../../utils/colorUtils';
 import giftItemImg from '../../assets/gift image.jpg';
 
@@ -278,11 +279,15 @@ export default function WeeklyBestsellers() {
   const [apiProducts, setApiProducts] = useState([]);
   const [dynamicTabs, setDynamicTabs] = useState(['All']);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
+  const [retryKey, setRetryKey] = useState(0);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
 
   // 1. Dynamic Tabs Fetching from Backend Categories API
   useEffect(() => {
+    let ignore = false;
     categoriesApi.getAll().then(res => {
+      if (ignore) return;
       if (res && res.data && Array.isArray(res.data) && res.data.length > 0) {
         const catNames = res.data.map(c => c.name);
         setDynamicTabs(['All', ...catNames]);
@@ -290,9 +295,14 @@ export default function WeeklyBestsellers() {
         setDynamicTabs(['All', 'Gifts', 'Toys', 'Astrology', 'Flowers', 'Decor']);
       }
     }).catch(err => {
+      if (ignore) return;
       console.error("Failed to load dynamic categories:", err);
       setDynamicTabs(['All', 'Gifts', 'Toys', 'Astrology', 'Flowers', 'Decor']);
     });
+
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   // Robust Helper to match product to tab category (Gifts, Toys, Astrology, Flowers, Decor, etc.)
@@ -341,53 +351,99 @@ export default function WeeklyBestsellers() {
 
   // 2. Dynamic Products Fetching from Backend Products API
   useEffect(() => {
+    let ignore = false;
+    const abortController = new AbortController();
+
     const fetchBestsellers = async () => {
       setLoading(true);
+      setFetchError(null);
       try {
-        // Fetch all products so category filtering works for Gifts, Toys, Astrology, Flowers, Decor
-        let res = await productsApi.getAll({ per_page: 100 });
-        let productsData = (res && Array.isArray(res.data)) ? res.data : [];
+        let allProducts = [];
+        let currentPage = 1;
+        let lastPage = 1;
 
-        // Also check bestsellers endpoint if available
+        // Fetch first page with per_page capped at MAX_PER_PAGE
+        const firstRes = await productsApi.getAll(
+          { page: currentPage, per_page: MAX_PER_PAGE },
+          { signal: abortController.signal }
+        );
+
+        if (ignore) return;
+
+        if (firstRes && Array.isArray(firstRes.data)) {
+          allProducts = [...firstRes.data];
+          if (firstRes.meta && typeof firstRes.meta.last_page === 'number') {
+            lastPage = firstRes.meta.last_page;
+          }
+        } else if (Array.isArray(firstRes)) {
+          allProducts = [...firstRes];
+        }
+
+        // If more than MAX_PER_PAGE products exist across pages, fetch subsequent pages
+        while (currentPage < lastPage) {
+          if (ignore) return;
+          currentPage++;
+          const nextRes = await productsApi.getAll(
+            { page: currentPage, per_page: MAX_PER_PAGE },
+            { signal: abortController.signal }
+          );
+          if (ignore) return;
+          if (nextRes && Array.isArray(nextRes.data)) {
+            allProducts.push(...nextRes.data);
+          }
+        }
+
+        // Check bestsellers endpoint if available
         try {
           const bsRes = await productsApi.getBestsellers();
-          if (bsRes && bsRes.status === 'success' && Array.isArray(bsRes.data) && bsRes.data.length > 0) {
+          if (!ignore && bsRes && bsRes.status === 'success' && Array.isArray(bsRes.data) && bsRes.data.length > 0) {
             const bsIds = new Set(bsRes.data.map(b => String(b.id)));
-            productsData = productsData.map(p => ({
+            allProducts = allProducts.map(p => ({
               ...p,
               is_bestseller: bsIds.has(String(p.id)) || p.is_bestseller
             }));
           }
         } catch (e) {
-          // Ignore
+          // Non-critical, ignore
         }
 
-        const formatted = productsData.map(p => {
-          return {
-            ...p,
-            id: p.id,
-            name: p.name,
-            price: Number(p.price) || 0,
-            originalPrice: p.old_price ? Number(p.old_price) : null,
-            img: getFormattedImageUrl(p.image || p.image_url || p.img),
-            category: p.category_name || p.category || 'Gifts',
-            badge: p.badge || (p.is_new ? 'NEW' : (p.discount_percentage ? `-${p.discount_percentage}%` : null)),
-            featured: true,
-            rating: Number(p.rating) || 5
-          };
-        });
+        if (ignore) return;
+
+        const formatted = allProducts.map(p => ({
+          ...p,
+          id: p.id,
+          name: p.name,
+          price: Number(p.price) || 0,
+          originalPrice: p.old_price ? Number(p.old_price) : null,
+          img: getFormattedImageUrl(p.image || p.image_url || p.img),
+          category: p.category_name || p.category || 'Gifts',
+          badge: p.badge || (p.is_new ? 'NEW' : (p.discount_percentage ? `-${p.discount_percentage}%` : null)),
+          featured: true,
+          rating: Number(p.rating) || 5
+        }));
 
         setApiProducts(formatted);
       } catch (error) {
+        if (error.name === 'AbortError' || ignore) {
+          return;
+        }
         console.error("Failed to fetch dynamic products:", error);
+        setFetchError(error.message || "Failed to load products. Please try again.");
         setApiProducts([]);
       } finally {
-        setLoading(false);
+        if (!ignore) {
+          setLoading(false);
+        }
       }
     };
 
     fetchBestsellers();
-  }, []);
+
+    return () => {
+      ignore = true;
+      abortController.abort();
+    };
+  }, [retryKey]);
 
   // Filter products by selected active category tab
   const filteredProducts = React.useMemo(() => {
@@ -445,6 +501,35 @@ export default function WeeklyBestsellers() {
                 <div className="wb-skeleton-line wb-skeleton-price" />
               </div>
             ))
+          ) : fetchError ? (
+            <div style={{
+              gridColumn: '1 / -1',
+              textAlign: 'center',
+              padding: '48px 20px',
+              background: '#fafafa',
+              borderRadius: '8px',
+              border: '1px solid #eee'
+            }}>
+              <p style={{ margin: '0 0 16px', color: '#c0392b', fontSize: '15px', fontWeight: 500 }}>
+                {fetchError}
+              </p>
+              <button
+                type="button"
+                onClick={() => setRetryKey(k => k + 1)}
+                style={{
+                  background: 'var(--brand-primary, #d96b27)',
+                  color: '#fff',
+                  border: 'none',
+                  padding: '10px 24px',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                Retry
+              </button>
+            </div>
           ) : filteredProducts.length > 0 ? (
             filteredProducts.map(product => (
               <ProductCard key={product.id} product={product} onQuickView={(p) => setQuickViewProduct(p)} />

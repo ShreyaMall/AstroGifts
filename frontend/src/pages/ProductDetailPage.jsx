@@ -10,6 +10,7 @@ import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useAuth } from '../context/AuthContext';
 import { productsApi, addressesApi, reviewsApi } from '../services/api';
+import { MAX_PER_PAGE } from '../utils/constants';
 import fallbackGift1 from '../assets/gift image.jpg';
 import fallbackGift2 from '../assets/decor1.jpg';
 import fallbackGift3 from '../assets/toy1.jpg';
@@ -668,7 +669,7 @@ export default function ProductDetailPage() {
           // Fetch related products for the same category
           const categorySlug = fetchedProduct.category_slug || (fetchedProduct.category ? fetchedProduct.category.toLowerCase() : null);
           if (categorySlug) {
-             productsApi.getAll({ category: categorySlug, per_page: 8 })
+             productsApi.getAll({ category: categorySlug, per_page: Math.min(8, MAX_PER_PAGE) })
                .then(relatedRes => {
                   if (relatedRes && relatedRes.data) {
                      // Filter out the current product
@@ -808,58 +809,66 @@ export default function ProductDetailPage() {
 
             {/* Main Image (Right) */}
             <div className="pdp-main-img-wrap">
-              {product.badge && (
-                <span className={`pdp-badge ${product.badge.startsWith('-') ? 'pdp-badge--sale' : 'pdp-badge--new'}`}>
-                  {product.badge}
-                </span>
-              )}
-              <button 
-                className={`pdp-img-wishlist-btn ${wishlisted ? 'active' : ''}`}
-                onClick={() => toggleWishlist(product)}
-                title={wishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill={wishlisted ? "#7c3a1d" : "none"} stroke={wishlisted ? "#7c3a1d" : "currentColor"} strokeWidth="2">
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                </svg>
-              </button>
+              <div className="pdp-main-img-box">
+                {product.badge && (
+                  <span className={`pdp-badge ${product.badge.startsWith('-') ? 'pdp-badge--sale' : 'pdp-badge--new'}`}>
+                    {product.badge}
+                  </span>
+                )}
 
-              <button 
-                className="pdp-img-wishlist-btn"
-                style={{ top: '60px' }}
-                onClick={async () => {
-                  const slug = product.slug || String(product.name).toLowerCase().replace(/[^a-z0-9]+/g, '-');
-                  const shareUrl = `${window.location.origin}/product/${slug}`;
-                  const shareData = {
-                    title: product.name,
-                    text: `Check out ${product.name} at AstroGifts for just ₹${product.price.toFixed(0)}!`,
-                    url: shareUrl
-                  };
-                  if (navigator.share) {
-                    try { await navigator.share(shareData); } catch (err) {}
-                  } else {
-                    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareData.text + ' ' + shareData.url)}`, '_blank');
-                  }
-                }}
-                title="Share product"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="18" cy="5" r="3"></circle>
-                  <circle cx="6" cy="12" r="3"></circle>
-                  <circle cx="18" cy="19" r="3"></circle>
-                  <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-                  <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-                </svg>
-              </button>
+                <div className="pdp-img-actions">
+                  <button 
+                    type="button"
+                    className={`pdp-action-btn pdp-action-btn--wishlist ${wishlisted ? 'active' : ''}`}
+                    onClick={() => toggleWishlist(product)}
+                    title={wishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                    aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill={wishlisted ? "#7c3a1d" : "none"} stroke={wishlisted ? "#7c3a1d" : "currentColor"} strokeWidth="2" aria-hidden="true">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                    </svg>
+                  </button>
 
-              <img 
-                src={getFormattedImageUrl(activeImage || (galleryImages && galleryImages[activeImgIndex]) || product.image || product.img)} 
-                alt={product.name} 
-                className="pdp-main-img" 
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.style.display = 'none';
-                }}
-              />
+                  <button 
+                    type="button"
+                    className="pdp-action-btn pdp-action-btn--share"
+                    onClick={async () => {
+                      const slug = product.slug || String(product.name).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                      const shareUrl = `${window.location.origin}/product/${slug}`;
+                      const shareData = {
+                        title: product.name,
+                        text: `Check out ${product.name} at AstroGifts for just ₹${product.price.toFixed(0)}!`,
+                        url: shareUrl
+                      };
+                      if (navigator.share) {
+                        try { await navigator.share(shareData); } catch (err) {}
+                      } else {
+                        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareData.text + ' ' + shareData.url)}`, '_blank');
+                      }
+                    }}
+                    title="Share product"
+                    aria-label="Share"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <circle cx="18" cy="5" r="3"></circle>
+                      <circle cx="6" cy="12" r="3"></circle>
+                      <circle cx="18" cy="19" r="3"></circle>
+                      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                    </svg>
+                  </button>
+                </div>
+
+                <img 
+                  src={getFormattedImageUrl(activeImage || (galleryImages && galleryImages[activeImgIndex]) || product.image || product.img)} 
+                  alt={product.name} 
+                  className="pdp-main-img" 
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.style.display = 'none';
+                  }}
+                />
+              </div>
             </div>
           </div>
 
@@ -1116,8 +1125,13 @@ export default function ProductDetailPage() {
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Out of Stock
                 </span>
               ) : (
-                <span style={{ color: '#15803d', background: '#dcfce7', padding: '4px 10px', borderRadius: '4px', fontSize: '13px', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> In Stock ({availableStock} units available)
+                <span style={{ color: availableStock <= 5 ? '#b45309' : '#15803d', background: availableStock <= 5 ? '#fef3c7' : '#dcfce7', padding: '4px 10px', borderRadius: '4px', fontSize: '13px', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  {availableStock <= 5
+                    ? `Only ${availableStock} left`
+                    : availableStock === 1
+                      ? 'In Stock (1 unit available)'
+                      : `In Stock (${availableStock} units available)`}
                 </span>
               )}
             </div>

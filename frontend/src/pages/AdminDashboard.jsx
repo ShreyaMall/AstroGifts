@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { customConfirm } from '../utils/confirmModal';
 import './AdminDashboard.css';
 import { adminApi, contactApi, faqApi, productsApi } from '../services/api';
-import { useAuth } from '../context/AuthContext';
+import { MAX_PER_PAGE } from '../utils/constants';
+import { useAdminAuth } from '../context/AdminAuthContext';
 import { AdminPageLoader } from '../components/layout/PageLoader';
 
 
@@ -238,7 +239,7 @@ function PageDashboard({ setActivePage }) {
 
     let realProductsCount = '0';
     try {
-      const prodRes = await productsApi.getAll({ per_page: 100 });
+      const prodRes = await productsApi.getAll({ per_page: MAX_PER_PAGE });
       const pList = prodRes?.data || (Array.isArray(prodRes) ? prodRes : []);
       if (pList.length > 0) {
         realProductsCount = String(pList.length);
@@ -4725,7 +4726,7 @@ function PageFaqs() {
    MAIN COMPONENT
 ══════════════════════════════════════════════════ */
 export default function AdminDashboard({ onLogout }) {
-  const { logout } = useAuth();
+  const { adminLogout } = useAdminAuth();
   const navigate = useNavigate();
   const [activePage, setActivePage]       = useState(() => localStorage.getItem('admin_active_page') || 'dashboard');
   const [productOpen, setProductOpen]     = useState(() => localStorage.getItem('admin_product_open') === 'true');
@@ -4743,7 +4744,7 @@ export default function AdminDashboard({ onLogout }) {
     if (onLogout) {
       onLogout();
     } else {
-      await logout();
+      await adminLogout();
       navigate('/admin/login');
     }
   };

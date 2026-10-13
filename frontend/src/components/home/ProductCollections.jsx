@@ -16,6 +16,11 @@ const ProductCollections = () => {
   const videoRef3 = useRef(null);
 
   useEffect(() => {
+    // Return early if user prefers reduced motion
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.target.tagName.toLowerCase() === 'video') {
@@ -30,9 +35,6 @@ const ProductCollections = () => {
 
     const videos = [videoRef1.current, videoRef2.current, videoRef3.current].filter(Boolean);
     videos.forEach(vid => observer.observe(vid));
-    
-    // Initial play in case already intersecting
-    videos.forEach(vid => vid.play().catch(err => console.log("Video handled:", err)));
 
     return () => {
       videos.forEach(vid => observer.unobserve(vid));
@@ -41,7 +43,7 @@ const ProductCollections = () => {
   }, []);
 
   return (
-    <div className="pc-wrapper">
+    <section className="pc-wrapper" aria-label="Gifts and astrology collections">
       <div className="pc-header">
         <h2 className="pc-title">Gifts & Astrology Collections</h2>
         <p className="pc-subtitle">Explore curated gifts, sacred astrology crystals & premium toys</p>
@@ -52,7 +54,15 @@ const ProductCollections = () => {
         {/* Column 1: Sacred Astrology & Video */}
         <div className="pc-col">
           <div className="pc-card h-325">
-            <img src={astroImg} alt="Astrology & Gemstones" className="pc-img" loading="lazy" decoding="async" />
+            <img
+              src={astroImg}
+              alt="Astrology & Gemstones"
+              width="400"
+              height="500"
+              className="pc-img"
+              loading="lazy"
+              decoding="async"
+            />
             <div className="pc-overlay">
               <span className="pc-overlay-title">Astrology & Gemstones</span>
             </div>
@@ -62,11 +72,12 @@ const ProductCollections = () => {
               ref={videoRef2}
               src={thodaVideoFile}
               className="pc-img"
-              autoPlay
               muted
               loop
               playsInline
               preload="metadata"
+              aria-hidden="true"
+              tabIndex={-1}
               style={{ pointerEvents: 'none' }}
             />
             <div className="pc-overlay">
@@ -78,12 +89,20 @@ const ProductCollections = () => {
         {/* Column 2: Luxury Gifts & Special Gifts Text Card */}
         <div className="pc-col">
           <div className="pc-card h-450">
-            <img src={giftsImg} alt="Luxury Gift Hampers" className="pc-img" loading="lazy" decoding="async" />
+            <img
+              src={giftsImg}
+              alt="Luxury Gift Hampers"
+              width="400"
+              height="500"
+              className="pc-img"
+              loading="lazy"
+              decoding="async"
+            />
             <div className="pc-overlay">
               <span className="pc-overlay-title">Luxury Gift Hampers</span>
             </div>
           </div>
-          <div className="pc-card h-200 card-gladom">
+          <div className="pc-card h-200 card-gladom pc-card--text">
             <div className="pc-text-inner">
               <span className="pc-text-label">EXCLUSIVES</span>
               <h3 className="pc-text-title">Special Gifts</h3>
@@ -101,11 +120,12 @@ const ProductCollections = () => {
               ref={videoRef1}
               src={astroVideoFile}
               className="pc-img"
-              autoPlay
               muted
               loop
               playsInline
               preload="metadata"
+              aria-hidden="true"
+              tabIndex={-1}
               style={{ pointerEvents: 'none' }}
             />
             <div className="pc-overlay">
@@ -113,7 +133,15 @@ const ProductCollections = () => {
             </div>
           </div>
           <div className="pc-card h-325">
-            <img src={stackedGiftBoxesImg} alt="Stacked Gift Boxes Showcase" className="pc-img" loading="lazy" decoding="async" />
+            <img
+              src={stackedGiftBoxesImg}
+              alt="Stacked Gift Boxes Showcase"
+              width="400"
+              height="500"
+              className="pc-img"
+              loading="lazy"
+              decoding="async"
+            />
             <div className="pc-overlay">
               <span className="pc-overlay-title">Stacked Gift Boxes</span>
             </div>
@@ -122,7 +150,7 @@ const ProductCollections = () => {
 
         {/* Column 4: Divine Astro Text & Zodiac Collection */}
         <div className="pc-col">
-          <div className="pc-card h-200 card-hallan">
+          <div className="pc-card h-200 card-hallan pc-card--text">
             <div className="pc-text-inner">
               <span className="pc-text-label">ASTROLOGY</span>
               <h3 className="pc-text-title">Rings & Gemstones</h3>
@@ -132,7 +160,15 @@ const ProductCollections = () => {
             </div>
           </div>
           <div className="pc-card h-450">
-            <img src={astriImg} alt="Crystals & Sacred Jewels" className="pc-img" loading="lazy" decoding="async" />
+            <img
+              src={astriImg}
+              alt="Crystals & Sacred Jewels"
+              width="400"
+              height="500"
+              className="pc-img"
+              loading="lazy"
+              decoding="async"
+            />
             <div className="pc-overlay">
               <span className="pc-overlay-title">Crystals & Jewels</span>
             </div>
@@ -142,7 +178,15 @@ const ProductCollections = () => {
         {/* Column 5: Special Gift Items & WhatsApp Video */}
         <div className="pc-col">
           <div className="pc-card h-350">
-            <img src={giftItemImg} alt="Special Occasion Gift" className="pc-img" loading="lazy" decoding="async" />
+            <img
+              src={giftItemImg}
+              alt="Special Occasion Gift"
+              width="400"
+              height="500"
+              className="pc-img"
+              loading="lazy"
+              decoding="async"
+            />
             <div className="pc-overlay">
               <span className="pc-overlay-title">Special Occasions</span>
             </div>
@@ -152,11 +196,12 @@ const ProductCollections = () => {
               ref={videoRef3}
               src={whatsAppVideoFile}
               className="pc-img"
-              autoPlay
               muted
               loop
               playsInline
               preload="metadata"
+              aria-hidden="true"
+              tabIndex={-1}
               style={{ pointerEvents: 'none' }}
             />
             <div className="pc-overlay">
@@ -166,7 +211,7 @@ const ProductCollections = () => {
         </div>
 
       </div>
-    </div>
+    </section>
   );
 };
 

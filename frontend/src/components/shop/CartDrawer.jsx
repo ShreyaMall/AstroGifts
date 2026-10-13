@@ -16,7 +16,7 @@ export default function CartDrawer() {
     cartCount,
     cartTotal,
   } = useCart();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isPhoneVerified, openAuth } = useAuth();
   const navigate = useNavigate();
 
   if (!isCartOpen) return null;
@@ -190,11 +190,10 @@ export default function CartDrawer() {
               <button
                 className="cart-drawer__checkout-btn"
                 onClick={() => {
-                  if (!isAuthenticated) {
-                    closeCart();
-                    navigate('/login');
+                  closeCart();
+                  if (!isAuthenticated || !isPhoneVerified) {
+                    openAuth({ pendingAction: 'checkout', redirectTo: '/checkout' });
                   } else {
-                    closeCart();
                     navigate('/checkout');
                   }
                 }}

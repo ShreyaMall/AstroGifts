@@ -4,6 +4,7 @@ import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import ProductCard from '../components/shop/ProductCard';
 import { productsApi } from '../services/api';
+import { MAX_PER_PAGE } from '../utils/constants';
 import './SearchPage.css';
 
 export default function SearchPage() {
@@ -22,7 +23,7 @@ export default function SearchPage() {
     }
 
     setLoading(true);
-    productsApi.getAll({ search: query, per_page: 50 })
+    productsApi.getAll({ search: query, per_page: Math.min(50, MAX_PER_PAGE) })
       .then(res => {
         if (res && res.data) {
           setProducts(res.data);

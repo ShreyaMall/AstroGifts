@@ -45,6 +45,7 @@
 .pdp-main-grid {
   display: grid;
   grid-template-columns: 1.15fr 1fr;
+  align-items: start;
   gap: 40px;
   background: transparent;
   margin-bottom: 10px;
@@ -69,10 +70,26 @@
   display: flex;
   flex-direction: row;
   gap: 16px;
-  position: sticky;
-  top: 90px;
-  align-self: flex-start;
   width: 100%;
+  position: static;
+  align-self: start;
+}
+
+@media (min-width: 1024px) {
+  .pdp-gallery {
+    position: sticky;
+    top: 90px;
+    align-self: start;
+    max-height: calc(100dvh - 110px);
+  }
+}
+
+@media (max-width: 1023px) {
+  .pdp-gallery {
+    position: static;
+    top: auto;
+    max-height: none;
+  }
 }
 
 .pdp-thumbs {
@@ -80,6 +97,9 @@
   flex-direction: column;
   gap: 12px;
   width: 80px;
+  flex-shrink: 0;
+  max-height: calc(100dvh - 110px);
+  overflow-y: auto;
 }
 
 .pdp-thumb {
@@ -109,24 +129,82 @@
 .pdp-main-img-wrap {
   flex: 1;
   position: relative;
-  background: #f8f8f8;
+  background: #fdfdfd;
   border-radius: 12px;
-  overflow: hidden;
-  height: 560px;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 0;
+}
+
+.pdp-main-img-box {
+  position: relative;
+  display: inline-block;
+  width: fit-content;
+  max-width: 100%;
+  line-height: 0;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .pdp-main-img {
+  display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+  max-height: 70vh;
+  object-fit: contain;
   transition: transform 0.3s ease;
 }
 
-.pdp-main-img-wrap:hover .pdp-main-img {
-  transform: scale(1.03);
+.pdp-main-img-box:hover .pdp-main-img {
+  transform: scale(1.02);
+}
+
+/* Buttons Container */
+.pdp-img-actions {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 2;
+  line-height: 1;
+}
+
+.pdp-action-btn,
+.pdp-img-wishlist-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
+  color: #333333;
+  padding: 0;
+}
+
+.pdp-action-btn:hover,
+.pdp-img-wishlist-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.pdp-action-btn:focus-visible,
+.pdp-img-wishlist-btn:focus-visible {
+  outline: 2px solid var(--brand-primary, #7c3a1d);
+  outline-offset: 2px;
+}
+
+.pdp-action-btn.active,
+.pdp-img-wishlist-btn.active {
+  background: #fbf5f2;
+  color: #7c3a1d;
 }
 
 .pdp-badge {
@@ -1275,45 +1353,7 @@
 }
 
 
-.pdp-main-img-wrap {
-  flex: 1;
-  background: #fdfdfd;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-  position: relative;
-}
 
-.pdp-img-wishlist-btn {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 40px;
-  height: 40px;
-  background: #fff;
-  border: none;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  transition: all 0.2s;
-  z-index: 5;
-  color: #333;
-}
-
-.pdp-img-wishlist-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-}
-
-.pdp-img-wishlist-btn.active {
-  background: #fbf5f2;
-  color: #7c3a1d;
-}
 
 
 
@@ -1353,8 +1393,8 @@
   }
   
   .pdp-main-img-wrap {
-    height: 350px;
-    padding: 16px;
+    height: auto;
+    padding: 0;
     width: 100%;
     box-sizing: border-box;
     margin: 0;

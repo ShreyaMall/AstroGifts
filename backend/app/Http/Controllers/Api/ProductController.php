@@ -5,36 +5,15 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Color;
+use App\Http\Resources\ProductResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use App\Http\Requests\ProductFilterRequest;
 
 class ProductController extends Controller
 {
-    /**
-     * Hex map for known color names (case-insensitive lookup).
-     */
-    private const COLOR_HEX_MAP = [
-        'red'        => '#FF0000',
-        'blue'       => '#0000FF',
-        'brown'      => '#8B4513',
-        'black'      => '#000000',
-        'white'      => '#FFFFFF',
-        'green'      => '#008000',
-        'gold'       => '#FFD700',
-        'silver'     => '#C0C0C0',
-        'pink'       => '#FFC0CB',
-        'purple'     => '#800080',
-        'yellow'     => '#FFFF00',
-        'grey'       => '#808080',
-        'gray'       => '#808080',
-        'orange'     => '#FFA500',
-        'navy'       => '#000080',
-        'beige'      => '#F5F5DC',
-        'maroon'     => '#800000',
-        'cream'      => '#FFFDD0',
-        'off-white'  => '#FAF9F6',
-    ];
 
     /**
      * Decode the colors/occasions field which may be stored as a JSON string
@@ -90,20 +69,23 @@ class ProductController extends Controller
     {
         $match = ['is_active' => true];
 
-        // 1. Category (resolves children + parent so /category/gifts and /category/diwali-gifts both work)
+        // 1. Category (resolves children + parent, supports multi-category comma-separated)
         if ($request->filled('category')) {
-            $catSlug    = $request->category;
-            $catRecord  = Category::where('slug', $catSlug)->first();
-            $parentSlug = $catRecord?->parent_category ?? null;
-            $subSlugs   = Category::where('parent_category', $catSlug)->pluck('slug')->toArray();
-
-            $allSlugs = array_values(array_unique(array_merge([$catSlug], $subSlugs)));
-            if ($parentSlug) {
-                $allSlugs[] = $parentSlug;
-                $allSlugs   = array_values(array_unique($allSlugs));
+            $rawCats = explode(',', (string) $request->category);
+            $catSlugs = array_values(array_filter(array_map('trim', $rawCats)));
+            $allSlugs = [];
+            foreach ($catSlugs as $slug) {
+                $allSlugs[] = $slug;
+                $catRecord  = Category::where('slug', $slug)->first();
+                $parentSlug = $catRecord?->parent_category ?? null;
+                $subSlugs   = Category::where('parent_category', $slug)->pluck('slug')->toArray();
+                $allSlugs   = array_merge($allSlugs, $subSlugs);
+                if ($parentSlug) {
+                    $allSlugs[] = $parentSlug;
+                }
             }
+            $allSlugs = array_values(array_unique($allSlugs));
 
-            // Match: category_slug OR subcategory_slug in the resolved slug list
             $match['$or'] = [
                 ['category_slug'    => ['$in' => $allSlugs]],
                 ['subcategory_slug' => ['$in' => $allSlugs]],
@@ -144,11 +126,36 @@ class ProductController extends Controller
             }
         }
 
-        // 5. Price
-        if (($request->filled('minPrice') || $request->filled('maxPrice')) && $excludeField !== 'price') {
-            $match['price'] = [];
-            if ($request->filled('minPrice')) $match['price']['$gte'] = (float) $request->minPrice;
-            if ($request->filled('maxPrice')) $match['price']['$lte'] = (float) $request->maxPrice;
+        // 5. Price (effective price: sale_price if set and lower, else price)
+        $min = $request->input('min', $request->input('minPrice'));
+        $max = $request->input('max', $request->input('maxPrice'));
+        if (($min !== null && $min !== '') || ($max !== null && $max !== '')) {
+            if ($excludeField !== 'price') {
+                $effPriceExpr = [
+                    '$cond' => [
+                        [
+                            '$and' => [
+                                ['$ne' => ['$sale_price', null]],
+                                ['$gt' => ['$sale_price', 0]],
+                                ['$lt' => ['$sale_price', '$price']],
+                            ]
+                        ],
+                        '$sale_price',
+                        '$price'
+                    ]
+                ];
+                $priceExprs = [];
+                if ($min !== null && $min !== '') {
+                    $priceExprs[] = ['$gte' => [$effPriceExpr, (float) $min]];
+                }
+                if ($max !== null && $max !== '') {
+                    $priceExprs[] = ['$lte' => [$effPriceExpr, (float) $max]];
+                }
+                $combinedPrice = count($priceExprs) === 1 ? $priceExprs[0] : ['$and' => $priceExprs];
+                $match['$expr'] = isset($match['$expr'])
+                    ? ['$and' => [$match['$expr'], $combinedPrice]]
+                    : $combinedPrice;
+            }
         }
 
         // 6. Rating
@@ -175,17 +182,40 @@ class ProductController extends Controller
             }
         }
 
-        // 8. Search
-        if ($request->filled('search')) {
-            $match['name'] = ['$regex' => $request->search, '$options' => 'i'];
+        // 8. Stock filter (stock=1)
+        if ($request->has('stock')) {
+            $val = $request->stock;
+            if ($val === '1' || $val === 1 || $val === 'true' || $val === true) {
+                $match['stock'] = ['$gt' => 0];
+            }
         }
 
-        // 9. On Sale
+        // 9. Search (q or search, searches name and sku)
+        $search = $request->input('q', $request->input('search'));
+        if ($search !== null && trim($search) !== '') {
+            $escaped = preg_quote(trim($search), '/');
+            $searchClauses = [
+                ['name' => ['$regex' => $escaped, '$options' => 'i']],
+                ['sku'  => ['$regex' => $escaped, '$options' => 'i']],
+            ];
+            if (isset($match['$or'])) {
+                $existingOr = $match['$or'];
+                unset($match['$or']);
+                $match['$and'] = array_merge($match['$and'] ?? [], [
+                    ['$or' => $existingOr],
+                    ['$or' => $searchClauses],
+                ]);
+            } else {
+                $match['$or'] = $searchClauses;
+            }
+        }
+
+        // 10. On Sale
         if ($request->boolean('on_sale')) {
             $match['old_price'] = ['$gt' => 0];
         }
 
-        // 10. Discount (computed from old_price & price)
+        // 11. Discount (computed from old_price & price)
         if ($request->filled('discount') && $excludeField !== 'discount') {
             $multiplier   = 1 - ((float) $request->discount / 100);
             $discountExpr = [
@@ -211,6 +241,87 @@ class ProductController extends Controller
         return $this->decodeArrayField($raw);
     }
 
+    /**
+     * Retrieve cached catalog filters metadata (5 min TTL, invalidated on model events).
+     */
+    public function getCachedFiltersMetadata(): array
+    {
+        return Cache::remember('catalog_products_filters', 300, function () {
+            $effPriceExpr = [
+                '$cond' => [
+                    [
+                        '$and' => [
+                            ['$ne' => ['$sale_price', null]],
+                            ['$gt' => ['$sale_price', 0]],
+                            ['$lt' => ['$sale_price', '$price']],
+                        ]
+                    ],
+                    '$sale_price',
+                    '$price'
+                ]
+            ];
+
+            // 1. Min / Max effective price over active products
+            $stats = Product::raw(function ($col) use ($effPriceExpr) {
+                return $col->aggregate([
+                    ['$match' => ['is_active' => true]],
+                    ['$project' => ['effective_price' => $effPriceExpr]],
+                    ['$group' => [
+                        '_id' => null,
+                        'min' => ['$min' => '$effective_price'],
+                        'max' => ['$max' => '$effective_price'],
+                    ]],
+                ]);
+            });
+
+            $statsArr = iterator_to_array($stats);
+            $priceMin = !empty($statsArr[0]['min']) ? (float) $statsArr[0]['min'] : 0.0;
+            $priceMax = !empty($statsArr[0]['max']) ? (float) $statsArr[0]['max'] : 0.0;
+
+            // 2. Categories with active product counts
+            $categories = Category::where('is_active', true)
+                ->orderBy('sort_order', 'asc')
+                ->orderBy('name', 'asc')
+                ->get();
+
+            $topLevel = $categories->filter(function ($c) {
+                $p = strtolower(trim((string)($c->parent_category ?? '')));
+                return $p === '' || $p === 'none' || $p === 'null';
+            })->values();
+
+            $parentsToUse = $topLevel->isNotEmpty() ? $topLevel : $categories;
+
+            $categoryList = [];
+            foreach ($parentsToUse as $cat) {
+                $catSlug = $cat->slug;
+                $childSlugs = $categories->filter(function ($c) use ($catSlug) {
+                    $p = strtolower(trim((string)($c->parent_category ?? '')));
+                    return $p !== '' && $p === strtolower($catSlug);
+                })->pluck('slug')->toArray();
+
+                $allSlugs = array_values(array_unique(array_merge([$catSlug], $childSlugs)));
+
+                $count = Product::where('is_active', true)
+                    ->where(function ($q) use ($allSlugs) {
+                        $q->whereIn('category_slug', $allSlugs)
+                          ->orWhereIn('subcategory_slug', $allSlugs);
+                    })->count();
+
+                $categoryList[] = [
+                    'name'  => (string) $cat->name,
+                    'slug'  => (string) $cat->slug,
+                    'count' => (int) $count,
+                ];
+            }
+
+            return [
+                'price_min'  => $priceMin,
+                'price_max'  => $priceMax,
+                'categories' => $categoryList,
+            ];
+        });
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     //  index  — paginated filtered product list
     // ─────────────────────────────────────────────────────────────────────────
@@ -218,38 +329,51 @@ class ProductController extends Controller
     {
         $match = $this->buildMatchPipeline($request);
 
-        $query = Product::whereRaw($match);
+        $query = Product::with('category')->whereRaw($match);
 
-        // Sorting
-        switch ($request->get('sort', 'default')) {
-            case 'price-asc':  $query->orderBy('price', 'asc');      break;
-            case 'price-desc': $query->orderBy('price', 'desc');     break;
-            case 'rating':     $query->orderBy('rating', 'desc');    break;
-            case 'newest':     $query->orderBy('created_at', 'desc'); break;
-            case 'discount':   $query->orderBy('created_at', 'desc'); break;
-            default:           $query->orderBy('id', 'asc');         break;
+        // Sorting (strict whitelist)
+        switch ($request->input('sort', 'newest')) {
+            case 'price_asc':
+            case 'price-asc':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+            case 'price-desc':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'name_asc':
+                $query->orderBy('name', 'asc');
+                break;
+            case 'rating':
+                $query->orderBy('rating', 'desc');
+                break;
+            case 'discount':
+                $query->orderBy('created_at', 'desc');
+                break;
+            case 'newest':
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
         }
 
-        $limit    = min((int) $request->get('limit', $request->get('per_page', 50)), 50);
+        // Pagination: default from config, max from config
+        $defaultLimit = config('api.default_per_page', 16);
+        $maxLimit = config('api.max_per_page', 100);
+        $limit = (int) $request->input('per_page', $request->input('limit', $defaultLimit));
+        $limit = max(1, min($limit, $maxLimit));
+
         $products = $query->paginate($limit);
-        $items    = $products->items();
-
-        // Append computed_discount to each item
-        foreach ($items as $item) {
-            $item->computed_discount = ($item->old_price && $item->old_price > $item->price)
-                ? round((($item->old_price - $item->price) / $item->old_price) * 100)
-                : 0;
-        }
 
         return response()->json([
-            'status' => 'success',
-            'data'   => $items,
-            'meta'   => [
+            'status'  => 'success',
+            'data'    => ProductResource::collection($products->items()),
+            'meta'    => [
                 'current_page' => $products->currentPage(),
                 'last_page'    => $products->lastPage(),
                 'per_page'     => $products->perPage(),
                 'total'        => $products->total(),
             ],
+            'filters' => $this->getCachedFiltersMetadata(),
         ]);
     }
 
@@ -357,6 +481,16 @@ class ProductController extends Controller
         $facets  = $raw[0] ?? [];
 
         // ── Post-process: colors (JSON-string → individual names + hex) ───────
+        $activeColors = Color::where('status', 'Active')->get();
+        if ($activeColors->isEmpty()) {
+            (new ColorController())->seedDefaults();
+            $activeColors = Color::where('status', 'Active')->get();
+        }
+        $colorHexMap = [];
+        foreach ($activeColors as $c) {
+            $colorHexMap[strtolower(trim($c->name))] = $c->hex ?? $c->code ?? null;
+        }
+
         $colorCounts = []; // normalizedLower => ['name' => canonical, 'count' => N, 'hex' => ...]
         foreach ($facets['colors_raw'] ?? [] as $row) {
             $row   = (array) $row;
@@ -367,7 +501,7 @@ class ProductController extends Controller
                 $key = strtolower(trim($name));
                 if ($key === '') continue;
                 if (!isset($colorCounts[$key])) {
-                    $hex = self::COLOR_HEX_MAP[$key] ?? null;
+                    $hex = $colorHexMap[$key] ?? null;
                     $colorCounts[$key] = ['name' => trim($name), 'hex' => $hex, 'count' => 0];
                 }
                 $colorCounts[$key]['count'] += $cnt;

@@ -21,13 +21,37 @@ const NAV = [
   { label: 'Address',   icon: <MapPin size={18} />, to: '/address' },
 ];
 
-import { ordersApi } from '../services/api';
+import { ordersApi, authApi, getAuthToken } from '../services/api';
 
 export default function UserProfilePage() {
-  const { user, logout, authRole } = useAuth();
+  const { user, login, logout, authRole } = useAuth();
   const navigate = useNavigate();
   const [recentOrders, setRecentOrders] = useState([]);
   const [totalOrderCount, setTotalOrderCount] = useState(0);
+
+  const [editingEmail, setEditingEmail] = useState(false);
+  const [emailInput, setEmailInput] = useState(user?.email || '');
+  const [saveLoading, setSaveLoading] = useState(false);
+
+  const handleSaveEmail = async (e) => {
+    e.preventDefault();
+    if (!emailInput.trim()) return;
+    setSaveLoading(true);
+    try {
+      const res = await authApi.updateProfile({
+        name: user?.name || 'Customer',
+        email: emailInput.trim(),
+      });
+      if (res && res.user) {
+        login(res.user.role || 'customer', getAuthToken(), res.user, true);
+        setEditingEmail(false);
+      }
+    } catch (err) {
+      alert(err.message || 'Failed to update email.');
+    } finally {
+      setSaveLoading(false);
+    }
+  };
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -110,7 +134,44 @@ export default function UserProfilePage() {
                 </div>
                 <div style={{ flex: 1 }}>
                   <h1 style={{ fontSize: '20px', fontWeight: '700', margin: '0 0 4px', color: '#111' }}>{user?.name || 'Customer'}</h1>
-                  <p style={{ margin: 0, color: '#888', fontSize: '13px' }}>{user?.email || 'user@astrogifts.com'}</p>
+                  {user?.phone && (
+                    <p style={{ margin: '0 0 4px', color: '#16a34a', fontSize: '13px', fontWeight: '600' }}>
+                      Mobile verified: +91 {user.phone}
+                    </p>
+                  )}
+                  {user?.email ? (
+                    <p style={{ margin: 0, color: '#475569', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ color: '#16a34a', fontWeight: '600' }}>Email verified:</span> <strong>{user.email}</strong>
+                    </p>
+                  ) : (
+                    <div>
+                      {!editingEmail ? (
+                        <button
+                          onClick={() => setEditingEmail(true)}
+                          style={{ background: 'none', border: 'none', color: '#7c3a1d', fontSize: '13px', fontWeight: '600', cursor: 'pointer', padding: 0 }}
+                        >
+                          + Add your email (optional)
+                        </button>
+                      ) : (
+                        <form onSubmit={handleSaveEmail} style={{ display: 'flex', gap: '8px', marginTop: '6px', alignItems: 'center' }}>
+                          <input
+                            type="email"
+                            placeholder="Enter email address"
+                            value={emailInput}
+                            onChange={(e) => setEmailInput(e.target.value)}
+                            style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                            required
+                          />
+                          <button type="submit" disabled={saveLoading} style={{ padding: '6px 12px', background: '#7c3a1d', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
+                            {saveLoading ? 'Saving...' : 'Save'}
+                          </button>
+                          <button type="button" onClick={() => setEditingEmail(false)} style={{ padding: '6px 12px', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '6px', fontSize: '12px', cursor: 'pointer' }}>
+                            Cancel
+                          </button>
+                        </form>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <span style={{ background: '#fdf6f0', color: '#7c3a1d', padding: '4px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: '600', textTransform: 'capitalize' }}>
                   {authRole || 'Customer'}
@@ -129,12 +190,6 @@ export default function UserProfilePage() {
                   </div>
                 ))}
               </div>
-
-              {authRole === 'admin' && (
-                <Link to="/admin/dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '9px 20px', background: '#1e293b', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: '600', fontSize: '13px' }}>
-                  <Shield size={16} /> Go to Admin Dashboard
-                </Link>
-              )}
             </div>
 
             {/* Recent Orders Section */}

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import './CategoryPage.css';
 import { productsApi } from '../services/api';
+import { MAX_PER_PAGE } from '../utils/constants';
 import ProductCard from '../components/shop/ProductCard';
 import CategoryFilters from '../components/shop/CategoryFilters';
 
@@ -176,7 +177,8 @@ export default function CategoryPage({ categorySlug }) {
 
   const activeChips = getActiveChips();
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
-  const perPage = parseInt(searchParams.get('per_page') || '12', 10);
+  const rawPerPage = parseInt(searchParams.get('per_page') || '12', 10);
+  const perPage = Math.min(isNaN(rawPerPage) ? 12 : rawPerPage, MAX_PER_PAGE);
 
   const heroStyle = hero.img
     ? { backgroundImage: `url(${hero.img})`, backgroundSize: 'cover', backgroundPosition: 'center 35%' }

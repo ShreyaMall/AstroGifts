@@ -106,6 +106,11 @@ export default function OurCategories() {
           {/* Trailing spacer for mobile scroll */}
           <div className="our-categories__spacer" aria-hidden="true"></div>
         </div>
+        <div className="our-categories__actions">
+          <Link to="/products" className="our-categories__view-all-btn" id="view-all-products-btn">
+            View All Products <span>→</span>
+          </Link>
+        </div>
       </div>
     </section>
   );

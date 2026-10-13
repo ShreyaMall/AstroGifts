@@ -129,9 +129,24 @@ class OrderController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Authentication required to place an order. Please log in with your mobile number.',
+            ], 401);
+        }
+
+        if (empty($user->phone_verified_at)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Mobile number verification is required before placing an order.',
+            ], 403);
+        }
+
         $validated = $request->validate([
             'customer_name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
+            'email' => 'nullable|email|max:255',
             'phone' => 'nullable|string|max:50',
             'shipping_address' => 'required|string|max:500',
             'city' => 'required|string|max:100',
@@ -260,8 +275,8 @@ class OrderController extends Controller
             'user_id' => $userId,
             'user' => $userId,
             'customer_name' => $validated['customer_name'],
-            'email' => $validated['email'],
-            'phone' => $validated['phone'] ?? null,
+            'email' => $validated['email'] ?? $user?->email ?? '',
+            'phone' => $validated['phone'] ?? $user?->phone ?? null,
             'shipping_address' => $validated['shipping_address'],
             'city' => $validated['city'],
             'state' => $validated['state'] ?? 'Delhi',
@@ -368,7 +383,7 @@ class OrderController extends Controller
         }
 
         // Send Email Notifications
-        $adminEmail = env('ADMIN_EMAIL', env('MAIL_FROM_ADDRESS', 'pmall6584@gmail.com'));
+        $adminEmail = config('mail.admin_email', config('mail.from.address'));
         
         // 1. Send Customer Order Confirmation Email directly to customer email
         if (!empty($order->email)) {
@@ -498,7 +513,7 @@ class OrderController extends Controller
 
         // Send Email to Admin
         try {
-            $adminEmail = env('ADMIN_EMAIL', env('MAIL_FROM_ADDRESS', 'pmall6584@gmail.com'));
+            $adminEmail = config('mail.admin_email', config('mail.from.address'));
             if (!empty($adminEmail)) {
                 dispatch(function () use ($adminEmail, $order) {
                     Mail::to($adminEmail)->send(new \App\Mail\ReturnRequestAdminMail($order));

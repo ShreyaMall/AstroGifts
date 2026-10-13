@@ -108,10 +108,23 @@
   text-decoration: none;
   text-transform: uppercase;
   transition: color 0.2s ease;
+  white-space: nowrap;
 }
 
-.header__top-link:hover {
+.header__top-link:hover,
+.header__top-link--active {
   color: #704832;
+  font-weight: 700;
+}
+
+@media (min-width: 1024px) and (max-width: 1280px) {
+  .header__top-menu {
+    gap: 12px;
+    margin-left: 12px;
+  }
+  .header__top-link {
+    font-size: 12px;
+  }
 }
 
 /* ── Action icons group ── */

@@ -5,6 +5,14 @@ body { margin: 0; }
   body {
     padding-bottom: 60px; /* Space for MobileBottomNav */
   }
+
+  body.admin-body,
+  body:has(.admin),
+  body:has(.admin-login-page) {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+    --bottom-nav-h: 0px !important;
+  }
 }
 
 /* Floating Buy AstroGifts button */

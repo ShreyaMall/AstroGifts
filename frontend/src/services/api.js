@@ -4,14 +4,21 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api';
 
 /**
- * Get stored token if any
+ * Get stored token if any (Storefront)
  */
 export const getAuthToken = () => {
   return localStorage.getItem('astrogifts_token') || sessionStorage.getItem('astrogifts_token') || null;
 };
 
 /**
- * Set stored auth token
+ * Get stored admin token if any (Admin panel only)
+ */
+export const getAdminToken = () => {
+  return localStorage.getItem('admin_token') || null;
+};
+
+/**
+ * Set stored auth token (Storefront)
  */
 export const setAuthToken = (token, persistent = true) => {
   if (!token) {
@@ -27,11 +34,23 @@ export const setAuthToken = (token, persistent = true) => {
 };
 
 /**
+ * Set stored admin token (Admin panel only)
+ */
+export const setAdminToken = (token) => {
+  if (!token) {
+    localStorage.removeItem('admin_token');
+  } else {
+    localStorage.setItem('admin_token', token);
+  }
+};
+
+/**
  * Generic Fetch Wrapper with JSON handling & Bearer Auth
  */
 async function request(endpoint, options = {}) {
+  const isAdminEndpoint = endpoint.startsWith('/admin') || Boolean(options.isAdmin);
   const url = `${API_BASE_URL}${endpoint}`;
-  const token = getAuthToken();
+  const token = isAdminEndpoint ? getAdminToken() : getAuthToken();
 
   const headers = {
     'Content-Type': 'application/json',
@@ -49,6 +68,14 @@ async function request(endpoint, options = {}) {
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
+      if (response.status === 401 && isAdminEndpoint) {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        if (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin') && window.location.pathname !== '/admin/login') {
+          window.location.href = '/admin/login';
+        }
+      }
+
       const errorMsg = data.message || data.error || `HTTP Error ${response.status}`;
       const error = new Error(errorMsg);
       error.status = response.status;
@@ -74,6 +101,45 @@ export const authApi = {
     });
   },
 
+  sendPhoneOtp: async (phone) => {
+    return request('/auth/send-otp', {
+      method: 'POST',
+      body: JSON.stringify({ phone }),
+    });
+  },
+
+  verifyPhoneOtp: async (phone, otp, name = '') => {
+    const res = await request('/auth/verify-otp', {
+      method: 'POST',
+      body: JSON.stringify({ phone, otp, name }),
+    });
+    if (res.token) {
+      setAuthToken(res.token, true);
+    }
+    return res;
+  },
+
+  attachPhone: async (phone) => {
+    return request('/auth/attach-phone', {
+      method: 'POST',
+      body: JSON.stringify({ phone }),
+    });
+  },
+
+  verifyAttachedPhone: async (otp) => {
+    return request('/auth/verify-attached-phone', {
+      method: 'POST',
+      body: JSON.stringify({ otp }),
+    });
+  },
+
+  updateProfile: async (data) => {
+    return request('/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
   sendOtp: async (email, password) => {
     return request('/auth/send-otp', {
       method: 'POST',
@@ -87,7 +153,7 @@ export const authApi = {
       body: JSON.stringify({ email, otp }),
     });
     if (res.token) {
-      localStorage.setItem('astrogifts_token', res.token);
+      setAuthToken(res.token, true);
     }
     return res;
   },
@@ -132,7 +198,7 @@ export const categoriesApi = {
 };
 
 export const productsApi = {
-  getAll: async (params = {}) => {
+  getAll: async (params = {}, options = {}) => {
     const query = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
@@ -140,7 +206,7 @@ export const productsApi = {
       }
     });
     const qs = query.toString();
-    return request(`/products${qs ? `?${qs}` : ''}`);
+    return request(`/products${qs ? `?${qs}` : ''}`, options);
   },
 
   getBestsellers: async () => {
@@ -296,6 +362,21 @@ export const ordersApi = {
    5. ADMIN DASHBOARD APIs
 ══════════════════════════════════════════════════ */
 export const adminApi = {
+  login: async (email, password) => {
+    return request('/admin/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+      isAdmin: true,
+    });
+  },
+
+  logout: async () => {
+    return request('/admin/logout', {
+      method: 'POST',
+      isAdmin: true,
+    });
+  },
+
   getStats: async () => {
     return request('/admin/stats');
   },
@@ -338,8 +419,7 @@ export const adminApi = {
     const formData = new FormData();
     formData.append('image', file);
     
-    // Use raw fetch because request wrapper stringifies body
-    const token = getAuthToken();
+    const token = getAdminToken();
     const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api'}/admin/upload`, {
       method: 'POST',
       headers: {
@@ -352,6 +432,13 @@ export const adminApi = {
     const resData = await response.json().catch(() => ({}));
 
     if (!response.ok) {
+      if (response.status === 401) {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        if (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin') && window.location.pathname !== '/admin/login') {
+          window.location.href = '/admin/login';
+        }
+      }
       const msg = resData.message || (resData.errors ? Object.values(resData.errors).flat().join(', ') : `Image upload failed (HTTP ${response.status})`);
       throw new Error(msg);
     }

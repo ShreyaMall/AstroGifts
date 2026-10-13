@@ -111,8 +111,19 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
+        'address' => env('MAIL_FROM_ADDRESS', 'shreyarajput1124@gmail.com'),
+        'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'AstroGifts')),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Recipient Address
+    |--------------------------------------------------------------------------
+    |
+    | The email address that receives admin notifications (new orders, returns).
+    |
+    */
+
+    'admin_email' => env('ADMIN_EMAIL', 'shreyarajput1124@gmail.com'),
 
 ];

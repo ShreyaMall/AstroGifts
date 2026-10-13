@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\ColorController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\CouponController;
 use App\Http\Controllers\Api\OrderController;
@@ -29,18 +30,22 @@ Route::get('/faqs', [FaqController::class, 'index']);
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/admin-login', [AuthController::class, 'adminLogin']);
+    Route::post('/admin-login', [AuthController::class, 'adminLogin'])->middleware('throttle:5,1');
     
     Route::post('/send-otp', [AuthController::class, 'sendOtp'])->middleware('throttle:5,1');
     Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/me', [AuthController::class, 'me']);
+        Route::put('/profile', [AuthController::class, 'updateProfile']);
         Route::post('/logout', [AuthController::class, 'logout']);
+        Route::post('/attach-phone', [AuthController::class, 'attachPhone']);
+        Route::post('/verify-attached-phone', [AuthController::class, 'verifyAttachedPhone']);
     });
 });
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::put('/profile', [AuthController::class, 'updateProfile']);
     Route::apiResource('/addresses', \App\Http\Controllers\Api\AddressController::class);
 });
 
@@ -59,6 +64,7 @@ Route::post('/products/{id}/reviews', [ReviewController::class, 'store']);
 Route::get('/reviews', [ReviewController::class, 'publicReviews']);
 Route::post('/reviews', [ReviewController::class, 'storeGeneral']);
 Route::get('/sizes', [SizeController::class, 'publicSizes']);
+Route::get('/colors', [ColorController::class, 'publicColors']);
 
 // ── 3. Sliders & Articles ──
 Route::get('/sliders', [SliderController::class, 'index']);
@@ -71,7 +77,7 @@ Route::post('/articles/{slug}/comments', [CommentController::class, 'store']);
 Route::post('/coupons/validate', [CouponController::class, 'validateCoupon']);
 
 // ── 5. Orders & Checkout ──
-Route::post('/orders', [OrderController::class, 'store']);
+Route::middleware('auth:sanctum')->post('/orders', [OrderController::class, 'store']);
 Route::get('/orders/{orderNumber}', [OrderController::class, 'show']);
 Route::post('/orders/{orderNumber}/return-request', [OrderController::class, 'requestReturn']);
 Route::post('/orders/{orderNumber}/cancel-item', [OrderController::class, 'cancelItem']);
@@ -79,8 +85,11 @@ Route::post('/orders/{orderNumber}/cancel', [OrderController::class, 'cancelOrde
 
 Route::get('/user/orders', [OrderController::class, 'index']);
 
-// ── 6. Admin Endpoints ──
-Route::prefix('admin')->group(function () {
+// ── 6. Admin Authentication & Endpoints ──
+Route::post('/admin/login', [AuthController::class, 'adminLogin'])->middleware('throttle:5,1');
+
+Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function () {
+    Route::post('/logout', [AuthController::class, 'adminLogout']);
     Route::get('/stats', [AdminController::class, 'stats']);
     
     // Contacts & FAQs
@@ -127,6 +136,12 @@ Route::prefix('admin')->group(function () {
     Route::post('/sizes', [SizeController::class, 'store']);
     Route::put('/sizes/{id}', [SizeController::class, 'update']);
     Route::delete('/sizes/{id}', [SizeController::class, 'destroy']);
+
+    // Colors
+    Route::get('/colors', [ColorController::class, 'index']);
+    Route::post('/colors', [ColorController::class, 'store']);
+    Route::put('/colors/{id}', [ColorController::class, 'update']);
+    Route::delete('/colors/{id}', [ColorController::class, 'destroy']);
 
     // Comments
     Route::get('/comments', [CommentController::class, 'allComments']);

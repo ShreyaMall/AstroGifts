@@ -1,9 +1,10 @@
-import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter, useLocation } from 'react-router-dom';
 import './App.css';
 
 /* Providers */
 import { AuthProvider } from './context/AuthContext';
+import { AdminAuthProvider } from './context/AdminAuthContext';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
 
@@ -18,12 +19,28 @@ import PageLoader from './components/layout/PageLoader';
 import WhatsAppFloat from './components/layout/WhatsAppFloat';
 import ScrollToTop from './components/layout/ScrollToTop';
 
+import AuthModal from './components/auth/AuthModal';
+
 /* Routes */
 import AppRoutes from './routes/AppRoutes';
 
-export default function App() {
+function AppContent() {
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/admin');
+
+  useEffect(() => {
+    if (isAdmin) {
+      document.body.classList.add('admin-body');
+    } else {
+      document.body.classList.remove('admin-body');
+    }
+    return () => {
+      document.body.classList.remove('admin-body');
+    };
+  }, [isAdmin]);
+
   return (
-    <BrowserRouter>
+    <AdminAuthProvider>
       <AuthProvider>
         <CartProvider>
           <WishlistProvider>
@@ -33,17 +50,26 @@ export default function App() {
             <AppRoutes />
 
             {/* ── GLOBAL DRAWERS & MODALS ── */}
+            <AuthModal />
             <FloatingCartBar />
             <CartNotification />
             <CartDrawer />
             <WishlistNotification />
             <WishlistDrawer />
-            <MobileBottomNav />
-            <WhatsAppFloat />
+            {!isAdmin && <MobileBottomNav />}
+            {!isAdmin && <WhatsAppFloat />}
 
           </WishlistProvider>
         </CartProvider>
       </AuthProvider>
+    </AdminAuthProvider>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
     </BrowserRouter>
   );
 }

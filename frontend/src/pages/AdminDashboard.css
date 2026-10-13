@@ -3,6 +3,9 @@
    ═══════════════════════════════════════════════ */
 
 .admin {
+  --bottom-nav-h: 0px;
+  margin-bottom: 0;
+  padding-bottom: 0;
   display: grid;
   grid-template-columns: 248px 1fr;
   height: 100vh;

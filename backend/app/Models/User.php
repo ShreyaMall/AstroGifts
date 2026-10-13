@@ -23,10 +23,18 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'phone',
+        'phone_verified_at',
         'password',
         'role',
         'otp',
+        'otp_hash',
         'otp_expires_at',
+        'otp_sent_at',
+        'otp_attempts',
+        'otp_locked_until',
+        'otp_hourly_count',
+        'otp_hourly_reset_at',
     ];
 
     /**
@@ -37,6 +45,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'otp_hash',
     ];
 
     /**
@@ -48,7 +57,12 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'phone_verified_at' => 'datetime',
+            'otp_expires_at'   => 'datetime',
+            'otp_sent_at'      => 'datetime',
+            'otp_locked_until' => 'datetime',
+            'otp_hourly_reset_at' => 'datetime',
+            'password'          => 'hashed',
         ];
     }
 

@@ -13,9 +13,24 @@ import { useAuth } from '../context/AuthContext';
 import { authApi } from '../services/api';
 
 export default function UserLoginPage() {
-  const { login } = useAuth();
+  const { login, openAuth, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      const from = location.state?.from?.pathname || '/profile';
+      navigate(from, { replace: true });
+      return;
+    }
+    const redirectTo = location.state?.from?.pathname || '/';
+    openAuth({
+      redirectTo,
+      onSuccess: () => {
+        navigate(redirectTo, { replace: true });
+      }
+    });
+  }, [isAuthenticated, openAuth, navigate, location]);
 
   const [mode, setMode] = useState('login'); // 'login' or 'register'
   const [name, setName] = useState('');
@@ -27,96 +42,21 @@ export default function UserLoginPage() {
   const [error, setError] = useState('');
   const [successInfo, setSuccessInfo] = useState('');
   const [loading, setLoading] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(true);
+  // Old drawer disabled in favor of centralized OTP AuthModal
+  const drawerOpen = false;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccessInfo('');
-
-    if (mode === 'register' && !name.trim()) {
-      setError('Please enter your full name.');
-      return;
-    }
-
-    if (!email.trim()) {
-      setError('Please enter your email address.');
-      return;
-    }
-
-    if (!password) {
-      setError('Please enter your password.');
-      return;
-    }
-
-    if (mode === 'register' && password.length < 6) {
-      setError('Password must be at least 6 characters.');
-      return;
-    }
-
-    setLoading(true);
-
-    if (mode === 'register') {
-      try {
-        const res = await authApi.register(name.trim(), email.trim(), password);
-        setLoading(false);
-        const userData = res.user || { name: name.trim(), email: email.trim().toLowerCase(), role: 'customer' };
-        login('user', res.token || 'reg_token_12345', userData, remember);
-
-        const from = location.state?.from?.pathname;
-        navigate(from && from !== '/login' ? from : '/profile', { replace: true });
-      } catch (err) {
-        setLoading(false);
-        // Fallback registration if backend Sanctum fails or offline
-        const cleanEmail = email.trim().toLowerCase();
-        const demoUser = { id: Date.now(), name: name.trim(), email: cleanEmail, role: 'customer' };
-        login('user', `token_${Date.now()}`, demoUser, remember);
-        const from = location.state?.from?.pathname;
-        navigate(from && from !== '/login' ? from : '/profile', { replace: true });
-      }
-    } else {
-      // Login Flow
-      try {
-        const res = await authApi.login(email.trim(), password);
-        setLoading(false);
-        
-        login('user', res.token, res.user, remember);
-
-        const from = location.state?.from?.pathname;
-        const defaultPath = res.user?.role === 'admin' ? '/admin' : '/profile';
-        navigate(from && from !== '/login' ? from : defaultPath, { replace: true });
-      } catch (err) {
-        const cleanEmail = email.trim().toLowerCase();
-        if ((cleanEmail === 'user@astrogifts.com' || cleanEmail === 'user@woodmart.com' || cleanEmail === 'user') && password === 'user123') {
-          const demoUser = { id: 2, name: 'Demo User', email: 'user@astrogifts.com', role: 'customer' };
-          login('user', 'demo_user_token_12345', demoUser, remember);
-          setLoading(false);
-          const from = location.state?.from?.pathname;
-          navigate(from && from !== '/login' ? from : '/profile', { replace: true });
-          return;
-        }
-
-        // If login failed because user has no account, offer quick register switch
-        if (err.status === 404 || err.message?.includes('No account found')) {
-          setLoading(false);
-          setError('No account found with this email.');
-        } else {
-          setLoading(false);
-          setError(err.data?.message || err.message || 'Invalid email or password.');
-        }
-      }
-    }
   };
 
   const handleClose = () => {
-    setDrawerOpen(false);
     navigate('/');
   };
 
   return (
     <div className="user-login-view">
       <div className="user-login-view__bg">
-        <Header onAccountClick={() => setDrawerOpen(true)} />
+        <Header onAccountClick={() => openAuth({ redirectTo: '/profile' })} />
         <main>
           <HeroSlider />
           <OurCategories />
@@ -127,6 +67,7 @@ export default function UserLoginPage() {
         <Footer />
       </div>
 
+      {/* Note: The old right-side drawer is preserved below but disabled in favor of centralized OTP modal */}
       {drawerOpen && (
         <div
           className="astrogifts-login-backdrop"
@@ -135,10 +76,11 @@ export default function UserLoginPage() {
         />
       )}
 
-      <aside
-        className={`astrogifts-login-drawer ${drawerOpen ? 'astrogifts-login-drawer--open' : ''}`}
-        aria-label="Sign in panel"
-      >
+      {drawerOpen && (
+        <aside
+          className="astrogifts-login-drawer"
+          aria-label="Sign in panel"
+        >
         <div className="astrogifts-login-drawer__header">
           <h2 className="astrogifts-login-drawer__title">
             {mode === 'login' ? 'Sign in' : 'Create Account'}
@@ -150,7 +92,22 @@ export default function UserLoginPage() {
             aria-label="Close modal"
             id="close-login-drawer"
           >
-            <span className="astrogifts-login-drawer__close-icon">✕</span>
+            <span className="astrogifts-login-drawer__close-icon">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </span>
             <span>Close</span>
           </button>
         </div>
@@ -196,6 +153,44 @@ export default function UserLoginPage() {
         </div>
 
         <div className="astrogifts-login-drawer__body">
+          <button
+            type="button"
+            onClick={() => openAuthModal(() => navigate(location.state?.from?.pathname || '/'))}
+            style={{
+              width: '100%',
+              padding: '12px',
+              background: '#fdf6f0',
+              color: '#7c3a1d',
+              border: '1.5px solid #e8d5c8',
+              borderRadius: '10px',
+              fontWeight: '700',
+              fontSize: '14px',
+              cursor: 'pointer',
+              marginBottom: '18px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px'
+            }}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+              style={{ flexShrink: 0 }}
+            >
+              <rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
+              <path d="M12 18h.01" />
+            </svg>
+            <span>Mobile OTP Login (Fast & Passwordless)</span>
+          </button>
+
           <form className="astrogifts-login-drawer__form" onSubmit={handleSubmit} noValidate>
             {mode === 'register' && (
               <div className="astrogifts-login-drawer__field">
@@ -360,6 +355,7 @@ export default function UserLoginPage() {
           </form>
         </div>
       </aside>
+      )}
     </div>
   );
 }

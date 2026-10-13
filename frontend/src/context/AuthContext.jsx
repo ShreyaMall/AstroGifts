@@ -20,28 +20,56 @@ export const AuthProvider = ({ children }) => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [authOptions, setAuthOptions] = useState({});
+
+  const refreshUser = async () => {
+    const token = getAuthToken();
+    if (!token) return null;
+    try {
+      const res = await authApi.me();
+      if (res && res.user) {
+        setUser(res.user);
+        const actualRole = res.user.role || (res.user.email?.includes('admin') ? 'admin' : 'customer');
+        setAuthRole(actualRole);
+        localStorage.setItem('astrogifts_user', JSON.stringify(res.user));
+        localStorage.setItem('astrogifts_role', actualRole);
+        return res.user;
+      }
+    } catch (e) {
+      console.warn('refreshUser error:', e);
+    }
+    return null;
+  };
 
   useEffect(() => {
     const token = getAuthToken();
-    if (token && !user) {
-      // Fetch current user details if token exists
-      authApi.me()
-        .then(res => {
-          if (res && res.user) {
-            setUser(res.user);
-            setAuthRole(res.user.role || (res.user.email?.includes('admin') ? 'admin' : 'user'));
-          }
-        })
-        .catch(() => {
-          // Keep existing role if offline/mock
-        });
+    if (token) {
+      refreshUser();
     }
   }, []);
 
+  const openAuth = (options = {}) => {
+    if (typeof options === 'function') {
+      setAuthOptions({ onSuccess: options });
+    } else {
+      setAuthOptions(options || {});
+    }
+    setIsAuthOpen(true);
+  };
+
+  const closeAuth = () => {
+    setIsAuthOpen(false);
+    setAuthOptions({});
+  };
+
+  // Backward compatibility aliases
+  const openAuthModal = openAuth;
+  const closeAuthModal = closeAuth;
+  const isAuthModalOpen = isAuthOpen;
+
   const login = (role, token = null, userData = null, persistent = true) => {
-    // Always trust the backend role if available to prevent state desync
-    const actualRole = userData?.role || role;
-    
+    const actualRole = userData?.role || role || 'customer';
     setAuthRole(actualRole);
     const storage = persistent ? localStorage : sessionStorage;
     storage.setItem('astrogifts_role', actualRole);
@@ -76,13 +104,23 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider value={{
       authRole,
       user,
-      isAuthenticated: !!authRole,
+      isAuthenticated: !!user || !!authRole,
+      isPhoneVerified: !!user?.phone_verified_at,
       isAdmin: authRole === 'admin',
       isUser: authRole === 'user' || authRole === 'customer',
       loading,
       login,
       logout,
+      refreshUser,
       setAuthRole,
+      isAuthOpen,
+      openAuth,
+      closeAuth,
+      authOptions,
+      isAuthModalOpen,
+      openAuthModal,
+      closeAuthModal,
+      authModalCallback: authOptions?.onSuccess,
     }}>
       {children}
     </AuthContext.Provider>

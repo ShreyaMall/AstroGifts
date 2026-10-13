@@ -80,7 +80,7 @@ ul { list-style: none; }
 input, select, textarea { font-family: inherit; }
 
 .app { min-height: 100vh; background: var(--bg-main); }
-body, html, #root, .app { overflow-x: hidden; }
+body, html, #root, .app { overflow-x: clip; }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {

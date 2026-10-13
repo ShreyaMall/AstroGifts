@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 import './FloatingCartBar.css';
 
 export default function FloatingCartBar() {
   const { cartItems, cartCount, cartTotal, removeFromCart, updateQuantity } = useCart();
+  const { isAuthenticated, isPhoneVerified, openAuth } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
@@ -45,7 +47,11 @@ export default function FloatingCartBar() {
   const handleCheckout = (e) => {
     e.stopPropagation();
     setIsOpen(false);
-    navigate('/checkout');
+    if (!isAuthenticated || !isPhoneVerified) {
+      openAuth({ pendingAction: 'checkout', redirectTo: '/checkout' });
+    } else {
+      navigate('/checkout');
+    }
   };
 
   const togglePopup = () => {

@@ -7,6 +7,7 @@ import {
 } from '../../assets/icons/Icons';
 
 const usefulLinks = [
+  { name: 'All Products', path: '/products' },
   { name: 'About Us', path: '/' },
   { name: 'Blog Journal', path: '/blog' },
   { name: 'My Orders', path: '/my-orders' },
