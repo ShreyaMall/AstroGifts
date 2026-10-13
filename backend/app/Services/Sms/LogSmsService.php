@@ -6,7 +6,17 @@ use Illuminate\Support\Facades\Log;
 
 class LogSmsService implements SmsServiceInterface
 {
-    public function sendOtp(string $phone, string $otp): bool
+    public function send(string $phone): bool
+    {
+        return $this->sendOtp($phone, '123456');
+    }
+
+    public function check(string $phone, string $code): bool
+    {
+        return $code === '123456';
+    }
+
+    public function sendOtp(string $phone, string $otp = ''): bool
     {
         Log::info("==========================================");
         Log::info("📱 [SMS OTP LOG DRIVER] Sent to {$phone}");

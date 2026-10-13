@@ -7,7 +7,17 @@ use Illuminate\Support\Facades\Log;
 
 class Msg91SmsService implements SmsServiceInterface
 {
-    public function sendOtp(string $phone, string $otp): bool
+    public function send(string $phone): bool
+    {
+        return $this->sendOtp($phone, (string) rand(100000, 999999));
+    }
+
+    public function check(string $phone, string $code): bool
+    {
+        return false;
+    }
+
+    public function sendOtp(string $phone, string $otp = ''): bool
     {
         $authKey = config('services.msg91.auth_key');
         $templateId = config('services.msg91.template_id');

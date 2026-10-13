@@ -11,7 +11,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use App\Mail\OtpMail;
+use App\Services\Sms\TwilioException;
 
 class AuthController extends Controller
 {
@@ -75,7 +77,7 @@ class AuthController extends Controller
      */
     public function sendOtp(Request $request): JsonResponse
     {
-        // 1. Mobile Phone OTP Flow (Meesho Style Main Auth)
+        // 1. Mobile Phone OTP Flow (Twilio Verify)
         if ($request->has('phone') || !empty($request->phone)) {
             $phoneInput = $request->phone;
             $phone = $this->normalizePhone($phoneInput);
@@ -87,10 +89,35 @@ class AuthController extends Controller
                 ], 422);
             }
 
-            // Find or create user record for OTP tracking
+            // IP Throttle: max 10 requests per minute
+            $ipKey = 'send_otp_ip:' . $request->ip();
+            if (RateLimiter::tooManyAttempts($ipKey, 10)) {
+                $seconds = (int) RateLimiter::availableIn($ipKey);
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Too many OTP requests from this IP. Please wait {$seconds} seconds.",
+                    'retry_after' => $seconds,
+                    'cooldown_seconds' => $seconds,
+                ], 429);
+            }
+            RateLimiter::hit($ipKey, 60);
+
+            // Phone Throttle: max 5 requests per hour
+            $phoneKey = 'send_otp_phone:' . $phone;
+            if (RateLimiter::tooManyAttempts($phoneKey, 5)) {
+                $seconds = (int) RateLimiter::availableIn($phoneKey);
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Too many OTP requests for this mobile number. Please try again later.',
+                    'retry_after' => $seconds,
+                    'cooldown_seconds' => $seconds,
+                ], 429);
+            }
+            RateLimiter::hit($phoneKey, 3600);
+
+            // Find or create user record for tracking
             $user = User::where('phone', $phone)->first();
             if (!$user) {
-                // Draft user record to track rate limits and OTP state safely
                 $user = User::create([
                     'name' => null,
                     'phone' => $phone,
@@ -130,7 +157,7 @@ class AuthController extends Controller
                 }
             }
 
-            // Hourly limit check (Max 5 OTPs per hour)
+            // Hourly limit check
             $resetAt = $user->otp_hourly_reset_at ? new Carbon($user->otp_hourly_reset_at) : null;
             if (!$resetAt || Carbon::now()->greaterThan($resetAt)) {
                 $user->otp_hourly_count = 0;
@@ -141,37 +168,47 @@ class AuthController extends Controller
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Hourly limit reached (max 5 OTPs/hour). Please try again after 1 hour.',
+                    'retry_after' => 3600,
+                    'cooldown_seconds' => 3600,
                 ], 429);
             }
 
-            // Generate 6-digit OTP
-            $otp = (string) rand(100000, 999999);
-            $otpHash = hash('sha256', $otp);
+            // Send via Twilio Verify (NO local OTP generation or storing)
+            $smsService = app(SmsServiceInterface::class);
+            try {
+                $smsService->send($phone);
+            } catch (TwilioException $e) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage(),
+                ], $e->getStatusCode());
+            } catch (\InvalidArgumentException $e) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage(),
+                ], 422);
+            } catch (\Throwable $e) {
+                Log::error('Twilio Verify send error: ' . get_class($e));
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Unable to send verification code. Please try again later.',
+                ], 503);
+            }
 
-            $user->otp = $otp; // Saved for dev/local inspect if needed
-            $user->otp_hash = $otpHash;
-            $user->otp_expires_at = Carbon::now()->addMinutes(5);
+            $user->otp = null;
+            $user->otp_hash = null;
+            $user->otp_expires_at = null;
             $user->otp_sent_at = Carbon::now();
             $user->otp_hourly_count = ($user->otp_hourly_count ?? 0) + 1;
             $user->save();
 
-            // Send via SMS service driver
-            $smsService = app(SmsServiceInterface::class);
-            $sent = $smsService->sendOtp($phone, $otp);
-
-            if (!$sent) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Failed to send SMS OTP. Please try again.'
-                ], 500);
-            }
-
             $userExists = !empty($user->phone_verified_at);
+            $maskedPhone = substr($phone, 0, 2) . '******' . substr($phone, -2);
 
             return response()->json([
                 'status' => 'success',
-                'message' => "6-digit OTP sent to +91 {$phone}",
-                'phone' => $phone,
+                'message' => "6-digit OTP sent to +91 {$maskedPhone}",
+                'phone' => $maskedPhone,
                 'cooldown' => 120,
                 'retry_after' => 120,
                 'user_exists' => $userExists,
@@ -238,6 +275,14 @@ class AuthController extends Controller
     }
 
     /**
+     * Resend OTP alias for /auth/resend-otp
+     */
+    public function resendOtp(Request $request): JsonResponse
+    {
+        return $this->sendOtp($request);
+    }
+
+    /**
      * Check if a phone number already has a verified account
      */
     public function checkPhone(Request $request): JsonResponse
@@ -254,11 +299,12 @@ class AuthController extends Controller
 
         $user = User::where('phone', $phone)->first();
         $exists = (bool)($user && !empty($user->phone_verified_at));
+        $maskedPhone = substr($phone, 0, 2) . '******' . substr($phone, -2);
 
         return response()->json([
             'status' => 'success',
             'exists' => $exists,
-            'phone' => $phone,
+            'phone' => $maskedPhone,
         ]);
     }
 
@@ -273,7 +319,7 @@ class AuthController extends Controller
 
         $otpInput = trim($request->otp);
 
-        // 1. Mobile Phone OTP Verification
+        // 1. Mobile Phone OTP Verification (Twilio Verify)
         if ($request->has('phone') || !empty($request->phone)) {
             $phone = $this->normalizePhone($request->phone);
 
@@ -283,6 +329,30 @@ class AuthController extends Controller
                     'message' => 'Invalid phone number format.'
                 ], 422);
             }
+
+            // IP Throttle: max 20 attempts per minute
+            $ipKey = 'verify_otp_ip:' . $request->ip();
+            if (RateLimiter::tooManyAttempts($ipKey, 20)) {
+                $seconds = (int) RateLimiter::availableIn($ipKey);
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Too many verification attempts from this IP. Please wait {$seconds} seconds.",
+                    'retry_after' => $seconds,
+                ], 429);
+            }
+            RateLimiter::hit($ipKey, 60);
+
+            // Phone Throttle: max 10 attempts per 5 minutes
+            $phoneKey = 'verify_otp_phone:' . $phone;
+            if (RateLimiter::tooManyAttempts($phoneKey, 10)) {
+                $seconds = (int) RateLimiter::availableIn($phoneKey);
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Too many verification attempts for this number. Please wait {$seconds} seconds.",
+                    'retry_after' => $seconds,
+                ], 429);
+            }
+            RateLimiter::hit($phoneKey, 300);
 
             $user = User::where('phone', $phone)->first();
 
@@ -295,27 +365,48 @@ class AuthController extends Controller
 
             // Lockout check
             if ($user->otp_locked_until && Carbon::now()->lessThan($user->otp_locked_until)) {
-                $secondsLeft = Carbon::now()->diffInSeconds($user->otp_locked_until);
-                $minutesLeft = ceil($secondsLeft / 60);
+                $secondsLeft = (int) ceil(abs(Carbon::now()->diffInSeconds($user->otp_locked_until)));
+                $minutesLeft = (int) ceil($secondsLeft / 60);
                 return response()->json([
                     'status' => 'error',
-                    'message' => "Too many wrong attempts. Account locked for {$minutesLeft} minute(s)."
+                    'message' => "Too many wrong attempts. Account locked for {$minutesLeft} minute(s).",
+                    'locked' => true,
+                    'retry_after' => $secondsLeft,
                 ], 429);
             }
 
-            // Expiry check
-            if (!$user->otp_expires_at || Carbon::now()->greaterThan(new Carbon($user->otp_expires_at))) {
+            // Verify code via Twilio Verify
+            $smsService = app(SmsServiceInterface::class);
+            try {
+                $approved = $smsService->check($phone, $otpInput);
+            } catch (TwilioException $e) {
+                if ($e->getStatusCode() === 429) {
+                    $user->otp_locked_until = Carbon::now()->addMinutes(15);
+                    $user->save();
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => $e->getMessage(),
+                        'locked' => true,
+                    ], 429);
+                }
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'OTP has expired. Please request a new one.'
-                ], 401);
+                    'message' => $e->getMessage(),
+                ], $e->getStatusCode());
+            } catch (\InvalidArgumentException $e) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage(),
+                ], 422);
+            } catch (\Throwable $e) {
+                Log::error('Twilio Verify check error: ' . get_class($e));
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Verification failed due to a service error. Please try again.',
+                ], 503);
             }
 
-            // Verify Hash or raw OTP fallback
-            $givenHash = hash('sha256', $otpInput);
-            $isValid = ($user->otp_hash && $user->otp_hash === $givenHash) || ($user->otp && $user->otp === $otpInput);
-
-            if (!$isValid) {
+            if (!$approved) {
                 $attempts = ($user->otp_attempts ?? 0) + 1;
                 $user->otp_attempts = $attempts;
 
@@ -338,7 +429,7 @@ class AuthController extends Controller
                 ], 401);
             }
 
-            // OTP verified successfully!
+            // OTP verified successfully (approved = true)
             if ($user->name && preg_match('/^User \d+$/i', trim($user->name))) {
                 $user->name = null;
             }
@@ -355,8 +446,10 @@ class AuthController extends Controller
             $user->otp_expires_at = null;
             $user->otp_attempts = 0;
             $user->otp_locked_until = null;
-
             $user->save();
+
+            RateLimiter::clear($phoneKey);
+            RateLimiter::clear('send_otp_phone:' . $phone);
 
             $token = $user->createToken('customer_token', ['customer'])->plainTextToken;
 
@@ -482,21 +575,40 @@ class AuthController extends Controller
             }
         }
 
-        $otp = (string) rand(100000, 999999);
+        $smsService = app(SmsServiceInterface::class);
+        try {
+            $smsService->send($phone);
+        } catch (TwilioException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], $e->getStatusCode());
+        } catch (\InvalidArgumentException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 422);
+        } catch (\Throwable $e) {
+            Log::error('Twilio Verify attachPhone send error: ' . get_class($e));
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unable to send verification code. Please try again later.',
+            ], 503);
+        }
+
         $user->phone = $phone;
-        $user->otp = $otp;
-        $user->otp_hash = hash('sha256', $otp);
-        $user->otp_expires_at = Carbon::now()->addMinutes(5);
+        $user->otp = null;
+        $user->otp_hash = null;
+        $user->otp_expires_at = null;
         $user->otp_sent_at = Carbon::now();
         $user->save();
 
-        $smsService = app(SmsServiceInterface::class);
-        $smsService->sendOtp($phone, $otp);
+        $maskedPhone = substr($phone, 0, 2) . '******' . substr($phone, -2);
 
         return response()->json([
             'status' => 'success',
-            'message' => "6-digit OTP sent to +91 {$phone} for verification.",
-            'phone' => $phone,
+            'message' => "6-digit OTP sent to +91 {$maskedPhone} for verification.",
+            'phone' => $maskedPhone,
             'cooldown' => 120,
             'retry_after' => 120,
         ]);
@@ -514,21 +626,34 @@ class AuthController extends Controller
         ]);
 
         $otpInput = trim($request->otp);
-        $givenHash = hash('sha256', $otpInput);
 
-        $isValid = ($user->otp_hash && $user->otp_hash === $givenHash) || ($user->otp && $user->otp === $otpInput);
+        if (!$user->phone) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No phone number is being attached.',
+            ], 404);
+        }
 
-        if (!$isValid) {
+        $smsService = app(SmsServiceInterface::class);
+        try {
+            $approved = $smsService->check($user->phone, $otpInput);
+        } catch (TwilioException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], $e->getStatusCode());
+        } catch (\Throwable $e) {
+            Log::error('Twilio Verify checkAttachedPhone error: ' . get_class($e));
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Verification failed due to a service error. Please try again.',
+            ], 503);
+        }
+
+        if (!$approved) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Invalid OTP.'
-            ], 401);
-        }
-
-        if ($user->otp_expires_at && Carbon::now()->greaterThan(new Carbon($user->otp_expires_at))) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'OTP has expired. Please request a new one.'
             ], 401);
         }
 

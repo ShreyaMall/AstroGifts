@@ -41,6 +41,9 @@ return [
     ],
 
     'twilio' => [
+        'sid' => env('TWILIO_ACCOUNT_SID'),
+        'token' => env('TWILIO_AUTH_TOKEN'),
+        'verify_sid' => env('TWILIO_VERIFY_SERVICE_SID'),
         'account_sid' => env('TWILIO_ACCOUNT_SID'),
         'auth_token' => env('TWILIO_AUTH_TOKEN'),
         'verify_service_sid' => env('TWILIO_VERIFY_SERVICE_SID'),
