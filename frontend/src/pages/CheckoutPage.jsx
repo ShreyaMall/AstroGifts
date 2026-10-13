@@ -21,6 +21,7 @@ const INDIAN_STATES = [
 const FREE_SHIPPING_THRESHOLD = 999;
 const ESTIMATED_DELIVERY_TEXT = 'Estimated delivery: 3–5 business days across India (Dispatched within 24 hours)';
 const DRAFT_STORAGE_KEY = 'astrogifts_checkout_form_draft';
+const SELECTED_ADDRESS_STORAGE_KEY = 'astrogifts_checkout_selected_address_id';
 
 // Format Indian Currency (e.g. ₹1,299 or ₹1,299.00)
 const formatINR = (val) => {
@@ -60,6 +61,7 @@ export default function CheckoutPage() {
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [loadingAddresses, setLoadingAddresses] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
+  const [addressSelectionError, setAddressSelectionError] = useState('');
   const [editingAddressId, setEditingAddressId] = useState(null);
   const [showAddressPicker, setShowAddressPicker] = useState(false);
   const [useNewAddressForm, setUseNewAddressForm] = useState(false);
@@ -137,18 +139,33 @@ export default function CheckoutPage() {
       const addrs = await addressesApi.getUserAddresses();
       if (Array.isArray(addrs) && addrs.length > 0) {
         setSavedAddresses(addrs);
-        const defaultAddr = addrs.find(a => a.is_default) || addrs[0];
-        if (defaultAddr && !useNewAddressForm) {
-          setSelectedAddressId(defaultAddr.id);
-          applySavedAddress(defaultAddr);
+        setUseNewAddressForm(false);
+
+        // Check if an address was actively chosen in the CURRENT browser session
+        const sessionSelectedId = sessionStorage.getItem(SELECTED_ADDRESS_STORAGE_KEY);
+        if (sessionSelectedId) {
+          const matched = addrs.find(a => String(a.id || a._id) === String(sessionSelectedId));
+          if (matched) {
+            setSelectedAddressId(matched.id);
+            applySavedAddress(matched);
+          } else {
+            sessionStorage.removeItem(SELECTED_ADDRESS_STORAGE_KEY);
+            setSelectedAddressId(null);
+          }
+        } else {
+          // NO address pre-selected on initial load (even if only 1 saved address or default address exists)
+          setSelectedAddressId(null);
         }
       } else {
         setSavedAddresses([]);
         setUseNewAddressForm(true);
+        setSelectedAddressId(null);
+        sessionStorage.removeItem(SELECTED_ADDRESS_STORAGE_KEY);
       }
     } catch (err) {
       console.warn('Error fetching user addresses:', err);
       setUseNewAddressForm(true);
+      setSelectedAddressId(null);
     } finally {
       setLoadingAddresses(false);
     }
@@ -178,9 +195,20 @@ export default function CheckoutPage() {
     setFieldErrors({});
   };
 
+  const handleSelectAddress = (addr) => {
+    if (!addr) return;
+    setSelectedAddressId(addr.id);
+    sessionStorage.setItem(SELECTED_ADDRESS_STORAGE_KEY, String(addr.id));
+    applySavedAddress(addr);
+    setAddressSelectionError('');
+  };
+
   const handleAddNewAddressClick = () => {
     setEditingAddressId(null);
     setUseNewAddressForm(true);
+    setSelectedAddressId(null);
+    sessionStorage.removeItem(SELECTED_ADDRESS_STORAGE_KEY);
+    setAddressSelectionError('');
     setFormData(prev => ({
       ...prev,
       fullName: prev.fullName || user?.name || '',
@@ -201,16 +229,24 @@ export default function CheckoutPage() {
     setEditingAddressId(addr.id);
     setUseNewAddressForm(true);
     applySavedAddress(addr);
+    setAddressSelectionError('');
     setFieldErrors({});
   };
 
   const handleCancelNewAddress = () => {
     setUseNewAddressForm(false);
     setEditingAddressId(null);
-    const chosen = savedAddresses.find(a => a.id === selectedAddressId) || savedAddresses.find(a => a.is_default) || savedAddresses[0];
-    if (chosen) {
-      setSelectedAddressId(chosen.id);
-      applySavedAddress(chosen);
+    setAddressSelectionError('');
+    if (selectedAddressId) {
+      const existing = savedAddresses.find(a => a.id === selectedAddressId);
+      if (existing) {
+        applySavedAddress(existing);
+      } else {
+        setSelectedAddressId(null);
+        sessionStorage.removeItem(SELECTED_ADDRESS_STORAGE_KEY);
+      }
+    } else {
+      setSelectedAddressId(null);
     }
   };
 
@@ -485,6 +521,20 @@ export default function CheckoutPage() {
     // Login is ALWAYS required to place an order
     if (!isAuthenticated) {
       openAuth({ pendingAction: 'checkout', redirectTo: '/checkout' });
+      return;
+    }
+
+    // Delivery address check: User must select a saved address or fill a new one
+    if (savedAddresses.length > 0 && !useNewAddressForm && !selectedAddressId) {
+      setAddressSelectionError('Please select a delivery address');
+      const targetCard = document.getElementById('checkout-saved-addresses-card');
+      if (targetCard) {
+        targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const firstRadio = targetCard.querySelector('[role="radio"]');
+        if (firstRadio && typeof firstRadio.focus === 'function') {
+          firstRadio.focus();
+        }
+      }
       return;
     }
 
@@ -926,6 +976,11 @@ export default function CheckoutPage() {
     );
   }
 
+  // Helper to determine if an address is selected or valid new address form is filled
+  const isAddressSelectedOrValid = useNewAddressForm
+    ? Boolean(formData.fullName?.trim() && formData.phone?.trim() && formData.address?.trim() && formData.city?.trim() && formData.pincode?.trim())
+    : (savedAddresses.length > 0 ? Boolean(selectedAddressId) : Boolean(formData.address?.trim() && formData.city?.trim() && formData.pincode?.trim()));
+
   // ── 13. MAIN CHECKOUT VIEW (STEP 2: CHECKOUT) ──
   return (
     <div className="checkout-page">
@@ -1165,8 +1220,41 @@ export default function CheckoutPage() {
                     </button>
                   </div>
 
+                  {/* Inline Address Selection Error Banner */}
+                  {addressSelectionError && (
+                    <div
+                      id="checkout-address-selection-error"
+                      role="alert"
+                      aria-live="assertive"
+                      style={{
+                        marginTop: '16px',
+                        padding: '12px 16px',
+                        background: '#fef2f2',
+                        border: '1px solid #fecaca',
+                        borderRadius: '8px',
+                        color: '#b91c1c',
+                        fontWeight: 600,
+                        fontSize: '14px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                      }}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="8" x2="12" y2="12" />
+                        <line x1="12" y1="16" x2="12.01" y2="16" />
+                      </svg>
+                      <span>{addressSelectionError}</span>
+                    </div>
+                  )}
+
                   {/* Cards Grid */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
+                  <div
+                    role="radiogroup"
+                    aria-label="Delivery addresses"
+                    style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}
+                  >
                     {savedAddresses.map(addr => {
                       const isSelected = selectedAddressId === addr.id;
                       const displayName = addr.full_name || addr.name;
@@ -1178,10 +1266,16 @@ export default function CheckoutPage() {
                       return (
                         <div
                           key={addr.id}
+                          role="radio"
+                          aria-checked={isSelected}
+                          tabIndex={0}
                           className={`checkout-address-select-card ${isSelected ? 'checkout-address-select-card--selected' : ''}`}
-                          onClick={() => {
-                            setSelectedAddressId(addr.id);
-                            applySavedAddress(addr);
+                          onClick={() => handleSelectAddress(addr)}
+                          onKeyDown={(e) => {
+                            if (e.key === ' ' || e.key === 'Enter') {
+                              e.preventDefault();
+                              handleSelectAddress(addr);
+                            }
                           }}
                           style={{
                             padding: '16px 18px',
@@ -1194,15 +1288,15 @@ export default function CheckoutPage() {
                             flexDirection: 'column',
                             gap: '8px',
                             boxShadow: isSelected ? '0 2px 8px rgba(112, 72, 50, 0.08)' : 'none',
+                            minHeight: '44px',
                           }}
                         >
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
-                            <label
+                            <div
                               style={{
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '10px',
-                                cursor: 'pointer',
                                 margin: 0,
                                 flex: 1,
                                 minHeight: '44px',
@@ -1213,15 +1307,15 @@ export default function CheckoutPage() {
                                 type="radio"
                                 name="checkout_saved_address"
                                 checked={isSelected}
-                                onChange={() => {
-                                  setSelectedAddressId(addr.id);
-                                  applySavedAddress(addr);
-                                }}
+                                onChange={() => handleSelectAddress(addr)}
+                                tabIndex={-1}
+                                aria-hidden="true"
                                 style={{
                                   accentColor: 'var(--brand-primary, #704832)',
                                   width: '18px',
                                   height: '18px',
                                   cursor: 'pointer',
+                                  margin: 0,
                                 }}
                               />
                               <strong style={{ fontSize: '15px', color: '#111827' }}>{displayName}</strong>
@@ -1233,7 +1327,7 @@ export default function CheckoutPage() {
                               {isDefault && (
                                 <span className="checkout-default-pill">DEFAULT</span>
                               )}
-                            </label>
+                            </div>
 
                             <button
                               type="button"
@@ -1272,7 +1366,7 @@ export default function CheckoutPage() {
                           </div>
 
                           <div style={{ paddingLeft: '28px', paddingTop: '2px' }}>
-                            <span style={{ fontSize: '12px', fontWeight: 600, color: isSelected ? 'var(--brand-primary, #704832)' : '#6b7280' }}>
+                            <span style={{ fontSize: '12px', fontWeight: isSelected ? 600 : 400, color: isSelected ? 'var(--brand-primary, #704832)' : '#6b7280' }}>
                               {isSelected ? '✓ Deliver to this address' : 'Click to select this address'}
                             </span>
                           </div>
@@ -1838,9 +1932,25 @@ export default function CheckoutPage() {
                 </div>
 
                 {/* Desktop Place Order Button */}
+                {addressSelectionError && (
+                  <div
+                    role="alert"
+                    aria-live="assertive"
+                    style={{
+                      marginBottom: '10px',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      color: '#b91c1c',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {addressSelectionError}
+                  </div>
+                )}
                 <button
                   type="submit"
-                  className="checkout-btn checkout-btn--submit"
+                  className={`checkout-btn checkout-btn--submit ${!isAddressSelectedOrValid ? 'checkout-btn--disabled-address' : ''}`}
+                  aria-disabled={!isAddressSelectedOrValid}
                   disabled={isSubmitting || hasOutOfStock}
                 >
                   {isSubmitting ? (
@@ -1871,8 +1981,9 @@ export default function CheckoutPage() {
           </div>
           <button
             type="button"
-            className="checkout-btn checkout-btn--mobile-submit"
+            className={`checkout-btn checkout-btn--mobile-submit ${!isAddressSelectedOrValid ? 'checkout-btn--disabled-address' : ''}`}
             onClick={handlePlaceOrder}
+            aria-disabled={!isAddressSelectedOrValid}
             disabled={isSubmitting || hasOutOfStock}
           >
             {isSubmitting ? (

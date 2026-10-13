@@ -321,4 +321,114 @@ class AddressManagementTest extends TestCase
         // Duplicate check prevented second row
         $this->assertEquals(1, $this->userA->addresses()->count());
     }
+
+    public function test_order_with_another_users_address_id_returns_422(): void
+    {
+        // Create an address belonging to User B
+        $userBAddr = Address::create([
+            'user_id' => (string)$this->userB->id,
+            'full_name' => 'User Beta',
+            'phone' => '9876543211',
+            'line1' => 'Private Villa 99',
+            'city' => 'Pune',
+            'state' => 'Maharashtra',
+            'pincode' => '411001',
+            'country' => 'India',
+        ]);
+
+        $orderPayload = [
+            'customer_name' => 'User Alpha',
+            'email' => 'alpha@test-address.com',
+            'phone' => '9876543210',
+            'shipping_address' => 'Private Villa 99',
+            'city' => 'Pune',
+            'state' => 'Maharashtra',
+            'zip' => '411001',
+            'address_id' => (string)($userBAddr->_id ?? $userBAddr->id),
+            'payment_method' => 'cod',
+            'items' => [
+                [
+                    'name' => 'Zodiac Crystal Pendant',
+                    'price' => 499,
+                    'quantity' => 1,
+                ]
+            ],
+            'total' => 499,
+        ];
+
+        // User A tries to use User B's address_id
+        $res = $this->actingAs($this->userA, 'sanctum')
+            ->postJson('/api/orders', $orderPayload);
+
+        $res->assertStatus(422)
+            ->assertJsonPath('status', 'error')
+            ->assertJsonPath('message', 'The selected delivery address is invalid or does not belong to your account.');
+    }
+
+    public function test_order_with_valid_owned_address_id_succeeds(): void
+    {
+        // Create an address belonging to User A
+        $userAAddr = Address::create([
+            'user_id' => (string)$this->userA->id,
+            'full_name' => 'User Alpha',
+            'phone' => '9876543210',
+            'line1' => 'My Personal House 12',
+            'city' => 'Bengaluru',
+            'state' => 'Karnataka',
+            'pincode' => '560001',
+            'country' => 'India',
+        ]);
+
+        $orderPayload = [
+            'customer_name' => 'User Alpha',
+            'email' => 'alpha@test-address.com',
+            'phone' => '9876543210',
+            'shipping_address' => 'My Personal House 12',
+            'city' => 'Bengaluru',
+            'state' => 'Karnataka',
+            'zip' => '560001',
+            'address_id' => (string)($userAAddr->_id ?? $userAAddr->id),
+            'payment_method' => 'cod',
+            'items' => [
+                [
+                    'name' => 'Zodiac Crystal Pendant',
+                    'price' => 499,
+                    'quantity' => 1,
+                ]
+            ],
+            'total' => 499,
+        ];
+
+        // User A uses their own address_id
+        $res = $this->actingAs($this->userA, 'sanctum')
+            ->postJson('/api/orders', $orderPayload);
+
+        $res->assertStatus(201)
+            ->assertJsonPath('status', 'success');
+    }
+
+    public function test_order_without_valid_address_payload_returns_422(): void
+    {
+        $invalidPayload = [
+            'customer_name' => 'User Alpha',
+            'email' => 'alpha@test-address.com',
+            'phone' => '9876543210',
+            // Missing shipping_address and city
+            'payment_method' => 'cod',
+            'items' => [
+                [
+                    'name' => 'Zodiac Crystal Pendant',
+                    'price' => 499,
+                    'quantity' => 1,
+                ]
+            ],
+            'total' => 499,
+        ];
+
+        $res = $this->actingAs($this->userA, 'sanctum')
+            ->postJson('/api/orders', $invalidPayload);
+
+        $res->assertStatus(422)
+            ->assertJsonValidationErrors(['shipping_address', 'city']);
+    }
 }

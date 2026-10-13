@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Address;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -178,6 +179,21 @@ class OrderController extends Controller
             'items.*.size' => 'nullable|string',
             'items.*.image' => 'nullable|string',
         ]);
+
+        // Address validation: If address_id is provided, verify it exists and belongs to the authenticated user
+        if (!empty($validated['address_id'])) {
+            $currentUserId = (string)($user->_id ?? $user->id);
+            $matchedAddress = Address::where(function ($q) use ($validated) {
+                $q->where('_id', $validated['address_id'])->orWhere('id', $validated['address_id']);
+            })->first();
+
+            if (!$matchedAddress || (string)$matchedAddress->user_id !== $currentUserId) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'The selected delivery address is invalid or does not belong to your account.',
+                ], 422);
+            }
+        }
 
         // Calculate subtotal from items and verify against database
         $subtotal = 0;

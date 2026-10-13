@@ -791,7 +791,9 @@
 .desktop-items-list {
   max-height: 280px;
   overflow-y: auto;
-  padding-right: 4px;
+  overflow-x: visible;
+  padding-top: 10px;
+  padding-right: 8px;
   margin-bottom: 18px;
 }
 
@@ -799,8 +801,10 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
+  padding-top: 2px;
   padding-bottom: 14px;
   border-bottom: 1px solid #f2e7d9;
+  overflow: visible;
 }
 
 .checkout-item-row:last-child {
@@ -813,6 +817,7 @@
   width: 56px;
   height: 56px;
   flex-shrink: 0;
+  overflow: visible;
 }
 
 .checkout-item-thumb {
@@ -822,22 +827,28 @@
   border-radius: 8px;
   border: 1px solid #ebdccb;
   background-color: #f7eee2;
+  display: block;
 }
 
 .checkout-item-qty-badge {
   position: absolute;
-  top: -6px;
-  right: -6px;
+  top: -8px;
+  right: -8px;
   background-color: var(--brand-primary, #704832);
   color: #ffffff;
   font-size: 11px;
   font-weight: 700;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 4px;
+  border-radius: 11px;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 2;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  line-height: 1;
+  box-sizing: border-box;
 }
 
 .checkout-item-info {
@@ -1593,3 +1604,18 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ──────────────────────────────────────────────────────────────────────
+   15. ACCESSIBLE ADDRESS CARDS & DISABLED STATE
+────────────────────────────────────────────────────────────────────── */
+.checkout-address-select-card:focus-visible {
+  outline: 2px solid var(--brand-primary, #704832) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(112, 72, 50, 0.25) !important;
+}
+
+.checkout-btn--disabled-address {
+  opacity: 0.65 !important;
+  cursor: not-allowed !important;
+}
+
