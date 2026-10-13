@@ -61,6 +61,7 @@ export default function CheckoutPage() {
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [loadingAddresses, setLoadingAddresses] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
+  const [editingAddressId, setEditingAddressId] = useState(null);
   const [showAddressPicker, setShowAddressPicker] = useState(false);
   const [useNewAddressForm, setUseNewAddressForm] = useState(false);
 
@@ -73,8 +74,10 @@ export default function CheckoutPage() {
     state: 'Delhi',
     city: '',
     address: '',
+    line2: '',
     landmark: '',
     pincode: '',
+    label: 'Home',
     notes: '',
     saveAddressToAccount: true,
   };
@@ -277,15 +280,54 @@ export default function CheckoutPage() {
     if (!addr) return;
     setFormData(prev => ({
       ...prev,
-      fullName: addr.name || prev.fullName || user?.name || '',
+      fullName: addr.full_name || addr.name || prev.fullName || user?.name || '',
       phone: (addr.phone || prev.phone || user?.phone || '').replace(/\D/g, '').slice(-10),
-      address: addr.address_line || '',
-      landmark: addr.locality || '',
+      address: addr.line1 || addr.address_line || '',
+      line2: addr.line2 || '',
+      landmark: addr.landmark || addr.locality || '',
       city: addr.city || '',
       state: addr.state || 'Delhi',
-      pincode: addr.pincode || '',
+      pincode: (addr.pincode || '').replace(/\D/g, '').slice(0, 6),
+      country: addr.country || 'India',
+      label: addr.label || 'Home',
     }));
     setFieldErrors({});
+  };
+
+  const handleAddNewAddressClick = () => {
+    setEditingAddressId(null);
+    setUseNewAddressForm(true);
+    setFormData(prev => ({
+      ...prev,
+      fullName: prev.fullName || user?.name || '',
+      phone: prev.phone || (user?.phone ? user.phone.replace(/\D/g, '').slice(-10) : ''),
+      address: '',
+      line2: '',
+      landmark: '',
+      city: '',
+      state: 'Delhi',
+      pincode: '',
+      label: 'Home',
+      saveAddressToAccount: true,
+    }));
+    setFieldErrors({});
+  };
+
+  const handleEditSavedAddress = (addr) => {
+    setEditingAddressId(addr.id);
+    setUseNewAddressForm(true);
+    applySavedAddress(addr);
+    setFieldErrors({});
+  };
+
+  const handleCancelNewAddress = () => {
+    setUseNewAddressForm(false);
+    setEditingAddressId(null);
+    const chosen = savedAddresses.find(a => a.id === selectedAddressId) || savedAddresses.find(a => a.is_default) || savedAddresses[0];
+    if (chosen) {
+      setSelectedAddressId(chosen.id);
+      applySavedAddress(chosen);
+    }
   };
 
   // ── 4. RESTORE FORM DRAFT FROM SESSION STORAGE ──
@@ -600,19 +642,41 @@ export default function CheckoutPage() {
     const activeShippingState = formData.state;
     const activeShippingZip = formData.pincode.replace(/\D/g, '');
 
-    // Auto-save address to account if new address was filled
+    // Auto-save address to account if new or edited address was filled
     if (isAuthenticated && formData.saveAddressToAccount && useNewAddressForm) {
       try {
-        await addressesApi.addAddress({
-          name: formData.fullName.trim(),
-          phone: formData.phone.replace(/\D/g, ''),
-          pincode: formData.pincode.replace(/\D/g, ''),
-          locality: formData.landmark ? formData.landmark.trim() : '',
-          address_line: formData.address.trim(),
-          city: formData.city.trim(),
-          state: formData.state,
-          is_default: savedAddresses.length === 0,
-        });
+        if (editingAddressId) {
+          await addressesApi.updateAddress(editingAddressId, {
+            full_name: formData.fullName.trim(),
+            name: formData.fullName.trim(),
+            phone: formData.phone.replace(/\D/g, ''),
+            pincode: formData.pincode.replace(/\D/g, ''),
+            line1: formData.address.trim(),
+            address_line: formData.address.trim(),
+            line2: formData.line2 ? formData.line2.trim() : undefined,
+            landmark: formData.landmark ? formData.landmark.trim() : undefined,
+            locality: formData.landmark ? formData.landmark.trim() : undefined,
+            city: formData.city.trim(),
+            state: formData.state,
+            label: formData.label || 'Home',
+          });
+        } else {
+          await addressesApi.addAddress({
+            full_name: formData.fullName.trim(),
+            name: formData.fullName.trim(),
+            phone: formData.phone.replace(/\D/g, ''),
+            pincode: formData.pincode.replace(/\D/g, ''),
+            line1: formData.address.trim(),
+            address_line: formData.address.trim(),
+            line2: formData.line2 ? formData.line2.trim() : undefined,
+            landmark: formData.landmark ? formData.landmark.trim() : undefined,
+            locality: formData.landmark ? formData.landmark.trim() : undefined,
+            city: formData.city.trim(),
+            state: formData.state,
+            label: formData.label || 'Home',
+            is_default: savedAddresses.length === 0,
+          });
+        }
       } catch (err) {
         console.warn('Could not auto-save address to user profile:', err);
       }
@@ -642,6 +706,13 @@ export default function CheckoutPage() {
       city: activeShippingCity,
       state: activeShippingState,
       zip: activeShippingZip,
+      address_id: (isAuthenticated && !useNewAddressForm && selectedAddressId) ? selectedAddressId : undefined,
+      save_address: !isAuthenticated ? true : (formData.saveAddressToAccount ?? true),
+      saveAddressToAccount: !isAuthenticated ? true : (formData.saveAddressToAccount ?? true),
+      line1: formData.address.trim(),
+      landmark: formData.landmark ? formData.landmark.trim() : undefined,
+      country: formData.country || 'India',
+      label: formData.label || 'Home',
       payment_method: paymentMethod,
       coupon_code: appliedCoupon ? appliedCoupon.code : undefined,
       notes: formData.notes ? formData.notes.trim() : undefined,
@@ -1210,91 +1281,161 @@ export default function CheckoutPage() {
 
               {/* 1. SAVED ADDRESS SELECTION (If authenticated and addresses exist) */}
               {isAuthenticated && savedAddresses.length > 0 && !useNewAddressForm && (
-                <div className="checkout-card">
-                  <div className="checkout-card__header">
-                    <div className="checkout-card__header-icon" aria-hidden="true">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                        <circle cx="12" cy="10" r="3" />
-                      </svg>
+                <div className="checkout-card" id="checkout-saved-addresses-card">
+                  <div className="checkout-card__header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div className="checkout-card__header-icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                          <circle cx="12" cy="10" r="3" />
+                        </svg>
+                      </div>
+                      <h2 className="checkout-card__title" style={{ margin: 0 }}>Delivery Address</h2>
                     </div>
-                    <h2 className="checkout-card__title">Delivery Address</h2>
+
+                    <button
+                      type="button"
+                      id="checkout-btn-add-address"
+                      onClick={handleAddNewAddressClick}
+                      style={{
+                        minHeight: '44px',
+                        padding: '8px 16px',
+                        borderRadius: '8px',
+                        background: 'rgba(112, 72, 50, 0.08)',
+                        color: 'var(--brand-primary, #704832)',
+                        border: '1px solid rgba(112, 72, 50, 0.2)',
+                        fontWeight: 600,
+                        fontSize: '14px',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        transition: 'background 0.2s',
+                      }}
+                    >
+                      <span>+</span> Add New Address
+                    </button>
                   </div>
 
-                  {/* Active Selected Address Card */}
-                  {(() => {
-                    const activeAddr = savedAddresses.find(a => a.id === selectedAddressId) || savedAddresses[0];
-                    return (
-                      <div className="checkout-saved-address-card">
-                        <div className="checkout-saved-address-top">
-                          <strong className="checkout-saved-address-name">{activeAddr.name}</strong>
-                          {activeAddr.is_default && <span className="checkout-default-pill">DEFAULT</span>}
-                        </div>
-                        <div className="checkout-saved-address-text">
-                          <p>{activeAddr.address_line}</p>
-                          {activeAddr.locality && <p>{activeAddr.locality}</p>}
-                          <p>{activeAddr.city}, {activeAddr.state} - {activeAddr.pincode}</p>
-                          <p className="checkout-saved-address-phone">Phone: <strong>+91 {activeAddr.phone}</strong></p>
-                        </div>
+                  {/* Cards Grid */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
+                    {savedAddresses.map(addr => {
+                      const isSelected = selectedAddressId === addr.id;
+                      const displayName = addr.full_name || addr.name;
+                      const displayLine1 = addr.line1 || addr.address_line;
+                      const displayLandmark = addr.landmark || addr.locality;
+                      const displayLabel = addr.label || 'Home';
+                      const isDefault = !!addr.is_default;
 
-                        <div className="checkout-saved-address-actions">
-                          <button
-                            type="button"
-                            className="checkout-text-btn"
-                            onClick={() => setShowAddressPicker(!showAddressPicker)}
-                          >
-                            Change Address
-                          </button>
-                          <span className="checkout-btn-divider">|</span>
-                          <button
-                            type="button"
-                            className="checkout-text-btn"
-                            onClick={() => {
-                              setUseNewAddressForm(true);
-                              setShowAddressPicker(false);
-                            }}
-                          >
-                            + Add New Address
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })()}
-
-                  {/* Dropdown / Address List to Pick Another Saved Address */}
-                  {showAddressPicker && (
-                    <div className="checkout-address-picker-modal">
-                      <h4 className="checkout-address-picker-title">Select an Address</h4>
-                      <div className="checkout-address-picker-list">
-                        {savedAddresses.map(addr => (
-                          <label
-                            key={addr.id}
-                            className={`checkout-address-radio-item ${selectedAddressId === addr.id ? 'checkout-address-radio-item--selected' : ''}`}
-                          >
-                            <input
-                              type="radio"
-                              name="saved_address_pick"
-                              checked={selectedAddressId === addr.id}
-                              onChange={() => {
-                                setSelectedAddressId(addr.id);
-                                applySavedAddress(addr);
-                                setShowAddressPicker(false);
+                      return (
+                        <div
+                          key={addr.id}
+                          className={`checkout-address-select-card ${isSelected ? 'checkout-address-select-card--selected' : ''}`}
+                          onClick={() => {
+                            setSelectedAddressId(addr.id);
+                            applySavedAddress(addr);
+                          }}
+                          style={{
+                            padding: '16px 18px',
+                            borderRadius: '12px',
+                            border: isSelected ? '2px solid var(--brand-primary, #704832)' : '1px solid #e5e7eb',
+                            background: isSelected ? '#fffdfb' : '#fff',
+                            cursor: 'pointer',
+                            transition: 'all 0.15s ease',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '8px',
+                            boxShadow: isSelected ? '0 2px 8px rgba(112, 72, 50, 0.08)' : 'none',
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                            <label
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                cursor: 'pointer',
+                                margin: 0,
+                                flex: 1,
+                                minHeight: '44px',
+                                userSelect: 'none',
                               }}
-                            />
-                            <div className="checkout-address-radio-content">
-                              <strong>{addr.name}</strong> {addr.is_default && <span className="checkout-default-pill">DEFAULT</span>}
-                              <p>{addr.address_line}, {addr.city}, {addr.state} - {addr.pincode}</p>
-                              <span>Phone: +91 {addr.phone}</span>
+                            >
+                              <input
+                                type="radio"
+                                name="checkout_saved_address"
+                                checked={isSelected}
+                                onChange={() => {
+                                  setSelectedAddressId(addr.id);
+                                  applySavedAddress(addr);
+                                }}
+                                style={{
+                                  accentColor: 'var(--brand-primary, #704832)',
+                                  width: '18px',
+                                  height: '18px',
+                                  cursor: 'pointer',
+                                }}
+                              />
+                              <strong style={{ fontSize: '15px', color: '#111827' }}>{displayName}</strong>
+                              {displayLabel && (
+                                <span style={{ fontSize: '11px', textTransform: 'uppercase', fontWeight: 600, background: '#f3f4f6', color: '#4b5563', padding: '2px 8px', borderRadius: '4px' }}>
+                                  {displayLabel}
+                                </span>
+                              )}
+                              {isDefault && (
+                                <span className="checkout-default-pill">DEFAULT</span>
+                              )}
+                            </label>
+
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditSavedAddress(addr);
+                              }}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                color: 'var(--brand-primary, #704832)',
+                                fontSize: '13px',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                padding: '8px 12px',
+                                minHeight: '44px',
+                                minWidth: '44px',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                textDecoration: 'underline',
+                              }}
+                            >
+                              Edit
+                            </button>
+                          </div>
+
+                          <div style={{ paddingLeft: '28px', fontSize: '14px', color: '#4b5563', lineHeight: 1.5 }}>
+                            <div>{displayLine1}</div>
+                            {addr.line2 && <div>{addr.line2}</div>}
+                            {displayLandmark && <div>Landmark: {displayLandmark}</div>}
+                            <div>{addr.city}, {addr.state} - {addr.pincode}</div>
+                            <div style={{ marginTop: '4px', fontWeight: 500, color: '#1f2937' }}>
+                              Phone: +91 {addr.phone}
                             </div>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                          </div>
+
+                          <div style={{ paddingLeft: '28px', paddingTop: '2px' }}>
+                            <span style={{ fontSize: '12px', fontWeight: 600, color: isSelected ? 'var(--brand-primary, #704832)' : '#6b7280' }}>
+                              {isSelected ? '✓ Deliver to this address' : 'Click to select this address'}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
 
-              {/* 2. BILLING DETAILS FORM (For new users or when adding new address) */}
+              {/* 2. BILLING & DELIVERY DETAILS FORM (For new users or when adding/editing address) */}
               {(!isAuthenticated || savedAddresses.length === 0 || useNewAddressForm) && (
                 <div className="checkout-card">
                   <div className="checkout-card__header">
@@ -1304,17 +1445,16 @@ export default function CheckoutPage() {
                         <circle cx="12" cy="7" r="4" />
                       </svg>
                     </div>
-                    <div className="checkout-card__header-text-wrap">
-                      <h2 className="checkout-card__title">Billing Details</h2>
+                    <div className="checkout-card__header-text-wrap" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', flexWrap: 'wrap', gap: '8px' }}>
+                      <h2 className="checkout-card__title">
+                        {editingAddressId ? 'Edit Address' : (savedAddresses.length > 0 ? 'Add New Address' : 'Billing Details')}
+                      </h2>
                       {savedAddresses.length > 0 && (
                         <button
                           type="button"
                           className="checkout-link-return-btn"
-                          onClick={() => {
-                            setUseNewAddressForm(false);
-                            const def = savedAddresses.find(a => a.is_default) || savedAddresses[0];
-                            if (def) applySavedAddress(def);
-                          }}
+                          onClick={handleCancelNewAddress}
+                          style={{ minHeight: '44px', display: 'inline-flex', alignItems: 'center' }}
                         >
                           ← Use Saved Address
                         </button>
@@ -1538,18 +1678,49 @@ export default function CheckoutPage() {
                       />
                     </div>
 
+                    {/* Address Type / Label */}
+                    <div className="checkout-form-group checkout-full-width">
+                      <label className="checkout-label" style={{ marginBottom: '8px', display: 'block' }}>
+                        Address Type / Label
+                      </label>
+                      <div style={{ display: 'flex', gap: '10px' }}>
+                        {['Home', 'Work', 'Other'].map(lbl => (
+                          <button
+                            key={lbl}
+                            type="button"
+                            onClick={() => setFormData(prev => ({ ...prev, label: lbl }))}
+                            style={{
+                              flex: 1,
+                              minHeight: '44px',
+                              borderRadius: '8px',
+                              border: formData.label === lbl ? '2px solid var(--brand-primary, #704832)' : '1px solid #d1d5db',
+                              background: formData.label === lbl ? '#fcf6ee' : '#fff',
+                              color: formData.label === lbl ? 'var(--brand-primary, #704832)' : '#4b5563',
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              fontSize: '14px',
+                            }}
+                          >
+                            {lbl}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
                     {/* Save Address to Account Checkbox */}
                     {isAuthenticated && (
                       <div className="checkout-form-group checkout-full-width">
-                        <label className="checkout-checkbox-label">
+                        <label className="checkout-checkbox-label" style={{ minHeight: '44px', display: 'flex', alignItems: 'center' }}>
                           <input
                             type="checkbox"
                             name="saveAddressToAccount"
+                            id="checkout-save-address-cb"
                             checked={formData.saveAddressToAccount}
                             onChange={handleInputChange}
                             className="checkout-checkbox"
+                            style={{ minHeight: '44px', width: '20px', height: '20px', cursor: 'pointer' }}
                           />
-                          <span>Save this address to my account for faster future orders</span>
+                          <span style={{ fontSize: '15px' }}>Save this address to my account for faster future orders</span>
                         </label>
                       </div>
                     )}

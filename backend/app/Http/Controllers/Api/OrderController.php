@@ -288,6 +288,14 @@ class OrderController extends Controller
             'city' => 'required|string|max:100',
             'state' => 'nullable|string|max:100',
             'zip' => 'nullable|string|max:20',
+            'address_id' => 'nullable|string',
+            'save_address' => 'nullable|boolean',
+            'saveAddressToAccount' => 'nullable|boolean',
+            'line1' => 'nullable|string|max:500',
+            'line2' => 'nullable|string|max:500',
+            'landmark' => 'nullable|string|max:255',
+            'country' => 'nullable|string|max:100',
+            'label' => 'nullable|string|max:50',
             'payment_method' => 'nullable|string',
             'coupon_code' => 'nullable|string',
             'items' => 'required|array|min:1',
@@ -404,6 +412,23 @@ class OrderController extends Controller
             'pincode' => $validated['zip'] ?? '',
         ];
 
+        $addressSnapshot = [
+            'address_id'   => $validated['address_id'] ?? null,
+            'full_name'    => $validated['customer_name'],
+            'name'         => $validated['customer_name'],
+            'phone'        => $validated['phone'] ?? $user?->phone ?? '',
+            'line1'        => $validated['line1'] ?? $validated['shipping_address'],
+            'address_line' => $validated['line1'] ?? $validated['shipping_address'],
+            'line2'        => $request->input('line2') ?: null,
+            'landmark'     => $request->input('landmark') ?: null,
+            'locality'     => $request->input('landmark') ?: null,
+            'city'         => $validated['city'],
+            'state'        => $validated['state'] ?? 'Delhi',
+            'pincode'      => $validated['zip'] ?? '',
+            'country'      => $request->input('country', 'India') ?: 'India',
+            'label'        => $request->input('label', 'Home') ?: 'Home',
+        ];
+
         $userId = $user ? (string)($user->_id ?? $user->id) : (auth('sanctum')->check() ? (string)auth('sanctum')->id() : null);
 
         $order = Order::create([
@@ -418,6 +443,8 @@ class OrderController extends Controller
             'state' => $validated['state'] ?? 'Delhi',
             'zip' => $validated['zip'] ?? null,
             'shippingAddress' => $shippingAddress,
+            'address_id' => $validated['address_id'] ?? null,
+            'address_snapshot' => $addressSnapshot,
             'items' => $embeddedItems,
             'subtotal' => (float)$subtotal,
             'discount' => (float)$discount,
@@ -442,6 +469,42 @@ class OrderController extends Controller
                 'status' => 'pending',
             ],
         ]);
+
+        // Auto-save address to user profile if requested or if guest created account
+        $shouldSaveAddress = $request->boolean('save_address') || $request->boolean('saveAddressToAccount');
+        $isGuestAccountCreated = !empty($authToken) && $user;
+
+        if (($shouldSaveAddress || $isGuestAccountCreated) && $user) {
+            try {
+                $userIdStr = (string)($user->_id ?? $user->id);
+                $addrData = [
+                    'full_name'    => $addressSnapshot['full_name'],
+                    'name'         => $addressSnapshot['name'],
+                    'phone'        => preg_replace('/\D/', '', (string)$addressSnapshot['phone']),
+                    'line1'        => $addressSnapshot['line1'],
+                    'address_line' => $addressSnapshot['address_line'],
+                    'line2'        => $addressSnapshot['line2'],
+                    'landmark'     => $addressSnapshot['landmark'],
+                    'locality'     => $addressSnapshot['locality'],
+                    'city'         => $addressSnapshot['city'],
+                    'state'        => $addressSnapshot['state'],
+                    'pincode'      => preg_replace('/\D/', '', (string)$addressSnapshot['pincode']),
+                    'country'      => $addressSnapshot['country'],
+                    'label'        => $addressSnapshot['label'] ?: 'Home',
+                ];
+
+                if ($addrData['full_name'] && $addrData['phone'] && $addrData['line1'] && $addrData['pincode']) {
+                    $existing = \App\Http\Controllers\Api\AddressController::findDuplicateAddress($userIdStr, $addrData);
+                    if (!$existing) {
+                        $hasExisting = $user->addresses()->count() > 0;
+                        $addrData['is_default'] = !$hasExisting; // First address becomes default
+                        $user->addresses()->create($addrData);
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Address saving should never break order placement
+            }
+        }
 
         foreach ($embeddedItems as $item) {
             $createdItem = OrderItem::create([

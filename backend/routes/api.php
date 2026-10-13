@@ -50,7 +50,13 @@ Route::prefix('auth')->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::put('/profile', [AuthController::class, 'updateProfile']);
-    Route::apiResource('/addresses', \App\Http\Controllers\Api\AddressController::class);
+    Route::get('/addresses', [\App\Http\Controllers\Api\AddressController::class, 'index']);
+    Route::get('/addresses/{id}', [\App\Http\Controllers\Api\AddressController::class, 'show']);
+    Route::post('/addresses', [\App\Http\Controllers\Api\AddressController::class, 'store'])->middleware('throttle:30,1');
+    Route::put('/addresses/{id}', [\App\Http\Controllers\Api\AddressController::class, 'update'])->middleware('throttle:30,1');
+    Route::patch('/addresses/{id}', [\App\Http\Controllers\Api\AddressController::class, 'update'])->middleware('throttle:30,1');
+    Route::delete('/addresses/{id}', [\App\Http\Controllers\Api\AddressController::class, 'destroy'])->middleware('throttle:30,1');
+    Route::post('/addresses/{id}/default', [\App\Http\Controllers\Api\AddressController::class, 'setDefault'])->middleware('throttle:30,1');
 });
 
 // ── 2. Catalog & Products ──

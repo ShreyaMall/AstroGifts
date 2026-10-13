@@ -57,6 +57,8 @@ class Order extends Model
         'delivered_at',
         'refund_amount',
         'refunded_at',
+        'address_id',
+        'address_snapshot',
     ];
 
     protected $casts = [
@@ -68,6 +70,7 @@ class Order extends Model
         'total'               => 'float',
         'refund_amount'       => 'float',
         'shippingAddress'     => 'array',
+        'address_snapshot'    => 'array',
         'shiprocket'          => 'array',
         'items'               => 'array',
         'return_proof_images' => 'array',

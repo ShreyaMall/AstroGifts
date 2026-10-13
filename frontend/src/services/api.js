@@ -273,6 +273,11 @@ export const addressesApi = {
     return request(`/addresses/${id}`, {
       method: 'DELETE'
     });
+  },
+  setDefault: async (id) => {
+    return request(`/addresses/${id}/default`, {
+      method: 'POST'
+    });
   }
 };
 
